@@ -5,13 +5,51 @@
 #################################
 
 # import the configs
+import tkinter as tk
+import time
 from bomb_configs import *
 # import the phases
-from bomb_phases import *
+from bomb_phases import Timer, Keypad, Wires,Button, Toggles, Lcd
 
 ###########
 # functions
-###########
+
+def show_welcome_screen(window):
+    for w in window.winfo_children():
+        w.destroy()
+    title = tk.Label(window, text="Maze Runner", font=("Helvetica", 36))
+    title.pack(pady=40)
+    name_label = tk.Label(window, text="Enter your name:", font=("Helvetica", 14))
+    name_label.pack(pady=(0,10))
+    name_entry = tk.Entry(window, font=("Helvetica", 14))
+    name_entry.pack()
+
+    def on_start():
+        global player_name
+        player_name = name_entry.get().strip() or "Player"
+        show_instructions(window)
+
+    start_btn = tk.Button(window, text="Start", font=("Helvetica", 16),
+                          command=on_start)
+    start_btn.pack(pady=30)
+def show_instructions(window):
+    for w in window.winfo_children():
+        w.destroy()
+    instr = (
+        "Welcome, {}!\n\n"
+        "Your goal: Escape the maze before time runs out.\n"
+        "- Use the button and keypad to unlock doors.\n"
+        "- Flip toggles to shift walls (riddles will guide you).\n"
+        "- Cut wires to disable barriers.\n\n"
+        "Click 'Continue' when you're ready."
+    ).format(player_name)
+    label = tk.Label(window, text=instr, font=("Helvetica", 14), justify="left")
+    label.pack(padx=40, pady=40)
+
+    cont_btn = tk.Button(window, text="Continue", font=("Helvetica", 16),
+                         command=entrance_challenge)
+    cont_btn.pack(pady=20)
+
 # generates the bootup sequence on the LCD
 def bootup(n=0):
     # if we're not animating (or we're at the end of the bootup text)
@@ -177,16 +215,18 @@ def turn_off():
 # MAIN
 ######
 
-# initialize the LCD GUI
-window = Tk()
-gui = Lcd(window)
+######
+# MAIN
+######
+if __name__ == "__main__":
+    window = tk.Tk()
+    window.geometry("800x600")
+    window.title("Maze Runner")
+    gui = Lcd(window)
 
-# initialize the bomb strikes and active phases (i.e., not yet defused)
-strikes_left = NUM_STRIKES
-active_phases = NUM_PHASES
+    strikes_left   = NUM_STRIKES
+    active_phases  = NUM_PHASES
 
-# "boot" the bomb
-gui.after(1000, bootup)
+    show_welcome_screen(window)
 
-# display the LCD GUI
-window.mainloop()
+    window.mainloop()
