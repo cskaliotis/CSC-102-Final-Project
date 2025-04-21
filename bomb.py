@@ -42,7 +42,10 @@ def show_welcome_screen(window):
 def show_instructions(window):
     for w in window.winfo_children():
         w.destroy()
-    instr = (
+
+    window.configure(bg="#1e1e2f") 
+    
+    instr_text= (
         "Welcome, {}!\n\n"
         "Your goal: Escape the maze before time runs out.\n"
         "- Use the button and keypad to unlock doors.\n"
@@ -50,12 +53,12 @@ def show_instructions(window):
         "- Cut wires to disable barriers.\n\n"
         "Click 'Continue' when you're ready."
     ).format(player_name)
-    label = tk.Label(window, text=instr, font=("Helvetica", 14), justify="left")
-    label.pack(padx=40, pady=40)
+    instr_label = tk.Label(window, text=instr, font=("Helvetica", 15), fg="#ffffff", bg="#1e1e2f", justify="left", wraplength=600)
+    instr_label.pack(padx=50, pady=(60, 30))
 
-    cont_btn = tk.Button(window, text="Continue", font=("Helvetica", 16),
-                         command=entrance_challenge)
-    cont_btn.pack(pady=20)
+    cont_btn = tk.Button(window, text="Continue", font=("Helvetica", 16, "bold"), bg="#00ffcc", fg="#000000", activebackground="#00ddaa",
+        padx=20, pady=10, bd=0, command=entrance_challenge, cursor="hand2")
+    cont_btn.pack(pady=30)
 
 def entrance_challenge():
     print("🔒 Maze Entrance Locked!")
