@@ -83,6 +83,7 @@ def entrance_challenge():
 
     if kd._defused:
         print("✅ Correct! The entrance unlocks. Good luck.")
+        gui.after(1000, bootup)
         return True
     else:
         print("❌ Wrong code. Try the entrance puzzle again.\n")
