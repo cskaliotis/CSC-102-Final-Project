@@ -17,7 +17,7 @@ from bomb_phases import Timer, Keypad, Wires,Button, Toggles, Lcd
 def show_welcome_screen(window):
     for w in window.winfo_children():
         w.destroy()
-    title = tk.Label(window, text="Maze Runner", font=("Helvetica", 36))
+    title = tk.Label(window, text="MAZE RUNNER", font=("Helvetica", 36))
     title.pack(pady=40)
     name_label = tk.Label(window, text="Enter your name:", font=("Helvetica", 14))
     name_label.pack(pady=(0,10))
@@ -49,6 +49,44 @@ def show_instructions(window):
     cont_btn = tk.Button(window, text="Continue", font=("Helvetica", 16),
                          command=entrance_challenge)
     cont_btn.pack(pady=20)
+
+def entrance_challenge():
+    print("🔒 Maze Entrance Locked!")
+    print("Press the big button when it flashes GREEN for an EASY riddle, or RED for a HARD one.")
+
+    # Launch the Button puzzle
+    btn = Button(component_button_state,
+                 component_button_RGB,
+                 button_target,
+                 button_color,
+                 None)  # pass `timer` if you want button to interact with it
+    btn.start()
+    while not (btn._defused or btn._failed):
+        time.sleep(0.1)
+
+    # Configure Keypad based on button result
+    if btn._defused:
+        print("You got GREEN! Easy riddle loaded.")
+        Keypad.keyword = entry_easy_keyword
+        Keypad.rot     = entry_easy_rot
+    else:
+        print("Oops—you hit RED! Hard riddle loaded.")
+        Keypad.keyword = entry_hard_keyword
+        Keypad.rot     = entry_hard_rot
+
+    # Run the Keypad puzzle whose answer is the entry code
+    print("Enter the door code on the keypad:")
+    kd = Keypad(component_keypad, keypad_target)
+    kd.start()
+    while not (kd._defused or kd._failed):
+        time.sleep(0.1)
+
+    if kd._defused:
+        print("✅ Correct! The entrance unlocks. Good luck.")
+        return True
+    else:
+        print("❌ Wrong code. Try the entrance puzzle again.\n")
+        return entrance_challenge()
 
 # generates the bootup sequence on the LCD
 def bootup(n=0):
