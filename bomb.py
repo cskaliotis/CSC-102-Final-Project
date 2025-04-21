@@ -17,21 +17,28 @@ from bomb_phases import Timer, Keypad, Wires,Button, Toggles, Lcd
 def show_welcome_screen(window):
     for w in window.winfo_children():
         w.destroy()
-    title = tk.Label(window, text="MAZE RUNNER", font=("Helvetica", 36))
-    title.pack(pady=40)
-    name_label = tk.Label(window, text="Enter your name:", font=("Helvetica", 14))
-    name_label.pack(pady=(0,10))
-    name_entry = tk.Entry(window, font=("Helvetica", 14))
-    name_entry.pack()
+        
+    window.configure(bg="#1e1e2f")
+    title = tk.Label(window, text="MAZE RUNNER", font=("Helvetica", 42, "bold"), fg="#00ffcc", bg="#1e1e2f")
+    title.pack(pady=(60, 30))
+
+    input_frame = tk.Frame (window, bg="#1e1e2f")
+    input_frame.pack(pady=10)
+    
+    name_label = tk.Label(input_frame, text="Enter your name:", font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f")
+    name_label.pack(anchor="w", padx=10,pady=(0,5))
+    name_entry = tk.Entry(input_frame, font=("Helvetica", 16), width=25, bg="#f0f0f0", relief="flat", justify="center")
+    name_entry.pack(padx=10)
 
     def on_start():
         global player_name
         player_name = name_entry.get().strip() or "Player"
         show_instructions(window)
 
-    start_btn = tk.Button(window, text="Start", font=("Helvetica", 16),
-                          command=on_start)
-    start_btn.pack(pady=30)
+    start_btn = tk.Button(window, text="Start Game", font=("Helvetica", 16, "bold"), bg="#00ffcc", fg="#000000", activebackground="#00ddaa",
+        padx=20, pady=10, bd=0, command=on_start, cursor="hand2")
+    start_btn.pack(pady=40)
+    
 def show_instructions(window):
     for w in window.winfo_children():
         w.destroy()
