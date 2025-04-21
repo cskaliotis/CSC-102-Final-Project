@@ -273,6 +273,8 @@ if __name__ == "__main__":
     strikes_left   = NUM_STRIKES
     active_phases  = NUM_PHASES
 
+    gui.after(1000, bootup)
+
     show_welcome_screen(window)
 
     window.mainloop()
