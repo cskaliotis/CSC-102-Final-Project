@@ -78,8 +78,15 @@ if (RPi):
 #           -TOG1-  -TOG2-  --TOG3--  --TOG4--  --TOG5--  --TOG6--
 if (RPi):
     # the pins
-    component_toggles = [DigitalInOut(i) for i in (board.D12, board.D16, board.D20, board.D21)]
-    for pin in component_toggles:
+    toggle_pins = [board.D12, board.D16, board.D20, board.D21]
+    toggle_directions = ["north", "east", "south", "west"]
+    
+    # create a dictionary to map each toggle to a direction
+    component_toggles = {
+        direction: DigitalInOut(pin) for direction, pin in zip(toggle_directions, toggle_pins)
+    }
+    
+    for direction, pin in component_toggles.items():
         # pins are input and pulled down
         pin.direction = Direction.INPUT
         pin.pull = Pull.DOWN
