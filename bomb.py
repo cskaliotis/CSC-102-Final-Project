@@ -57,8 +57,30 @@ def show_instructions(window):
     instr_label.pack(padx=50, pady=(60, 30))
 
     cont_btn = tk.Button(window, text="Continue", font=("Helvetica", 16, "bold"), bg="#00ffcc", fg="#000000", activebackground="#00ddaa",
-        padx=20, pady=10, bd=0, command=entrance_challenge, cursor="hand2")
+        padx=20, pady=10, bd=0,  command=lambda: show_entrance_screen(window)), cursor="hand2")
     cont_btn.pack(pady=30)
+
+
+def show_entrance_screen(window):
+    for w in window.winfo_children():
+        w.destroy()
+
+    prompt = (
+        "🔒 Maze Entrance Locked!\n\n"
+        "Press the big button when it flashes GREEN for an EASY riddle,\n"
+        "or RED for a HARD one."
+    )
+    tk.Label(window,
+             text=prompt,
+             font=("Helvetica", 18),
+             justify="center",
+             wraplength=600
+    ).pack(pady=50)
+    tk.Button(window,
+              text="Begin Puzzle",
+              font=("Helvetica", 16),
+              command=entrance_challenge
+    ).pack(pady=20)
 
 def entrance_challenge():
     print("🔒 Maze Entrance Locked!")
