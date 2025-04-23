@@ -42,10 +42,9 @@ def show_welcome_screen(window):
 def show_instructions(window):
     for w in window.winfo_children():
         w.destroy()
+    window.configure(bg="#1e1e2f")
 
-    window.configure(bg="#1e1e2f") 
-    
-    instr_text= (
+    instr_text = (
         "Welcome, {}!\n\n"
         "Your goal: Escape the maze before time runs out.\n"
         "- Use the button and keypad to unlock doors.\n"
@@ -53,17 +52,39 @@ def show_instructions(window):
         "- Cut wires to disable barriers.\n\n"
         "Click 'Continue' when you're ready."
     ).format(player_name)
-    instr_label = tk.Label(window, text=instr, font=("Helvetica", 15), fg="#ffffff", bg="#1e1e2f", justify="left", wraplength=600)
+
+    instr_label = tk.Label(
+        window,
+        text=instr_text,                # <<-- was instr
+        font=("Helvetica", 15),
+        fg="#ffffff",
+        bg="#1e1e2f",
+        justify="left",
+        wraplength=600
+    )
     instr_label.pack(padx=50, pady=(60, 30))
 
-    cont_btn = tk.Button(window, text="Continue", font=("Helvetica", 16, "bold"), bg="#00ffcc", fg="#000000", activebackground="#00ddaa",
-        padx=20, pady=10, bd=0,  command=lambda: show_entrance_screen(window)), cursor="hand2")
+    cont_btn = tk.Button(
+        window,
+        text="Continue",
+        font=("Helvetica", 16, "bold"),
+        bg="#00ffcc",
+        fg="#000000",
+        activebackground="#00ddaa",
+        cursor="hand2",                 # <<-- moved inside the call
+        padx=20,
+        pady=10,
+        bd=0,
+        command=lambda: show_entrance_screen(window)
+    )
     cont_btn.pack(pady=30)
 
 
 def show_entrance_screen(window):
+    """Third screen: prompt about the button‐flashing puzzle, then Begin."""
     for w in window.winfo_children():
         w.destroy()
+    window.configure(bg="#1e1e2f")
 
     prompt = (
         "🔒 Maze Entrance Locked!\n\n"
@@ -73,53 +94,71 @@ def show_entrance_screen(window):
     tk.Label(window,
              text=prompt,
              font=("Helvetica", 18),
+             fg="#ffffff",
+             bg="#1e1e2f",
              justify="center",
-             wraplength=600
-    ).pack(pady=50)
+             wraplength=600).pack(pady=50)
+
     tk.Button(window,
               text="Begin Puzzle",
               font=("Helvetica", 16),
-              command=entrance_challenge
-    ).pack(pady=20)
+              bg="#00ffcc",
+              fg="#000000",
+              activebackground="#00ddaa",
+              cursor="hand2",
+              padx=20,
+              pady=10,
+              bd=0,
+              command=entrance_challenge).pack(pady=20)
 
 def entrance_challenge():
+    """Runs the Button→Keypad sequence, then (on success) starts the bomb UI."""
     print("🔒 Maze Entrance Locked!")
     print("Press the big button when it flashes GREEN for an EASY riddle, or RED for a HARD one.")
 
-    # Launch the Button puzzle
+    # 1) Button puzzle
     btn = Button(component_button_state,
                  component_button_RGB,
                  button_target,
                  button_color,
-                 None)  # pass `timer` if you want button to interact with it
+                 None)
     btn.start()
     while not (btn._defused or btn._failed):
         time.sleep(0.1)
 
-    # Configure Keypad based on button result
+    # 2) Pick easy/hard
     if btn._defused:
-        print("You got GREEN! Easy riddle loaded.")
+        print("GREEN! Easy riddle.")
         Keypad.keyword = entry_easy_keyword
         Keypad.rot     = entry_easy_rot
     else:
-        print("Oops—you hit RED! Hard riddle loaded.")
+        print("RED! Hard riddle.")
         Keypad.keyword = entry_hard_keyword
         Keypad.rot     = entry_hard_rot
 
-    # Run the Keypad puzzle whose answer is the entry code
+    # 3) Keypad puzzle
     print("Enter the door code on the keypad:")
     kd = Keypad(component_keypad, keypad_target)
     kd.start()
     while not (kd._defused or kd._failed):
         time.sleep(0.1)
 
-    if kd._defused:
-        print("✅ Correct! The entrance unlocks. Good luck.")
-        gui.after(1000, bootup)
-        return True
-    else:
-        print("❌ Wrong code. Try the entrance puzzle again.\n")
+    if not kd._defused:
+        print("Wrong code—try again.\n")
         return entrance_challenge()
+
+    # 4) On success, clear intro and launch bomb UI
+    print("✅ Correct! Entrance unlocked.")
+    for w in window.winfo_children():
+        w.destroy()
+
+    global gui, strikes_left, active_phases
+    gui = Lcd(window)
+    strikes_left  = NUM_STRIKES
+    active_phases = NUM_PHASES
+    gui.after(1000, bootup)
+    return True
+
 
 # generates the bootup sequence on the LCD
 def bootup(n=0):
@@ -293,13 +332,6 @@ if __name__ == "__main__":
     window = tk.Tk()
     window.geometry("800x600")
     window.title("Maze Runner")
-    gui = Lcd(window)
-
-    strikes_left   = NUM_STRIKES
-    active_phases  = NUM_PHASES
-
-    gui.after(1000, bootup)
 
     show_welcome_screen(window)
-
     window.mainloop()
