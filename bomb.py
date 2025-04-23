@@ -159,6 +159,47 @@ def entrance_challenge():
     gui.after(1000, bootup)
     return True
 
+def show_toggle_screen(window):
+    """Screen for the shifting-walls (Toggles) puzzle."""
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+    # Display the riddle for the current toggles_target
+    riddle = toggles_riddles[toggles_target.index(True)]
+    tk.Label(window, text=riddle, font=("Helvetica", 18), fg="#fff", bg="#1e1e2f",
+             justify="center", wraplength=600).pack(pady=40)
+    tk.Button(window, text="Solve Toggles", font=("Helvetica",16),
+              command=lambda: run_toggle_phase(window)).pack(pady=20)
+
+def show_wires_screen(window):
+    """Screen for the power-barrier (Wires) puzzle."""
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+    hint = wires_hints.get(tuple(wires_target), "Cut the correct wires!")
+    tk.Label(window, text=hint, font=("Helvetica", 18), fg="#fff", bg="#1e1e2f",
+             justify="center", wraplength=600).pack(pady=40)
+    tk.Button(window, text="Solve Wires", font=("Helvetica",16),
+              command=lambda: run_wires_phase(window)).pack(pady=20)
+
+def show_chest_screen(window):
+    """Supply Chest: Button→Keypad bonus puzzle."""
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+    tk.Label(window, text="🧭 Supply Chest Found!\n\nPress for a bonus puzzle…",
+             font=("Helvetica",18), fg="#fff", bg="#1e1e2f",
+             justify="center", wraplength=600).pack(pady=40)
+    tk.Button(window, text="Begin Chest Puzzle", font=("Helvetica",16),
+              command=lambda: run_chest_phase(window)).pack(pady=20)
+
+def show_final_screen(window):
+    """Final defuse/boom decision."""
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+    tk.Label(window, text="🚪 Final Door Ahead!\nPress GREEN to defuse, RED to boom.",
+             font=("Helvetica",18), fg="#fff", bg="#1e1e2f",
+             justify="center", wraplength=600).pack(pady=40)
+    # map directly to your Button‐only phase
+    tk.Button(window, text="Press Button", font=("Helvetica",16),
+              command=lambda: run_final_phase(window)).pack(pady=20)
 
 # generates the bootup sequence on the LCD
 def bootup(n=0):
