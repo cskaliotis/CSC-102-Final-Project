@@ -245,18 +245,38 @@ class Wires(PhaseThread):
 
 # the pushbutton phase
 class Button(PhaseThread):
-    def __init__(self, component_state, component_rgb, target, color, timer, name="Button"):
-        super().__init__(name, component_state, target)
-        # the default value is False/Released
-        self._value = False
-        # has the pushbutton been pressed?
-        self._pressed = False
-        # we need the pushbutton's RGB pins to set its color
-        self._rgb = component_rgb
-        # the pushbutton's randomly selected LED color
-        self._color = color
-        # we need to know about the timer (7-segment display) to be able to determine correct pushbutton releases in some cases
-        self._timer = timer
+    def __init__(self, state_pin, rgb_pins, name="Button"):
+        super().__init__(name)
+        self._state_pin = state_pin   # GPIO pin for button state
+        self._rgb_pins = rgb_pins     # GPIO pins for RGB LED
+        self._pressed = False         # Track if button is pressed
+
+    def run(self):
+        self._running = True
+        while self._running:
+            self._value = self._state_pin.value  # Read the button state
+            if self._value:  # Button is pressed
+                self._pressed = True
+                # Check which button color is active
+                if self._rgb_pins[0].value == False:  # Green
+                    print("Green button pressed!")
+                    self.green_button_challenge()
+                elif self._rgb_pins[1].value == False:  # Red
+                    print("Red button pressed!")
+                    self.red_button_challenge()
+                else:
+                    print("Unknown button color!")
+            else:
+                self._pressed = False
+            sleep(0.1)
+
+    def green_button_challenge(self):
+        # Logic for the Green Button challenge (prompt for "610")
+        print("Enter the decimal code on the keypad: 610")
+
+    def red_button_challenge(self):
+        # Logic for the Red Button challenge (convert binary to decimal)
+        print("Convert the binary code to a decimal code on the keypad (1001100010) to decimal")
 
     # runs the thread
     def run(self):
