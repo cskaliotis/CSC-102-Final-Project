@@ -331,3 +331,21 @@ class Toggles(PhaseThread):
         else:
             # TODO
             pass
+
+# final phase handler
+def run_final_phase(window):
+    # Starts final phase (button puzzle, etc.)
+    phase = FinalPhaseThread()
+    phase.start()
+
+    # Function to check if the final phase is done
+    def check_completion():
+        if phase.is_alive():
+            window.after(100, check_completion)
+        else:
+            if phase.success:
+                show_victory_screen(window)
+            else:
+                show_failure_screen(window)
+
+    check_completion()
