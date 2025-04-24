@@ -86,10 +86,14 @@ def show_entrance_screen(window):
         w.destroy()
     window.configure(bg="#1e1e2f")
 
+    # Instruction prompt
     prompt = (
-        "🔒 Maze Entrance Locked!\n\n"
-        "Press the big button when it flashes GREEN for an EASY riddle,\n"
-        "or RED for a HARD one."
+        "🚪 Welcome to the Maze Runner Challenge!\n\n"
+        "The entrance is locked.\n"
+        "To unlock it, press the BIG BUTTON when it flashes:\n\n"
+        "🟢 GREEN for an *easy* riddle\n"
+        "🔴 RED for a *hard* one\n\n"
+        "Choose wisely. Good luck, runner!"
     )
     tk.Label(window,
              text=prompt,
@@ -100,16 +104,16 @@ def show_entrance_screen(window):
              wraplength=600).pack(pady=50)
 
     tk.Button(window,
-              text="Begin Puzzle",
-              font=("Helvetica", 16),
+              text="Start Puzzle",
+              font=("Helvetica", 16, "bold"),
               bg="#00ffcc",
               fg="#000000",
               activebackground="#00ddaa",
               cursor="hand2",
-              padx=20,
-              pady=10,
+              padx=30,
+              pady=12,
               bd=0,
-              command=entrance_challenge).pack(pady=20)
+              command=entrance_challenge).pack(pady=30)
 
 def entrance_challenge():
     """Runs the Button→Keypad sequence, then (on success) starts the bomb UI."""
