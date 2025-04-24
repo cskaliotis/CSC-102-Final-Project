@@ -204,6 +204,24 @@ def show_final_screen(window):
     # map directly to your Button‐only phase
     tk.Button(window, text="Press Button", font=("Helvetica",16),
               command=lambda: run_final_phase(window)).pack(pady=20)
+    
+def show_victory_screen(window):
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+    tk.Label(window, text="🎉 YOU WIN!", font=("Helvetica", 28, "bold"),
+             fg="#00ffcc", bg="#1e1e2f").pack(pady=40)
+    tk.Label(window, text="You defused the final challenge and escaped the maze!",
+             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center").pack(pady=20)
+
+def show_failure_screen(window):
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+    tk.Label(window, text="💥 BOOM!", font=("Helvetica", 28, "bold"),
+             fg="#ff5555", bg="#1e1e2f").pack(pady=40)
+    tk.Label(window, text="The defusal failed. The maze collapses…",
+             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center").pack(pady=20)
 
 # generates the bootup sequence on the LCD
 def bootup(n=0):
