@@ -245,58 +245,49 @@ class Wires(PhaseThread):
 
 class Button(PhaseThread):
     """
-    Flashes the RGB button rapidly.  
-    • Press while GREEN  → easy puzzle  
-    • Press while RED    → hard puzzle  
+    Flashes the RGB button rapidly.
+    • Press while GREEN → easy puzzle
+    • Press while RED   → hard puzzle
     """
     def __init__(self, state_pin, rgb_pins, name="Button", flashes_per_sec=10):
         super().__init__(name)
-        # hardware
-        self._state = state_pin          # digitalio.DigitalInOut
+        self._state_pin = state_pin
         self._r, self._g, self._b = rgb_pins
-        # logic
-        self._hz = flashes_per_sec
-        self._pressed = False
-        self._easy_mode = None           # True/False after press
-
-        # setup pins (RPi only)
+        self._rgb = rgb_pins            # <-- you added this ✔
+        self._hz        = flashes_per_sec
+        self._easy_mode = None
         if RPi:
-            self._state.switch_to_input(pull=digitalio.Pull.UP)
-            for p in rgb_pins:
-                p.switch_to_output(value=True)      # LED off  (common-anode)
+            self._state_pin.switch_to_input(pull=digitalio.Pull.UP)
+            for p in self._rgb:
+                p.switch_to_output(value=True)      # LED off
 
     def run(self):
         self._running = True
-        colors = [(True, False, True),   # GREEN
-                  (True, True,  True),   # OFF
-                  (False, True, True),   # RED
-                  (True, True,  True)]   # OFF
-        idx = 0
-        period = 1 / self._hz
+        colors = [(True, False, True),  # GREEN
+                  (True, True,  True),  # OFF
+                  (False, True, True),  # RED
+                  (True, True,  True)]  # OFF
+        idx, dt = 0, 1 / self._hz
         while self._running and self._easy_mode is None:
-            # set LED
             if RPi:
                 self._r.value, self._g.value, self._b.value = colors[idx]
             idx = (idx + 1) % len(colors)
 
-            # read button (active-low on Pi; replace with your logic if PC-sim)
-            self._value = not self._state.value if RPi else False
-            if self._value:                              # pressed
-                self._pressed = True
+            pressed = (not self._state_pin.value) if RPi else False
+            if pressed:
                 self._easy_mode = (colors[idx - 1] == (True, False, True))
-                self._defused = True                     # counts as phase finished
-                # freeze LED to show result
-                if RPi:
+                self._defused = True
+                if RPi:                         # freeze color for feedback
                     if self._easy_mode:
                         self._r.value, self._g.value, self._b.value = (True, False, True)
                     else:
                         self._r.value, self._g.value, self._b.value = (False, True, True)
-            time.sleep(period)
+            time.sleep(dt)
 
     def __str__(self):
         if self._defused:
             return "GREEN-easy" if self._easy_mode else "RED-hard"
-        return "Pressed" if self._value else "Released"
+        return "Pressed" if (not self._state_pin.value) else "Released"
 
   
 # the toggle switches phase
