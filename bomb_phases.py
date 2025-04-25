@@ -4,16 +4,16 @@
 # Team: 
 #################################
 
-# import the configs
 from bomb_configs import *
 # other imports
 from tkinter import *
 import tkinter
 from threading import Thread
 from time import sleep
-import os
-import sys
+import os, sys
 
+if RPi:
+    import digitalio, board
 #########
 # classes
 #########
