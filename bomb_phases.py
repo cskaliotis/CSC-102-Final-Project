@@ -282,7 +282,7 @@ class Button(PhaseThread):
                         self._r.value, self._g.value, self._b.value = (True, False, True)
                     else:
                         self._r.value, self._g.value, self._b.value = (False, True, True)
-            time.sleep(dt)
+            sleep(dt)
 
     def __str__(self):
         if self._defused:
