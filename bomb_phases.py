@@ -263,10 +263,10 @@ class Button(PhaseThread):
 
     def run(self):
         self._running = True
-        colors = [(True, False, True),  # GREEN
-                  (True, True,  True),  # OFF
-                  (False, True, True),  # RED
-                  (True, True,  True)]  # OFF
+        colors = [(OFF, ON,  OFF),   # GREEN
+                  (OFF, OFF, OFF),   # OFF
+                  (ON,  OFF, OFF),   # RED
+                  (OFF, OFF, OFF)]   # OFF
         idx, dt = 0, 1 / self._hz
         while self._running and self._easy_mode is None:
             if RPi:
