@@ -13,11 +13,9 @@ COUNTDOWN = 600      # the initial bomb countdown value (seconds)
 NUM_STRIKES = 3      # the total strikes allowed before the bomb "explodes"
 NUM_PHASES = 4       # the total number of initial active bomb phases
 
-# ------------------------------------
-# LED polarity  (common-cathode on Pi)
-# ------------------------------------
-ON  = True   # GPIO HIGH  → LED lights
-OFF = False  # GPIO LOW   → LED off
+# LED polarity
+ON  = False  # GPIO LOW   → LED lights
+OFF = True   # GPIO HIGH  → LED off
 
 # imports
 from random import randint, shuffle, choice
