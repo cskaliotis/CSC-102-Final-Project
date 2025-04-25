@@ -162,37 +162,6 @@ def entrance_challenge():
     active_phases  = NUM_PHASES
     gui.after(1000, bootup)                  # start boot sequence
     return True
-
-def challenge_one():
-    """
-    Presents the question: "What direction do you face when you turn 180 degrees from north?"
-    Requires the user to toggle the correct switch to indicate the answer.
-    """
-    print("Question: What direction do you face when you turn 180 degrees from north?\n")
-    print("Switch the correct toggle to move in that direction.")
-
-    # Display the question to the user.
-    prompt = (
-        "What direction do you face when you turn 180 degrees from north?\n\n"
-        "Switch the correct toggle to move in that direction.:\n"
-    )
-    print(prompt)
-
-    # Run the Toggles phase
-    tg = Toggles(component_toggles, toggles_target)  # Assume toggles_target is initialized properly
-    tg.start()
-
-    # Wait for the toggle phase to complete
-    while not (tg._defused or tg._failed):
-        time.sleep(0.1)
-
-    if tg._failed:
-        print("❌ Incorrect toggle configuration. Try again!\n")
-        return challenge_one()  # Retry challenge on failure
-
-    # Success: Proceed to the next challenge or phase
-    print("✅ Correct! You may proceed to the next challenge.")
-    return True
     
 def show_toggle_screen(window):
     """Screen for the shifting-walls (Toggles) puzzle."""
