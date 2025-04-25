@@ -116,53 +116,53 @@ def show_entrance_screen(window):
               command=entrance_challenge).pack(pady=30)
 
 def entrance_challenge():
-    """Runs the Button→Keypad sequence, then (on success) starts the bomb UI."""
+    """
+    Flash RGB button -> decide easy (GREEN) or hard (RED) prompt.
+    Easy  : show decimal 610, player types 610.
+    Hard  : show binary 1001100010, player must know it's 610 and type 610.
+    Success launches the bomb GUI; failure restarts the entrance puzzle.
+    """
     print("🔒 Maze Entrance Locked!")
-    print("Press the big button when it flashes GREEN for an EASY riddle, or RED for a HARD one.")
+    print("Press the flashing button: GREEN = easy, RED = hard.")
 
-    # 1) Button puzzle
-    btn = Button(component_button_state,
-                 component_button_RGB,
-                 button_target,
-                 button_color,
-                 None)
+    # ----- 1. flashing button -----
+    btn = Button(component_button_state, component_button_RGB)   # new flashing class
     btn.start()
-    while not (btn._defused or btn._failed):
-        time.sleep(0.1)
+    btn.join()                               # wait until first press
 
-    # 2) Pick easy/hard
-    if btn._defused:
-        print("GREEN! Easy riddle.")
-        Keypad.keyword = entry_easy_keyword
-        Keypad.rot     = entry_easy_rot
-    else:
-        print("RED! Hard riddle.")
-        Keypad.keyword = entry_hard_keyword
-        Keypad.rot     = entry_hard_rot
+    # ----- 2. decide prompt and keypad target -----
+    keypad_target = "610"                    # code to type either way
+    if btn._easy_mode:                       # GREEN
+        prompt = "Enter the decimal code on the keypad:  610"
+    else:                                    # RED
+        prompt = ("Convert this binary to decimal, then enter on keypad:\n"
+                  "  1001100010  (hint: it equals 610)")
 
-    # 3) Keypad puzzle
-    print("Enter the door code on the keypad:")
+    # show prompt to the console (or to GUI if you prefer)
+    print(prompt)
+
+    # ----- 3. run keypad phase -----
     kd = Keypad(component_keypad, keypad_target)
     kd.start()
     while not (kd._defused or kd._failed):
         time.sleep(0.1)
 
-    if not kd._defused:
-        print("Wrong code—try again.\n")
+    if kd._failed:
+        print("❌ Wrong code—try the entrance puzzle again.\n")
         return entrance_challenge()
 
-    # 4) On success, clear intro and launch bomb UI
+    # ----- 4. success: launch main bomb UI -----
     print("✅ Correct! Entrance unlocked.")
-    for w in window.winfo_children():
+    for w in window.winfo_children():        # clear intro widgets
         w.destroy()
 
     global gui, strikes_left, active_phases
-    gui = Lcd(window)
-    strikes_left  = NUM_STRIKES
-    active_phases = NUM_PHASES
-    gui.after(1000, bootup)
+    gui = Lcd(window)                        # build bomb LCD interface
+    strikes_left   = NUM_STRIKES
+    active_phases  = NUM_PHASES
+    gui.after(1000, bootup)                  # start boot sequence
     return True
-
+    
 def show_toggle_screen(window):
     """Screen for the shifting-walls (Toggles) puzzle."""
     for w in window.winfo_children(): w.destroy()
