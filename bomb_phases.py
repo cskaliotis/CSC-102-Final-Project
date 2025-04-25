@@ -229,19 +229,29 @@ class Keypad(PhaseThread):
 class Wires(PhaseThread):
     def __init__(self, component, target, name="Wires"):
         super().__init__(name, component, target)
+        self._value = []
 
     # runs the thread
     def run(self):
-        # TODO
-        pass
+        self._running = True
+        while self._running:
+            # Assume component.cuts is list of cut wire identifiers
+            current = list(self._component.cuts)
+            self._value = current
+            # correct set of wires cut => defused
+            if set(current) == set(self._target):
+                self._defused = True
+                self._running = False
+            # if any incorrect wire cut => fail
+            elif any(w not in self._target for w in current):
+                self._failed = True
+                self._running = False
+            sleep(0.1)
+        
 
     # returns the jumper wires state as a string
     def __str__(self):
-        if (self._defused):
-            return "DEFUSED"
-        else:
-            # TODO
-            pass
+        return "DEFUSED" if self._defused else ",".join(map(str, self._value))
 
 class Button(PhaseThread):
     """
