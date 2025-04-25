@@ -168,17 +168,13 @@ def challenge_one():
     Presents the question: "What direction do you face when you turn 180 degrees from north?"
     Requires the user to toggle the correct switch to indicate the answer.
     """
-    print("🔄 Challenge One: Directional Toggles!")
     print("Question: What direction do you face when you turn 180 degrees from north?\n")
-    print("Toggle the correct switch to indicate the answer.")
+    print("Switch the correct toggle to move in that direction.")
 
     # Display the question to the user.
     prompt = (
         "What direction do you face when you turn 180 degrees from north?\n\n"
-        "Flip the toggle switches to the correct position to answer:\n"
-        "North -> Toggle Up\n"
-        "South -> Toggle Down\n"
-        "East/West -> Toggle Left/Right\n"
+        "Switch the correct toggle to move in that direction.:\n"
     )
     print(prompt)
 
