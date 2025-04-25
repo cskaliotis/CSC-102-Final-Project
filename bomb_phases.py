@@ -243,77 +243,62 @@ class Wires(PhaseThread):
             # TODO
             pass
 
-# the pushbutton phase
 class Button(PhaseThread):
-    def __init__(self, state_pin, rgb_pins, name="Button"):
+    """
+    Flashes the RGB button rapidly.  
+    • Press while GREEN  → easy puzzle  
+    • Press while RED    → hard puzzle  
+    """
+    def __init__(self, state_pin, rgb_pins, name="Button", flashes_per_sec=10):
         super().__init__(name)
-        self._state_pin = state_pin   # GPIO pin for button state
-        self._rgb_pins = rgb_pins     # GPIO pins for RGB LED
-        self._pressed = False         # Track if button is pressed
+        # hardware
+        self._state = state_pin          # digitalio.DigitalInOut
+        self._r, self._g, self._b = rgb_pins
+        # logic
+        self._hz = flashes_per_sec
+        self._pressed = False
+        self._easy_mode = None           # True/False after press
+
+        # setup pins (RPi only)
+        if RPi:
+            self._state.switch_to_input(pull=digitalio.Pull.UP)
+            for p in rgb_pins:
+                p.switch_to_output(value=True)      # LED off  (common-anode)
 
     def run(self):
         self._running = True
-        while self._running:
-            self._value = self._state_pin.value  # Read the button state
-            if self._value:  # Button is pressed
+        colors = [(True, False, True),   # GREEN
+                  (True, True,  True),   # OFF
+                  (False, True, True),   # RED
+                  (True, True,  True)]   # OFF
+        idx = 0
+        period = 1 / self._hz
+        while self._running and self._easy_mode is None:
+            # set LED
+            if RPi:
+                self._r.value, self._g.value, self._b.value = colors[idx]
+            idx = (idx + 1) % len(colors)
+
+            # read button (active-low on Pi; replace with your logic if PC-sim)
+            self._value = not self._state.value if RPi else False
+            if self._value:                              # pressed
                 self._pressed = True
-                # Check which button color is active
-                if self._rgb_pins[0].value == False:  # Green
-                    print("Green button pressed!")
-                    self.green_button_challenge()
-                elif self._rgb_pins[1].value == False:  # Red
-                    print("Red button pressed!")
-                    self.red_button_challenge()
-                else:
-                    print("Unknown button color!")
-            else:
-                self._pressed = False
-            sleep(0.1)
-
-    def green_button_challenge(self):
-        # Logic for the Green Button challenge (prompt for "610")
-        print("Enter the decimal code on the keypad: 610")
-
-    def red_button_challenge(self):
-        # Logic for the Red Button challenge (convert binary to decimal)
-        print("Convert the binary code to a decimal code on the keypad (1001100010) to decimal")
-
-    # runs the thread
-    def run(self):
-        self._running = True
-        # set the RGB LED color
-        self._rgb[0].value = False if self._color == "R" else True
-        self._rgb[1].value = False if self._color == "G" else True
-        self._rgb[2].value = False if self._color == "B" else True
-        while (self._running):
-            # get the pushbutton's state
-            self._value = self._component.value
-            # it is pressed
-            if (self._value):
-                # note it
-                self._pressed = True
-            # it is released
-            else:
-                # was it previously pressed?
-                if (self._pressed):
-                    # check the release parameters
-                    # for R, nothing else is needed
-                    # for G or B, a specific digit must be in the timer (sec) when released
-                    if (not self._target or self._target in self._timer._sec):
-                        self._defused = True
+                self._easy_mode = (colors[idx - 1] == (True, False, True))
+                self._defused = True                     # counts as phase finished
+                # freeze LED to show result
+                if RPi:
+                    if self._easy_mode:
+                        self._r.value, self._g.value, self._b.value = (True, False, True)
                     else:
-                        self._failed = True
-                    # note that the pushbutton was released
-                    self._pressed = False
-            sleep(0.1)
+                        self._r.value, self._g.value, self._b.value = (False, True, True)
+            time.sleep(period)
 
-    # returns the pushbutton's state as a string
     def __str__(self):
-        if (self._defused):
-            return "DEFUSED"
-        else:
-            return str("Pressed" if self._value else "Released")
+        if self._defused:
+            return "GREEN-easy" if self._easy_mode else "RED-hard"
+        return "Pressed" if self._value else "Released"
 
+  
 # the toggle switches phase
 class Toggles(PhaseThread):
     def __init__(self, component, target, name="Toggles"):
