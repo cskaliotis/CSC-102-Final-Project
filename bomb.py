@@ -15,6 +15,17 @@ from time import sleep
 ###########
 # functions
 
+
+def update_timer(window):
+    mins, secs = divmod(window.remaining, 60)
+    window.timer_label.config(text=f"Time Left: {mins:02d}:{secs:02d}")
+    if window.remaining > 0:
+        window.remaining -= 1
+        window.after(1000, lambda: update_timer(window))
+    else:
+        # time’s up!
+        show_failure_screen(window)
+
 def show_welcome_screen(window):
     for w in window.winfo_children():
         w.destroy()
@@ -121,33 +132,44 @@ def show_entrance_screen(window):
 
 # 2) Kick off the flash‐button and then hand off to the GUI entry screen
 def entrance_challenge(window):
-    # run the flashing‐button thread
+    # 1) flash‐button phase
     btn = Button(component_button_state, component_button_RGB)
     btn.start()
-    btn.join()   # waits until you press and the thread breaks
+    btn.join()
 
-    # choose riddle text *without* any hint
+    # 2) pick prompt
     target = "610"
     if btn._easy_mode:
         prompt = "Enter the decimal code on the keypad: 610"
     else:
-        prompt = (
-            "Convert this binary to decimal, then enter on keypad:\n"
-            "1001100010"
-        )
+        prompt = "Convert this binary to decimal, then enter on keypad:\n1001100010"
 
-    # swap into the in-window puzzle
+    # 3) swap into the puzzle screen
     show_entrance_puzzle_screen(window, prompt, target)
 
+    # 4) start the 10-minute timer
+    window.remaining = 600
+    update_timer(window)
 
-# 3) In-window riddle + single Submit button
+
+
 def show_entrance_puzzle_screen(window, prompt, target):
-    # 1) clear out the old widgets
+    # clear out old widgets
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # 2) show the riddle text
+    # **timer label** at the top
+    window.timer_label = tk.Label(
+        window,
+        text="Time Left: 10:00",
+        font=("Helvetica", 16, "bold"),
+        fg="#ff5555",
+        bg="#1e1e2f"
+    )
+    window.timer_label.pack(pady=(20, 10))
+
+    # riddle text
     tk.Label(
         window,
         text=prompt,
@@ -156,9 +178,9 @@ def show_entrance_puzzle_screen(window, prompt, target):
         bg="#1e1e2f",
         justify="center",
         wraplength=600
-    ).pack(pady=(80, 20))
+    ).pack(pady=(10, 30))
 
-    # 3) status label for the keypad input
+    # echo box for keypad
     status = tk.Label(
         window,
         text="Entered: ",
@@ -168,17 +190,14 @@ def show_entrance_puzzle_screen(window, prompt, target):
     )
     status.pack(pady=(0, 30))
 
-    # 4) launch the hardware Keypad thread
+    # start the hardware Keypad thread
     kd = Keypad(component_keypad, target)
     kd.start()
 
-    # 5) polling function to update on-screen and handle completion
     def poll_keypad():
-        # update what's been entered so far
         status.config(text=f"Entered: {kd._value}")
-
         if kd._defused:
-            # correct! tear down and boot the bomb UI
+            # correct → boot bomb
             for w in window.winfo_children():
                 w.destroy()
             global gui, strikes_left, active_phases
@@ -186,19 +205,14 @@ def show_entrance_puzzle_screen(window, prompt, target):
             strikes_left  = NUM_STRIKES
             active_phases = NUM_PHASES
             gui.after(1000, bootup)
-
         elif kd._failed:
-            # wrong code → show an error then reset entrance
-            status.config(text="❌ Wrong code—resetting...")
+            status.config(text="❌ Wrong code—resetting…")
             window.after(1500, lambda: entrance_challenge(window))
-
         else:
-            # not done yet: check again
             window.after(100, poll_keypad)
 
-    # start the polling cycle
+    # begin polling
     poll_keypad()
-
     
 def show_toggle_screen(window):
     """Screen for the shifting-walls (Toggles) puzzle."""
