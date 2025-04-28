@@ -9,7 +9,7 @@ import tkinter as tk
 from tkinter import messagebox
 import time
 from bomb_phases import Timer, Keypad, Wires,Button, Toggles, Lcd
-from bomb_configs import component_keypad, NUM_STRIKES, NUM_PHASES
+from bomb_configs import component_keypad, component_button_state, component_button_RGB, NUM_STRIKES, NUM_PHASES
 from time import sleep
 
 ###########
