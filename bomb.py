@@ -116,23 +116,26 @@ def show_entrance_screen(window):
               bd=0,
               command=entrance_challenge).pack(pady=30)
 
+import tkinter as tk
+from tkinter import messagebox
+import time
+
 def entrance_challenge():
     """
     Flash RGB button -> decide easy (GREEN) or hard (RED) prompt.
-    Easy  : show decimal 610, player types 610.
-    Hard  : show binary 1001100010, player must know it's 610 and type 610.
-    Success launches the bomb GUI; failure restarts the entrance puzzle.
     """
-    # debug console feedback
     print("🔒 Maze Entrance Locked!")
     print("Press the flashing button: GREEN = easy, RED = hard.")
 
-    # ----- 1. flashing button -----
+    # 1) Start & wait for your flashing button thread
     btn = Button(component_button_state, component_button_RGB)
     btn.start()
-    btn.join()   # blocks until you press and the thread breaks
+    btn.join()   # will return once you press & it sleeps the 3s
 
-    # ----- 2. decide prompt and keypad target -----
+    # DEBUG: confirm flags
+    print(f"[ENTRANCE DEBUG] btn._defused={btn._defused}, btn._easy_mode={btn._easy_mode}")
+
+    # 2) Decide which prompt to show
     keypad_target = "610"
     if btn._easy_mode:
         prompt = "Enter the decimal code on the keypad: 610"
@@ -142,22 +145,21 @@ def entrance_challenge():
             "1001100010  (hint: it equals 610)"
         )
 
-    # ----- 3. show prompt in a dialog -----
+    # 3) Pop up the puzzle dialog
     messagebox.showinfo("Maze Entrance Puzzle", prompt)
 
-    # ----- 4. run keypad phase -----
+    # 4) Run the hardware keypad phase
     kd = Keypad(component_keypad, keypad_target)
     kd.start()
-    # wait until defused or failed
     while not (kd._defused or kd._failed):
         time.sleep(0.1)
 
-    # handle failure
+    # 5) Handle wrong code
     if kd._failed:
         messagebox.showerror("Wrong Code", "❌ That was incorrect. Try again.")
         return entrance_challenge()
 
-    # ----- 5. success! unlock and boot bomb UI -----
+    # 6) Success → boot the bomb GUI
     messagebox.showinfo("Unlocked", "✅ Correct! Entrance unlocked.")
     for w in window.winfo_children():
         w.destroy()
