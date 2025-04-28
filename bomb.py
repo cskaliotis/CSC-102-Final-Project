@@ -23,7 +23,6 @@ def update_timer(window):
         window.remaining -= 1
         window.after(1000, lambda: update_timer(window))
     else:
-        # time’s up!
         show_failure_screen(window)
 
 def show_welcome_screen(window):
@@ -147,19 +146,16 @@ def entrance_challenge(window):
     # 3) swap into the puzzle screen
     show_entrance_puzzle_screen(window, prompt, target)
 
-    # 4) start the 10-minute timer
-    window.remaining = 600
-    update_timer(window)
-
 
 
 def show_entrance_puzzle_screen(window, prompt, target):
-    # clear out old widgets
+    # Clear old widgets
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # **timer label** at the top
+    # --- Start the timer once, here ---
+    window.remaining = 600  # 10 minutes in seconds
     window.timer_label = tk.Label(
         window,
         text="Time Left: 10:00",
@@ -168,19 +164,17 @@ def show_entrance_puzzle_screen(window, prompt, target):
         bg="#1e1e2f"
     )
     window.timer_label.pack(pady=(20, 10))
+    update_timer(window)  # kick off the countdown
 
-    # riddle text
+    # Riddle text
     tk.Label(
-        window,
-        text=prompt,
+        window, text=prompt,
         font=("Helvetica", 18),
-        fg="#ffffff",
-        bg="#1e1e2f",
-        justify="center",
-        wraplength=600
+        fg="#ffffff", bg="#1e1e2f",
+        justify="center", wraplength=600
     ).pack(pady=(10, 30))
 
-    # echo box for keypad
+    # Status label for keypad input
     status = tk.Label(
         window,
         text="Entered: ",
@@ -190,14 +184,14 @@ def show_entrance_puzzle_screen(window, prompt, target):
     )
     status.pack(pady=(0, 30))
 
-    # start the hardware Keypad thread
+    # Hardware keypad thread
     kd = Keypad(component_keypad, target)
     kd.start()
 
+    # Polling loop
     def poll_keypad():
         status.config(text=f"Entered: {kd._value}")
         if kd._defused:
-            # correct → boot bomb
             for w in window.winfo_children():
                 w.destroy()
             global gui, strikes_left, active_phases
@@ -211,7 +205,6 @@ def show_entrance_puzzle_screen(window, prompt, target):
         else:
             window.after(100, poll_keypad)
 
-    # begin polling
     poll_keypad()
     
 def show_toggle_screen(window):
