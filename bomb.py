@@ -9,7 +9,7 @@ import tkinter as tk
 from tkinter import messagebox
 import time
 from bomb_phases import Timer, Keypad, Wires,Button, Toggles, Lcd
-from bomb_configs import component_keypad, component_button_state, component_button_RGB, NUM_STRIKES, NUM_PHASES
+from bomb_configs import component_keypad, component_7seg, COUNTDOWN, NUM_STRIKES, NUM_PHASES
 from time import sleep
 
 ###########
@@ -150,25 +150,40 @@ def entrance_challenge(window):
     # 3) swap into the puzzle screen
     show_entrance_puzzle_screen(window, prompt, target)
 
+
+
 def show_entrance_puzzle_screen(window, prompt, target):
-    # clear old widgets
+    # 1) wipe out any old widgets
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # 1) start & display the 10-minute timer
-    window.remaining = 600  # seconds
+    # 2) start the bomb’s Timer thread
+    window.bomb_timer = Timer(component_7seg, COUNTDOWN)
+    window.bomb_timer.start()
+
+    # 3) on-screen mirror of the bomb timer
     window.timer_label = tk.Label(
         window,
-        text="Time Left: 10:00",
+        text=f"Time Left: {window.bomb_timer}",      # __str__ gives mm:ss
         font=("Helvetica", 16, "bold"),
         fg="#ff5555",
         bg="#1e1e2f"
     )
     window.timer_label.pack(pady=(20, 10))
-    update_timer(window)  # kick off the countdown
 
-    # 2) the riddle text
+    # function to refresh that label until the timer stops
+    def refresh_timer():
+        window.timer_label.config(text=f"Time Left: {window.bomb_timer}")
+        if window.bomb_timer._running:
+            window.after(500, refresh_timer)
+        else:
+            # bomb timer ran out → explosion
+            show_failure_screen(window)
+
+    refresh_timer()
+
+    # 4) show the riddle text
     tk.Label(
         window,
         text=prompt,
@@ -179,7 +194,7 @@ def show_entrance_puzzle_screen(window, prompt, target):
         wraplength=600
     ).pack(pady=(10, 30))
 
-    # 3) echo label for keypad input
+    # 5) status label for keypad input
     status = tk.Label(
         window,
         text="Entered: ",
@@ -189,15 +204,15 @@ def show_entrance_puzzle_screen(window, prompt, target):
     )
     status.pack(pady=(0, 30))
 
-    # 4) start the hardware Keypad thread
+    # 6) launch the hardware Keypad
     kd = Keypad(component_keypad, target)
     kd.start()
 
-    # 5) polling loop for keypad
+    # 7) poll keypad & handle success/failure
     def poll_keypad():
         status.config(text=f"Entered: {kd._value}")
         if kd._defused:
-            # correct → launch bomb UI
+            # user got it before time, so boot bomb GUI
             for w in window.winfo_children():
                 w.destroy()
             global gui, strikes_left, active_phases
