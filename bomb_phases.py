@@ -284,9 +284,13 @@ class Button(PhaseThread):
             if RPi and not self._state_pin.value:
                 self._easy_mode = (colors[idx] == GREEN)
                 self._defused   = True
+
+                sleep(3)
                 break
             idx = (idx + 1) % len(colors)
             sleep(interval)
+        self._running = False
+
 
             
 
