@@ -4,7 +4,7 @@
 # Team: 
 #################################
 
-from bomb_configs import RPi, OFF, ON, Pull
+from bomb_configs import RPi, OFF, Pull
 # other imports
 from tkinter import *
 import tkinter
