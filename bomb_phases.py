@@ -332,11 +332,26 @@ class Button(PhaseThread):
 class Toggles(PhaseThread):
     def __init__(self, component, target, name="Toggles"):
         super().__init__(name, component, target)
+        self._value = []  # The current state of the toggles (on/off)
 
     # runs the thread
     def run(self):
-        # TODO
-        pass
+        self._running = True
+        while self._running:
+            # Assume component.toggles is a list or array representing the state of each toggle switch
+            current = list(self._component.toggles)
+            self._value = current
+            
+            # Correct set of toggles => defused
+            if current == self._target:
+                self._defused = True
+                self._running = False
+            # If any incorrect toggle state => fail (strike)
+            elif any(current[i] != self._target[i] for i in range(len(self._target))):
+                self._failed = True
+                self._running = False
+            
+            sleep(0.1)  # Sleep to prevent CPU overload
 
     # returns the toggle switches state as a string
     def __str__(self):
