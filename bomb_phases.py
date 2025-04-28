@@ -278,8 +278,6 @@ class Button(PhaseThread):
 
         def run(self):
             self._running = True
-
-        # 0=GREEN, 1=OFF, 2=RED, 3=OFF
             FLASHES = [
                 (OFF, ON,  OFF),  # idx 0: GREEN
                 (OFF, OFF, OFF),  # idx 1: OFF
@@ -288,11 +286,9 @@ class Button(PhaseThread):
             ]
             idx      = 0
             interval = 1 / self._hz
-    
             while self._running and self._easy_mode is None:
                 # light the LED
                 self._r.value, self._g.value, self._b.value = FLASHES[idx]
-    
                 if RPi:
                     val = self._state_pin.value
                     pressed = not val   # if using Pull.UP wiring; otherwise pressed = val
@@ -312,7 +308,6 @@ class Button(PhaseThread):
     
                 idx = (idx + 1) % len(FLASHES)
                 sleep(interval)
-    
             self._running = False
 
     def __str__(self):
