@@ -282,6 +282,7 @@ class Button(PhaseThread):
         while self._running and self._easy_mode is None:
             self._r.value, self._g.value, self._b.value = colors[idx]
             if RPi and not self._state_pin.value:
+                print("💥 Button pressed!")
                 self._easy_mode = (colors[idx] == GREEN)
                 self._defused   = True
 
@@ -290,9 +291,6 @@ class Button(PhaseThread):
             idx = (idx + 1) % len(colors)
             sleep(interval)
         self._running = False
-
-
-            
 
     def __str__(self):
         if self._defused:
