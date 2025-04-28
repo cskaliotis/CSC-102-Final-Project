@@ -17,14 +17,18 @@ from time import sleep
 
 
 def update_timer(window):
+    # Debug: confirm this is being called
+    print(f"[TIMER DEBUG] remaining={window.remaining}")
     mins, secs = divmod(window.remaining, 60)
     window.timer_label.config(text=f"Time Left: {mins:02d}:{secs:02d}")
     if window.remaining > 0:
         window.remaining -= 1
-        window.after(1000, lambda: update_timer(window))
+        # schedule the next tick
+        window.after(1000, update_timer, window)
     else:
+        # out of time!
         show_failure_screen(window)
-
+    
 def show_welcome_screen(window):
     for w in window.winfo_children():
         w.destroy()
@@ -146,16 +150,14 @@ def entrance_challenge(window):
     # 3) swap into the puzzle screen
     show_entrance_puzzle_screen(window, prompt, target)
 
-
-
 def show_entrance_puzzle_screen(window, prompt, target):
-    # Clear old widgets
+    # clear old widgets
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # --- Start the timer once, here ---
-    window.remaining = 600  # 10 minutes in seconds
+    # 1) start & display the 10-minute timer
+    window.remaining = 600  # seconds
     window.timer_label = tk.Label(
         window,
         text="Time Left: 10:00",
@@ -166,15 +168,18 @@ def show_entrance_puzzle_screen(window, prompt, target):
     window.timer_label.pack(pady=(20, 10))
     update_timer(window)  # kick off the countdown
 
-    # Riddle text
+    # 2) the riddle text
     tk.Label(
-        window, text=prompt,
+        window,
+        text=prompt,
         font=("Helvetica", 18),
-        fg="#ffffff", bg="#1e1e2f",
-        justify="center", wraplength=600
+        fg="#ffffff",
+        bg="#1e1e2f",
+        justify="center",
+        wraplength=600
     ).pack(pady=(10, 30))
 
-    # Status label for keypad input
+    # 3) echo label for keypad input
     status = tk.Label(
         window,
         text="Entered: ",
@@ -184,14 +189,15 @@ def show_entrance_puzzle_screen(window, prompt, target):
     )
     status.pack(pady=(0, 30))
 
-    # Hardware keypad thread
+    # 4) start the hardware Keypad thread
     kd = Keypad(component_keypad, target)
     kd.start()
 
-    # Polling loop
+    # 5) polling loop for keypad
     def poll_keypad():
         status.config(text=f"Entered: {kd._value}")
         if kd._defused:
+            # correct → launch bomb UI
             for w in window.winfo_children():
                 w.destroy()
             global gui, strikes_left, active_phases
