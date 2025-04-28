@@ -333,6 +333,8 @@ class Toggles(PhaseThread):
     def __init__(self, component, target, name="Toggles"):
         super().__init__(name, component, target)
         self._value = []  # The current state of the toggles (on/off)
+        self._defused = False
+        self._failed = False
 
     # runs the thread
     def run(self):
@@ -355,11 +357,14 @@ class Toggles(PhaseThread):
 
     # returns the toggle switches state as a string
     def __str__(self):
-        if (self._defused):
-            return "DEFUSED"
+        if self._defused:
+            return "DEFUSED"  # The correct state, bomb defused
+        elif self._failed:
+            return "FAILED"  # Incorrect toggle state, failure
         else:
-            # TODO
-            pass
+            # Display current toggle state as ON/OFF for each pin
+            toggle_state = [("ON" if state else "OFF") for state in self._value]
+            return " | ".join(toggle_state)  # Output toggle states as a string
 
 # final phase handler
 def run_final_phase(window):
