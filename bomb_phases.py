@@ -296,9 +296,7 @@ class Button(PhaseThread):
                 break
             idx = (idx + 1) % len(colors)
             sleep(interval)
-
-# after loop exits
-self._running = False
+        self._running = False
 
     def __str__(self):
         if self._defused:
