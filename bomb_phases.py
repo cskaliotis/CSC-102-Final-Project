@@ -4,7 +4,7 @@
 # Team: 
 #################################
 
-from bomb_configs import *
+from bomb_configs import RPi, OFF, ON, Pull
 # other imports
 from tkinter import *
 import tkinter
@@ -281,13 +281,25 @@ class Button(PhaseThread):
         interval = 1 / self._hz
         while self._running and self._easy_mode is None:
             self._r.value, self._g.value, self._b.value = colors[idx]
-            if RPi and not self._state_pin.value:
-                print("💥 Button pressed!")
+            if RPi:
+                val = self._state_pin.value
+                print(f"[BUTTON DEBUG] GPIO pin reads {val}")
+                # pressed = False when using Pull.UP; True when using Pull.DOWN
+                pressed = (not val)  # if Pull.UP, button → GND pulls val False
+            else:
+                pressed = False
+
+            if pressed:
+                print("[BUTTON DEBUG] Detected press on", 
+                      "GREEN" if colors[idx] == GREEN else "RED")
                 self._easy_mode = (colors[idx] == GREEN)
                 self._defused   = True
 
+                # hold this color so you actually see it
                 sleep(3)
                 break
+
+             
             idx = (idx + 1) % len(colors)
             sleep(interval)
         self._running = False
