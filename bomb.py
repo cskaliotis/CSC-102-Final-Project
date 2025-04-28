@@ -142,12 +142,12 @@ def entrance_challenge():
     else:
         prompt = (
             "Convert this binary to decimal, then enter on keypad:\n"
-            "1001100010  (hint: it equals 610)"
+            "1001100010"
         )
 
     # 3) Pop up the puzzle dialog
-    messagebox.showinfo("Maze Entrance Puzzle", prompt)
-
+    show_entrance_puzzle_screen(window, prompt, keypad_target)
+    
     # 4) Run the hardware keypad phase
     kd = Keypad(component_keypad, keypad_target)
     kd.start()
@@ -171,6 +171,71 @@ def entrance_challenge():
     gui.after(1000, bootup)
     return True
 
+def show_entrance_puzzle_screen(window, prompt, target):
+    # Clear out the old widgets
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    # Prompt label
+    tk.Label(
+        window,
+        text=prompt,
+        font=("Helvetica", 18),
+        fg="#ffffff",
+        bg="#1e1e2f",
+        justify="center",
+        wraplength=600
+    ).pack(pady=(60, 20))
+
+    # Entry for the code
+    entry = tk.Entry(
+        window,
+        font=("Helvetica", 16),
+        width=10,
+        justify="center"
+    )
+    entry.pack(pady=(0, 20))
+    entry.focus_set()
+
+    # Submit button callback
+    def on_submit():
+        attempt = entry.get().strip()
+        if attempt == target:
+            # success → clear and boot the bomb
+            for w in window.winfo_children():
+                w.destroy()
+            global gui, strikes_left, active_phases
+            gui           = Lcd(window)
+            strikes_left  = NUM_STRIKES
+            active_phases = NUM_PHASES
+            gui.after(1000, bootup)
+        else:
+            # wrong → show a quick “try again” message and restart
+            tk.Label(
+                window,
+                text="❌ Wrong code—try again.",
+                font=("Helvetica", 16),
+                fg="#ff5555",
+                bg="#1e1e2f"
+            ).pack(pady=(10, 0))
+            window.after(1500, lambda: entrance_challenge())
+
+    # Submit button
+    tk.Button(
+        window,
+        text="Submit",
+        font=("Helvetica", 16, "bold"),
+        bg="#00ffcc",
+        fg="#000000",
+        activebackground="#00ddaa",
+        padx=20,
+        pady=10,
+        bd=0,
+        command=on_submit,
+        cursor="hand2"
+    ).pack(pady=10)
+    
 def show_toggle_screen(window):
     """Screen for the shifting-walls (Toggles) puzzle."""
     for w in window.winfo_children(): w.destroy()
