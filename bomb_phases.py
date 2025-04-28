@@ -272,34 +272,34 @@ class Button(PhaseThread):
     def run(self):
         self._running = True
 
-        # flash pattern: GREEN, OFF, RED, OFF
-        FLASHES = [
-            (OFF, ON,  OFF),  # idx=0 → GREEN
-            (OFF, OFF, OFF),  # idx=1 → OFF
-            (ON,  OFF, OFF),  # idx=2 → RED
-            (OFF, OFF, OFF)   # idx=3 → OFF
-        ]
-        idx      = 0
+        # name the flashes
+        GREEN     = (OFF, ON,  OFF)
+        OFF_COLOR = (OFF, OFF, OFF)
+        RED       = (ON,  OFF, OFF)
+        FLASHES   = [GREEN, OFF_COLOR, RED, OFF_COLOR]
+
         interval = 1 / self._hz
+        idx      = 0
 
         while self._running and self._easy_mode is None:
-            # 1) light the LED
+            # 1) show this flash
             self._r.value, self._g.value, self._b.value = FLASHES[idx]
 
-            # 2) detect press (now HIGH=pressed)
-            if RPi:
-                pressed = self._state_pin.value
-            else:
-                pressed = False
+            # 2) read the button (HIGH = pressed under Pull.DOWN)
+            pressed = RPi and self._state_pin.value
 
-            # 3) if pressed, record easy vs. hard and hold that color
             if pressed:
-                self._easy_mode = (idx == 0)  # GREEN→easy, RED→hard
+                # did we catch green or red?
+                is_green = (FLASHES[idx] == GREEN)
+                # green → easy, red → hard
+                self._easy_mode = is_green
                 self._defused   = True
+
+                # hold that color so it’s visible
                 sleep(3)
                 break
 
-            # 4) advance and wait
+            # 3) advance & wait
             idx = (idx + 1) % len(FLASHES)
             sleep(interval)
 
