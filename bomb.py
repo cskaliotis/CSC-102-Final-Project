@@ -144,7 +144,7 @@ def entrance_challenge(window):
     else:
         prompt = (
             "Convert this binary to decimal, then enter on keypad:\n"
-            "1001100010  (hint: it equals 610)"
+            "1001100010"
         )
 
     # show the in-window puzzle
