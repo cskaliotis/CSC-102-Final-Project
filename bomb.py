@@ -6,10 +6,14 @@
 
 # import the configs
 import tkinter as tk
-from tkinter import messagebox
 import time
 from bomb_phases import Timer, Keypad, Wires,Button, Toggles, Lcd
-from bomb_configs import component_keypad, component_7seg, COUNTDOWN, NUM_STRIKES, NUM_PHASES
+from bomb_configs import (component_button_state,
+    component_button_RGB,
+    component_keypad,
+    NUM_STRIKES,
+    NUM_PHASES,
+)
 from time import sleep
 
 ###########
@@ -97,7 +101,6 @@ def show_instructions(window):
 
 
 
-# 1) Welcome screen—launches the button‐flash puzzle
 def show_entrance_screen(window):
     for w in window.winfo_children():
         w.destroy()
@@ -133,86 +136,55 @@ def show_entrance_screen(window):
     ).pack(pady=30)
 
 
-# 2) Kick off the flash‐button and then hand off to the GUI entry screen
 def entrance_challenge(window):
-    # 1) flash‐button phase
+    # run the flashing‐button thread
     btn = Button(component_button_state, component_button_RGB)
     btn.start()
-    btn.join()
+    btn.join()   # blocks until you press
 
-    # 2) pick prompt
+    # pick your riddle
     target = "610"
     if btn._easy_mode:
         prompt = "Enter the decimal code on the keypad: 610"
     else:
         prompt = "Convert this binary to decimal, then enter on keypad:\n1001100010"
 
-    # 3) swap into the puzzle screen
+    # hand off to the keypad‐screen
     show_entrance_puzzle_screen(window, prompt, target)
 
 
-
 def show_entrance_puzzle_screen(window, prompt, target):
-    # 1) wipe out any old widgets
+    # clear old widgets
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # 2) start the bomb’s Timer thread
-    window.bomb_timer = Timer(component_7seg, COUNTDOWN)
-    window.bomb_timer.start()
+    # riddle text
+    tk.Label(window,
+             text=prompt,
+             font=("Helvetica", 18),
+             fg="#ffffff",
+             bg="#1e1e2f",
+             justify="center",
+             wraplength=600).pack(pady=(80, 20))
 
-    # 3) on-screen mirror of the bomb timer
-    window.timer_label = tk.Label(
-        window,
-        text=f"Time Left: {window.bomb_timer}",      # __str__ gives mm:ss
-        font=("Helvetica", 16, "bold"),
-        fg="#ff5555",
-        bg="#1e1e2f"
-    )
-    window.timer_label.pack(pady=(20, 10))
-
-    # function to refresh that label until the timer stops
-    def refresh_timer():
-        window.timer_label.config(text=f"Time Left: {window.bomb_timer}")
-        if window.bomb_timer._running:
-            window.after(500, refresh_timer)
-        else:
-            # bomb timer ran out → explosion
-            show_failure_screen(window)
-
-    refresh_timer()
-
-    # 4) show the riddle text
-    tk.Label(
-        window,
-        text=prompt,
-        font=("Helvetica", 18),
-        fg="#ffffff",
-        bg="#1e1e2f",
-        justify="center",
-        wraplength=600
-    ).pack(pady=(10, 30))
-
-    # 5) status label for keypad input
-    status = tk.Label(
-        window,
-        text="Entered: ",
-        font=("Courier New", 20),
-        fg="#00ffcc",
-        bg="#1e1e2f"
-    )
+    # echo label for hardware keypad
+    status = tk.Label(window,
+                      text="Entered: ",
+                      font=("Courier New", 20),
+                      fg="#00ffcc",
+                      bg="#1e1e2f")
     status.pack(pady=(0, 30))
 
-    # 6) launch the hardware Keypad
+    # start the hardware Keypad thread
     kd = Keypad(component_keypad, target)
     kd.start()
 
-    # 7) poll keypad & handle success/failure
+    # poll it
     def poll_keypad():
         status.config(text=f"Entered: {kd._value}")
         if kd._defused:
-            # user got it before time, so boot bomb GUI
+            # correct → clear and boot bomb UI
             for w in window.winfo_children():
                 w.destroy()
             global gui, strikes_left, active_phases
@@ -227,7 +199,6 @@ def show_entrance_puzzle_screen(window, prompt, target):
             window.after(100, poll_keypad)
 
     poll_keypad()
-    
 def show_toggle_screen(window):
     """Screen for the shifting-walls (Toggles) puzzle."""
     for w in window.winfo_children(): w.destroy()
