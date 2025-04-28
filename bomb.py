@@ -138,8 +138,8 @@ def entrance_challenge():
         prompt = ("Convert this binary to decimal, then enter on keypad:\n"
                   "  1001100010  (hint: it equals 610)")
 
-    # show prompt to the console (or to GUI if you prefer)
-    print(prompt)
+    # show prompt to the GUI 
+    messagebox.showinfo("Maze Entrance Puzzle", prompt)
 
     # ----- 3. run keypad phase -----
     kd = Keypad(component_keypad, keypad_target)
