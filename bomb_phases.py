@@ -276,48 +276,43 @@ class Button(PhaseThread):
             for p in self._r, self._g, self._b:
                 p.switch_to_output(value=OFF)
 
-    def run(self):
+        def run(self):
         self._running = True
 
-        # the four‐step flash pattern
+        # 0=GREEN, 1=OFF, 2=RED, 3=OFF
         FLASHES = [
-            (OFF, ON,  OFF),  # idx 0: green step
-            (OFF, OFF, OFF),  # idx 1: off
-            (ON,  OFF, OFF),  # idx 2: red step
-            (OFF, OFF, OFF)   # idx 3: off
+            (OFF, ON,  OFF),  # idx 0: GREEN
+            (OFF, OFF, OFF),  # idx 1: OFF
+            (ON,  OFF, OFF),  # idx 2: RED
+            (OFF, OFF, OFF)   # idx 3: OFF
         ]
         idx      = 0
         interval = 1 / self._hz
 
         while self._running and self._easy_mode is None:
-            # 1) light the LED
+            # light the LED
             self._r.value, self._g.value, self._b.value = FLASHES[idx]
 
-            # 2) read & debug the pin
             if RPi:
                 val = self._state_pin.value
-                print(f"[BUTTON DEBUG] idx={idx}  pin reads={val}")
-                # adjust this if you changed pull:
-                pressed = val
+                pressed = not val   # if using Pull.UP wiring; otherwise pressed = val
             else:
                 pressed = False
 
-            # 3) if pressed, record easy/hard and hold
             if pressed:
-                print(f"[BUTTON DEBUG] Detected press on step {idx}")
-                # easy if idx==0, hard if idx==2
-                self._easy_mode = (idx == 0)
+                # easy only on GREEN step (idx==0)
+                is_green = (idx == 0)
+                print(f"[BUTTON DEBUG] Press on {'GREEN' if is_green else 'RED'} step")
+                self._easy_mode = is_green
                 self._defused   = True
 
                 # hold that color so it’s visible
                 sleep(3)
                 break
 
-            # 4) advance & sleep
             idx = (idx + 1) % len(FLASHES)
             sleep(interval)
 
-        # done flashing
         self._running = False
 
     def __str__(self):
