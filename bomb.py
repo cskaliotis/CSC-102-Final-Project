@@ -8,9 +8,9 @@
 import tkinter as tk
 from tkinter import messagebox
 import time
-from bomb_configs import *
-# import the phases
 from bomb_phases import Timer, Keypad, Wires,Button, Toggles, Lcd
+from bomb_configs import component_keypad, NUM_STRIKES, NUM_PHASES
+from time import sleep
 
 ###########
 # functions
@@ -81,10 +81,7 @@ def show_instructions(window):
     cont_btn.pack(pady=30)
 
 
-import tkinter as tk
-from bomb_phases import Button, Lcd
-from bomb_configs import NUM_STRIKES, NUM_PHASES, COUNTDOWN
-from time import sleep
+
 
 # 1) Welcome screen—launches the button‐flash puzzle
 def show_entrance_screen(window):
@@ -145,33 +142,43 @@ def entrance_challenge(window):
 
 # 3) In-window riddle + single Submit button
 def show_entrance_puzzle_screen(window, prompt, target):
-    # clear out the old widgets
+    # 1) clear out the old widgets
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # the riddle
-    tk.Label(window,
-             text=prompt,
-             font=("Helvetica", 18),
-             fg="#ffffff",
-             bg="#1e1e2f",
-             justify="center",
-             wraplength=600).pack(pady=(80, 20))
+    # 2) show the riddle text
+    tk.Label(
+        window,
+        text=prompt,
+        font=("Helvetica", 18),
+        fg="#ffffff",
+        bg="#1e1e2f",
+        justify="center",
+        wraplength=600
+    ).pack(pady=(80, 20))
 
-    # code entry box
-    entry = tk.Entry(window,
-                     font=("Helvetica", 16),
-                     width=10,
-                     justify="center")
-    entry.pack(pady=(0, 30))
-    entry.focus_set()
+    # 3) status label for the keypad input
+    status = tk.Label(
+        window,
+        text="Entered: ",
+        font=("Courier New", 20),
+        fg="#00ffcc",
+        bg="#1e1e2f"
+    )
+    status.pack(pady=(0, 30))
 
-    # the **only** Submit button
-    def on_submit():
-        attempt = entry.get().strip()
-        if attempt == target:
-            # correct → clear & boot bomb UI
+    # 4) launch the hardware Keypad thread
+    kd = Keypad(component_keypad, target)
+    kd.start()
+
+    # 5) polling function to update on-screen and handle completion
+    def poll_keypad():
+        # update what's been entered so far
+        status.config(text=f"Entered: {kd._value}")
+
+        if kd._defused:
+            # correct! tear down and boot the bomb UI
             for w in window.winfo_children():
                 w.destroy()
             global gui, strikes_left, active_phases
@@ -179,26 +186,19 @@ def show_entrance_puzzle_screen(window, prompt, target):
             strikes_left  = NUM_STRIKES
             active_phases = NUM_PHASES
             gui.after(1000, bootup)
-        else:
-            # inline error, then restart entrance
-            tk.Label(window,
-                     text="❌ Wrong code—try again.",
-                     font=("Helvetica", 14),
-                     fg="#ff5555",
-                     bg="#1e1e2f").pack()
+
+        elif kd._failed:
+            # wrong code → show an error then reset entrance
+            status.config(text="❌ Wrong code—resetting...")
             window.after(1500, lambda: entrance_challenge(window))
 
-    tk.Button(window,
-              text="Submit",
-              font=("Helvetica", 16, "bold"),
-              bg="#00ffcc",
-              fg="#000000",
-              activebackground="#00ddaa",
-              padx=20,
-              pady=10,
-              bd=0,
-              cursor="hand2",
-              command=on_submit).pack()
+        else:
+            # not done yet: check again
+            window.after(100, poll_keypad)
+
+    # start the polling cycle
+    poll_keypad()
+
     
 def show_toggle_screen(window):
     """Screen for the shifting-walls (Toggles) puzzle."""
