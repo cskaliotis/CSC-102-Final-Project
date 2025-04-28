@@ -282,27 +282,20 @@ class Button(PhaseThread):
         while self._running and self._easy_mode is None:
             self._r.value, self._g.value, self._b.value = colors[idx]
             if RPi:
-            val = self._state_pin.value
-            print(f"[BUTTON DEBUG] idx={idx}  color={colors[idx]}  pin reads={val}")
-        # with Pull.UP: pressed → val==False
-            pressed = not val
-        else:
-            pressed = False
-
-    # 3) if we see a press, record easy vs hard and break
-        if pressed:
-            print("[BUTTON DEBUG] Detected press on",
-                  "GREEN" if colors[idx] == GREEN else "RED")
-            self._easy_mode = (colors[idx] == GREEN)
-            self._defused   = True
-
-        # hold this color so you actually see it
-            sleep(3)
-            break
-
-    # 4) advance to next color & wait
-        idx = (idx + 1) % len(colors)
-        sleep(interval)
+                val = self._state_pin.value
+                print(f"[BUTTON DEBUG] idx={idx}  color={colors[idx]}  pin reads={val}")
+                pressed = not val
+            else:
+                pressed = False
+            if pressed:
+                print("[BUTTON DEBUG] Detected press on",
+                      "GREEN" if colors[idx] == GREEN else "RED")
+                self._easy_mode = (colors[idx] == GREEN)
+                self._defused   = True
+                sleep(3)
+                break
+            idx = (idx + 1) % len(colors)
+            sleep(interval)
 
 # after loop exits
 self._running = False
