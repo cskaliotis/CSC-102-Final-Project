@@ -277,43 +277,43 @@ class Button(PhaseThread):
                 p.switch_to_output(value=OFF)
 
         def run(self):
-        self._running = True
+            self._running = True
 
         # 0=GREEN, 1=OFF, 2=RED, 3=OFF
-        FLASHES = [
-            (OFF, ON,  OFF),  # idx 0: GREEN
-            (OFF, OFF, OFF),  # idx 1: OFF
-            (ON,  OFF, OFF),  # idx 2: RED
-            (OFF, OFF, OFF)   # idx 3: OFF
-        ]
-        idx      = 0
-        interval = 1 / self._hz
-
-        while self._running and self._easy_mode is None:
-            # light the LED
-            self._r.value, self._g.value, self._b.value = FLASHES[idx]
-
-            if RPi:
-                val = self._state_pin.value
-                pressed = not val   # if using Pull.UP wiring; otherwise pressed = val
-            else:
-                pressed = False
-
-            if pressed:
-                # easy only on GREEN step (idx==0)
-                is_green = (idx == 0)
-                print(f"[BUTTON DEBUG] Press on {'GREEN' if is_green else 'RED'} step")
-                self._easy_mode = is_green
-                self._defused   = True
-
-                # hold that color so it’s visible
-                sleep(3)
-                break
-
-            idx = (idx + 1) % len(FLASHES)
-            sleep(interval)
-
-        self._running = False
+            FLASHES = [
+                (OFF, ON,  OFF),  # idx 0: GREEN
+                (OFF, OFF, OFF),  # idx 1: OFF
+                (ON,  OFF, OFF),  # idx 2: RED
+                (OFF, OFF, OFF)   # idx 3: OFF
+            ]
+            idx      = 0
+            interval = 1 / self._hz
+    
+            while self._running and self._easy_mode is None:
+                # light the LED
+                self._r.value, self._g.value, self._b.value = FLASHES[idx]
+    
+                if RPi:
+                    val = self._state_pin.value
+                    pressed = not val   # if using Pull.UP wiring; otherwise pressed = val
+                else:
+                    pressed = False
+    
+                if pressed:
+                    # easy only on GREEN step (idx==0)
+                    is_green = (idx == 0)
+                    print(f"[BUTTON DEBUG] Press on {'GREEN' if is_green else 'RED'} step")
+                    self._easy_mode = is_green
+                    self._defused   = True
+    
+                    # hold that color so it’s visible
+                    sleep(3)
+                    break
+    
+                idx = (idx + 1) % len(FLASHES)
+                sleep(interval)
+    
+            self._running = False
 
     def __str__(self):
         if self._defused:
