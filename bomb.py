@@ -81,13 +81,18 @@ def show_instructions(window):
     cont_btn.pack(pady=30)
 
 
+import tkinter as tk
+import time
+from bomb_phases import Button, Keypad, Lcd
+from bomb_configs import NUM_STRIKES, NUM_PHASES
+from tkinter import messagebox
+
+# 1) Main “welcome” screen—now passes window into entrance_challenge
 def show_entrance_screen(window):
-    """Third screen: prompt about the button‐flashing puzzle, then Begin."""
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # Instruction prompt
     prompt = (
         "🚪 Welcome to the Maze Runner Challenge!\n\n"
         "The entrance is locked.\n"
@@ -96,88 +101,6 @@ def show_entrance_screen(window):
         "🔴 RED for a *hard* one\n\n"
         "Choose wisely. Good luck, runner!"
     )
-    tk.Label(window,
-             text=prompt,
-             font=("Helvetica", 18),
-             fg="#ffffff",
-             bg="#1e1e2f",
-             justify="center",
-             wraplength=600).pack(pady=50)
-
-    tk.Button(window,
-              text="Start Puzzle",
-              font=("Helvetica", 16, "bold"),
-              bg="#00ffcc",
-              fg="#000000",
-              activebackground="#00ddaa",
-              cursor="hand2",
-              padx=30,
-              pady=12,
-              bd=0,
-              command=entrance_challenge).pack(pady=30)
-
-import tkinter as tk
-from tkinter import messagebox
-import time
-
-def entrance_challenge():
-    """
-    Flash RGB button -> decide easy (GREEN) or hard (RED) prompt.
-    """
-    print("🔒 Maze Entrance Locked!")
-    print("Press the flashing button: GREEN = easy, RED = hard.")
-
-    # 1) Start & wait for your flashing button thread
-    btn = Button(component_button_state, component_button_RGB)
-    btn.start()
-    btn.join()   # will return once you press & it sleeps the 3s
-
-    # DEBUG: confirm flags
-    print(f"[ENTRANCE DEBUG] btn._defused={btn._defused}, btn._easy_mode={btn._easy_mode}")
-
-    # 2) Decide which prompt to show
-    keypad_target = "610"
-    if btn._easy_mode:
-        prompt = "Enter the decimal code on the keypad: 610"
-    else:
-        prompt = (
-            "Convert this binary to decimal, then enter on keypad:\n"
-            "1001100010"
-        )
-
-    # 3) Pop up the puzzle dialog
-    show_entrance_puzzle_screen(window, prompt, keypad_target)
-    
-    # 4) Run the hardware keypad phase
-    kd = Keypad(component_keypad, keypad_target)
-    kd.start()
-    while not (kd._defused or kd._failed):
-        time.sleep(0.1)
-
-    # 5) Handle wrong code
-    if kd._failed:
-        messagebox.showerror("Wrong Code", "❌ That was incorrect. Try again.")
-        return entrance_challenge()
-
-    # 6) Success → boot the bomb GUI
-    messagebox.showinfo("Unlocked", "✅ Correct! Entrance unlocked.")
-    for w in window.winfo_children():
-        w.destroy()
-
-    global gui, strikes_left, active_phases
-    gui           = Lcd(window)
-    strikes_left  = NUM_STRIKES
-    active_phases = NUM_PHASES
-    gui.after(1000, bootup)
-    return True
-
-def show_entrance_puzzle_screen(window, prompt, target):
-    # Clear out the old widgets
-    for w in window.winfo_children():
-        w.destroy()
-    window.configure(bg="#1e1e2f")
-
-    # Prompt label
     tk.Label(
         window,
         text=prompt,
@@ -186,17 +109,115 @@ def show_entrance_puzzle_screen(window, prompt, target):
         bg="#1e1e2f",
         justify="center",
         wraplength=600
-    ).pack(pady=(60, 20))
+    ).pack(pady=50)
 
-    # Entry for the code
+    tk.Button(
+        window,
+        text="Start Puzzle",
+        font=("Helvetica", 16, "bold"),
+        bg="#00ffcc",
+        fg="#000000",
+        activebackground="#00ddaa",
+        cursor="hand2",
+        padx=30,
+        pady=12,
+        bd=0,
+        command=lambda: entrance_challenge(window)
+    ).pack(pady=30)
+
+
+# 2) Spawns the flash-button phase then swaps to the entry screen
+def entrance_challenge(window):
+    print("🔒 Maze Entrance Locked! Press GREEN=easy, RED=hard.")
+
+    # run the flashing-button thread
+    btn = Button(component_button_state, component_button_RGB)
+    btn.start()
+    btn.join()
+
+    print(f"[ENTRANCE DEBUG] defused={btn._defused}, easy_mode={btn._easy_mode}")
+
+    # pick text based on green/red
+    target = "610"
+    if btn._easy_mode:
+        prompt = "Enter the decimal code on the keypad: 610"
+    else:
+        prompt = (
+            "Convert this binary to decimal, then enter on keypad:\n"
+            "1001100010  (hint: it equals 610)"
+        )
+
+    # show the in-window puzzle
+    show_entrance_puzzle_screen(window, prompt, target)
+
+
+# 3) In-window puzzle screen with Entry + Submit
+def show_entrance_puzzle_screen(window, prompt, target):
+    # clear old widgets
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    # riddle text
+    tk.Label(
+        window,
+        text=prompt,
+        font=("Helvetica", 18),
+        fg="#ffffff",
+        bg="#1e1e2f",
+        justify="center",
+        wraplength=600
+    ).pack(pady=(80, 20))
+
+    # entry box
     entry = tk.Entry(
         window,
         font=("Helvetica", 16),
         width=10,
         justify="center"
     )
-    entry.pack(pady=(0, 20))
+    entry.pack(pady=(0, 30))
     entry.focus_set()
+
+    # submit handler
+    def on_submit():
+        attempt = entry.get().strip()
+        if attempt == target:
+            # correct → boot bomb UI
+            for w in window.winfo_children():
+                w.destroy()
+            global gui, strikes_left, active_phases
+            gui           = Lcd(window)
+            strikes_left  = NUM_STRIKES
+            active_phases = NUM_PHASES
+            gui.after(1000, bootup)
+        else:
+            # inline error
+            tk.Label(
+                window,
+                text="❌ Wrong code—try again.",
+                font=("Helvetica", 14),
+                fg="#ff5555",
+                bg="#1e1e2f"
+            ).pack()
+            window.after(1500, lambda: entrance_challenge(window))
+
+    # submit button
+    tk.Button(
+        window,
+        text="Submit",
+        font=("Helvetica", 16, "bold"),
+        bg="#00ffcc",
+        fg="#000000",
+        activebackground="#00ddaa",
+        padx=20,
+        pady=10,
+        bd=0,
+        cursor="hand2",
+        command=on_submit
+    ).pack()
+
+
 
     # Submit button callback
     def on_submit():
