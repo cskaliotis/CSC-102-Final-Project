@@ -267,7 +267,7 @@ class Button(PhaseThread):
         self._hz = flashes_per_sec
         self._easy_mode = None
         if RPi:
-            self._state_pin.switch_to_input(pull=Pull.UP)
+            self._state_pin.switch_to_input(pull=Pull.DOWN)
             for p in self._rgb:
                 p.switch_to_output(value=OFF)      # LED off
 
@@ -284,7 +284,7 @@ class Button(PhaseThread):
             if RPi:
                 val = self._state_pin.value
                 print(f"[BUTTON DEBUG] idx={idx}  color={colors[idx]}  pin reads={val}")
-                pressed = not val
+                pressed = val
             else:
                 pressed = False
             if pressed:
