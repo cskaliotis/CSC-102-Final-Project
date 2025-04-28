@@ -6,6 +6,7 @@
 
 # import the configs
 import tkinter as tk
+from tkinter import messagebox
 import time
 from bomb_configs import *
 # import the phases
@@ -122,47 +123,52 @@ def entrance_challenge():
     Hard  : show binary 1001100010, player must know it's 610 and type 610.
     Success launches the bomb GUI; failure restarts the entrance puzzle.
     """
+    # debug console feedback
     print("🔒 Maze Entrance Locked!")
     print("Press the flashing button: GREEN = easy, RED = hard.")
 
     # ----- 1. flashing button -----
-    btn = Button(component_button_state, component_button_RGB)   # new flashing class
+    btn = Button(component_button_state, component_button_RGB)
     btn.start()
-    btn.join()                               # wait until first press
+    btn.join()   # blocks until you press and the thread breaks
 
     # ----- 2. decide prompt and keypad target -----
-    keypad_target = "610"                    # code to type either way
-    if btn._easy_mode:                       # GREEN
-        prompt = "Enter the decimal code on the keypad:  610"
-    else:                                    # RED
-        prompt = ("Convert this binary to decimal, then enter on keypad:\n"
-                  "  1001100010  (hint: it equals 610)")
+    keypad_target = "610"
+    if btn._easy_mode:
+        prompt = "Enter the decimal code on the keypad: 610"
+    else:
+        prompt = (
+            "Convert this binary to decimal, then enter on keypad:\n"
+            "1001100010  (hint: it equals 610)"
+        )
 
-    # show prompt to the GUI 
+    # ----- 3. show prompt in a dialog -----
     messagebox.showinfo("Maze Entrance Puzzle", prompt)
 
-    # ----- 3. run keypad phase -----
+    # ----- 4. run keypad phase -----
     kd = Keypad(component_keypad, keypad_target)
     kd.start()
+    # wait until defused or failed
     while not (kd._defused or kd._failed):
         time.sleep(0.1)
 
+    # handle failure
     if kd._failed:
-        print("❌ Wrong code—try the entrance puzzle again.\n")
+        messagebox.showerror("Wrong Code", "❌ That was incorrect. Try again.")
         return entrance_challenge()
 
-    # ----- 4. success: launch main bomb UI -----
-    print("✅ Correct! Entrance unlocked.")
-    for w in window.winfo_children():        # clear intro widgets
+    # ----- 5. success! unlock and boot bomb UI -----
+    messagebox.showinfo("Unlocked", "✅ Correct! Entrance unlocked.")
+    for w in window.winfo_children():
         w.destroy()
 
     global gui, strikes_left, active_phases
-    gui = Lcd(window)                        # build bomb LCD interface
-    strikes_left   = NUM_STRIKES
-    active_phases  = NUM_PHASES
-    gui.after(1000, bootup)                  # start boot sequence
+    gui           = Lcd(window)
+    strikes_left  = NUM_STRIKES
+    active_phases = NUM_PHASES
+    gui.after(1000, bootup)
     return True
-    
+
 def show_toggle_screen(window):
     """Screen for the shifting-walls (Toggles) puzzle."""
     for w in window.winfo_children(): w.destroy()
