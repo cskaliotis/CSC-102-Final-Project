@@ -256,9 +256,9 @@ class Wires(PhaseThread):
 
 class Button(PhaseThread):
     """
-    Flashes the RGB button rapidly.
-    • Press while idx==0 (GREEN step) → easy puzzle
-    • Press while idx==2 (RED  step) → hard puzzle
+    Flashes the RGB button rapidly:
+      • Press on GREEN (idx==0) → easy puzzle
+      • Press on RED   (idx==2) → hard puzzle
     """
     def __init__(self, state_pin, rgb_pins, name="Button", flashes_per_sec=10):
         super().__init__(name)
@@ -268,55 +268,44 @@ class Button(PhaseThread):
         self._easy_mode = None
 
         if RPi:
-            # PICK ONE based on your wiring:
-            # If button ties pin ⟷ GND, use Pull.UP + pressed=not val
-            # If button ties pin ⟷ 3.3V, use Pull.DOWN + pressed=val
-            self._state_pin.switch_to_input(pull=Pull.DOWN)
-            # initialize LED off
-            for p in self._r, self._g, self._b:
+            # wiring: button between pin ↔ GND → use Pull.UP + pressed = not val
+            self._state_pin.switch_to_input(pull=Pull.UP)
+            for p in (self._r, self._g, self._b):
                 p.switch_to_output(value=OFF)
 
-        def run(self):
-            self._running = True
-            FLASHES = [
-                (OFF, ON,  OFF),  # idx 0: GREEN
-                (OFF, OFF, OFF),  # idx 1: OFF
-                (ON,  OFF, OFF),  # idx 2: RED
-                (OFF, OFF, OFF)   # idx 3: OFF
-            ]
-            idx      = 0
-            interval = 1 / self._hz
-            while self._running and self._easy_mode is None:
-                # light the LED
-                self._r.value, self._g.value, self._b.value = FLASHES[idx]
-                if RPi:
-                    val = self._state_pin.value
-                    pressed = not val   # if using Pull.UP wiring; otherwise pressed = val
-                else:
-                    pressed = False
-    
-                if pressed:
-                    # easy only on GREEN step (idx==0)
-                    is_green = (idx == 0)
-                    print(f"[BUTTON DEBUG] Press on {'GREEN' if is_green else 'RED'} step")
-                    self._easy_mode = is_green
-                    self._defused   = True
-    
-                    # hold that color so it’s visible
-                    sleep(3)
-                    break
-    
-                idx = (idx + 1) % len(FLASHES)
-                sleep(interval)
-            self._running = False
+    def run(self):
+        self._running = True
+        FLASHES = [
+            (OFF, ON,  OFF),  # idx=0 → GREEN
+            (OFF, OFF, OFF),  # idx=1 → OFF
+            (ON,  OFF, OFF),  # idx=2 → RED
+            (OFF, OFF, OFF)   # idx=3 → OFF
+        ]
+        idx      = 0
+        interval = 1 / self._hz
+
+        while self._running and self._easy_mode is None:
+            # 1) light it
+            self._r.value, self._g.value, self._b.value = FLASHES[idx]
+
+            # 2) detect press
+            if RPi and not self._state_pin.value:
+                # green→easy if idx==0; red→hard if idx==2
+                self._easy_mode = (idx == 0)
+                self._defused   = True
+                sleep(3)       # hold the chosen color
+                break
+
+            # 3) advance flash
+            idx = (idx + 1) % len(FLASHES)
+            sleep(interval)
+
+        self._running = False
 
     def __str__(self):
         if self._defused:
             return "GREEN-easy" if self._easy_mode else "RED-hard"
-        # before defuse, show raw state
-        if RPi and not self._state_pin.value:
-            return "Pressed"
-        return "Released"
+        return "Pressed" if (RPi and not self._state_pin.value) else "Released"
   
 # the toggle switches phase
 class Toggles(PhaseThread):
