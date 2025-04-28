@@ -264,14 +264,14 @@ class Button(PhaseThread):
         super().__init__(name)
         self._state_pin = state_pin
         self._r, self._g, self._b = rgb_pins
-        self._hz        = flashes_per_sec
+        self._hz = flashes_per_sec
         self._easy_mode = None
 
         if RPi:
             # PICK ONE based on your wiring:
             # If button ties pin ⟷ GND, use Pull.UP + pressed=not val
             # If button ties pin ⟷ 3.3V, use Pull.DOWN + pressed=val
-            self._state_pin.switch_to_input(pull=Pull.UP)
+            self._state_pin.switch_to_input(pull=Pull.DOWN)
             # initialize LED off
             for p in self._r, self._g, self._b:
                 p.switch_to_output(value=OFF)
@@ -298,7 +298,7 @@ class Button(PhaseThread):
                 val = self._state_pin.value
                 print(f"[BUTTON DEBUG] idx={idx}  pin reads={val}")
                 # adjust this if you changed pull:
-                pressed = not val
+                pressed = val
             else:
                 pressed = False
 
