@@ -82,12 +82,11 @@ def show_instructions(window):
 
 
 import tkinter as tk
-import time
-from bomb_phases import Button, Keypad, Lcd
-from bomb_configs import NUM_STRIKES, NUM_PHASES
-from tkinter import messagebox
+from bomb_phases import Button, Lcd
+from bomb_configs import NUM_STRIKES, NUM_PHASES, COUNTDOWN
+from time import sleep
 
-# 1) Main “welcome” screen—now passes window into entrance_challenge
+# 1) Welcome screen—launches the button‐flash puzzle
 def show_entrance_screen(window):
     for w in window.winfo_children():
         w.destroy()
@@ -101,43 +100,36 @@ def show_entrance_screen(window):
         "🔴 RED for a *hard* one\n\n"
         "Choose wisely. Good luck, runner!"
     )
-    tk.Label(
-        window,
-        text=prompt,
-        font=("Helvetica", 18),
-        fg="#ffffff",
-        bg="#1e1e2f",
-        justify="center",
-        wraplength=600
-    ).pack(pady=50)
+    tk.Label(window,
+             text=prompt,
+             font=("Helvetica", 18),
+             fg="#ffffff",
+             bg="#1e1e2f",
+             justify="center",
+             wraplength=600).pack(pady=50)
 
-    tk.Button(
-        window,
-        text="Start Puzzle",
-        font=("Helvetica", 16, "bold"),
-        bg="#00ffcc",
-        fg="#000000",
-        activebackground="#00ddaa",
-        cursor="hand2",
-        padx=30,
-        pady=12,
-        bd=0,
-        command=lambda: entrance_challenge(window)
+    tk.Button(window,
+              text="Start Puzzle",
+              font=("Helvetica", 16, "bold"),
+              bg="#00ffcc",
+              fg="#000000",
+              activebackground="#00ddaa",
+              cursor="hand2",
+              padx=30,
+              pady=12,
+              bd=0,
+              command=lambda: entrance_challenge(window)
     ).pack(pady=30)
 
 
-# 2) Spawns the flash-button phase then swaps to the entry screen
+# 2) Kick off the flash‐button and then hand off to the GUI entry screen
 def entrance_challenge(window):
-    print("🔒 Maze Entrance Locked! Press GREEN=easy, RED=hard.")
-
-    # run the flashing-button thread
+    # run the flashing‐button thread
     btn = Button(component_button_state, component_button_RGB)
     btn.start()
-    btn.join()
+    btn.join()   # waits until you press and the thread breaks
 
-    print(f"[ENTRANCE DEBUG] defused={btn._defused}, easy_mode={btn._easy_mode}")
-
-    # pick text based on green/red
+    # choose riddle text *without* any hint
     target = "610"
     if btn._easy_mode:
         prompt = "Enter the decimal code on the keypad: 610"
@@ -147,43 +139,39 @@ def entrance_challenge(window):
             "1001100010"
         )
 
-    # show the in-window puzzle
+    # swap into the in-window puzzle
     show_entrance_puzzle_screen(window, prompt, target)
 
 
-# 3) In-window puzzle screen with Entry + Submit
+# 3) In-window riddle + single Submit button
 def show_entrance_puzzle_screen(window, prompt, target):
-    # clear old widgets
+    # clear out the old widgets
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # riddle text
-    tk.Label(
-        window,
-        text=prompt,
-        font=("Helvetica", 18),
-        fg="#ffffff",
-        bg="#1e1e2f",
-        justify="center",
-        wraplength=600
-    ).pack(pady=(80, 20))
+    # the riddle
+    tk.Label(window,
+             text=prompt,
+             font=("Helvetica", 18),
+             fg="#ffffff",
+             bg="#1e1e2f",
+             justify="center",
+             wraplength=600).pack(pady=(80, 20))
 
-    # entry box
-    entry = tk.Entry(
-        window,
-        font=("Helvetica", 16),
-        width=10,
-        justify="center"
-    )
+    # code entry box
+    entry = tk.Entry(window,
+                     font=("Helvetica", 16),
+                     width=10,
+                     justify="center")
     entry.pack(pady=(0, 30))
     entry.focus_set()
 
-    # submit handler
+    # the **only** Submit button
     def on_submit():
         attempt = entry.get().strip()
         if attempt == target:
-            # correct → boot bomb UI
+            # correct → clear & boot bomb UI
             for w in window.winfo_children():
                 w.destroy()
             global gui, strikes_left, active_phases
@@ -192,70 +180,25 @@ def show_entrance_puzzle_screen(window, prompt, target):
             active_phases = NUM_PHASES
             gui.after(1000, bootup)
         else:
-            # inline error
-            tk.Label(
-                window,
-                text="❌ Wrong code—try again.",
-                font=("Helvetica", 14),
-                fg="#ff5555",
-                bg="#1e1e2f"
-            ).pack()
+            # inline error, then restart entrance
+            tk.Label(window,
+                     text="❌ Wrong code—try again.",
+                     font=("Helvetica", 14),
+                     fg="#ff5555",
+                     bg="#1e1e2f").pack()
             window.after(1500, lambda: entrance_challenge(window))
 
-    # submit button
-    tk.Button(
-        window,
-        text="Submit",
-        font=("Helvetica", 16, "bold"),
-        bg="#00ffcc",
-        fg="#000000",
-        activebackground="#00ddaa",
-        padx=20,
-        pady=10,
-        bd=0,
-        cursor="hand2",
-        command=on_submit
-    ).pack()
-
-
-
-    # Submit button callback
-    def on_submit():
-        attempt = entry.get().strip()
-        if attempt == target:
-            # success → clear and boot the bomb
-            for w in window.winfo_children():
-                w.destroy()
-            global gui, strikes_left, active_phases
-            gui           = Lcd(window)
-            strikes_left  = NUM_STRIKES
-            active_phases = NUM_PHASES
-            gui.after(1000, bootup)
-        else:
-            # wrong → show a quick “try again” message and restart
-            tk.Label(
-                window,
-                text="❌ Wrong code—try again.",
-                font=("Helvetica", 16),
-                fg="#ff5555",
-                bg="#1e1e2f"
-            ).pack(pady=(10, 0))
-            window.after(1500, lambda: entrance_challenge())
-
-    # Submit button
-    tk.Button(
-        window,
-        text="Submit",
-        font=("Helvetica", 16, "bold"),
-        bg="#00ffcc",
-        fg="#000000",
-        activebackground="#00ddaa",
-        padx=20,
-        pady=10,
-        bd=0,
-        command=on_submit,
-        cursor="hand2"
-    ).pack(pady=10)
+    tk.Button(window,
+              text="Submit",
+              font=("Helvetica", 16, "bold"),
+              bg="#00ffcc",
+              fg="#000000",
+              activebackground="#00ddaa",
+              padx=20,
+              pady=10,
+              bd=0,
+              cursor="hand2",
+              command=on_submit).pack()
     
 def show_toggle_screen(window):
     """Screen for the shifting-walls (Toggles) puzzle."""
