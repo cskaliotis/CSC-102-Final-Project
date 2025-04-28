@@ -297,7 +297,6 @@ class Button(PhaseThread):
             idx = (idx + 1) % len(colors)
             sleep(interval)
         self._running = False
-
     def __str__(self):
         if self._defused:
             return "GREEN-easy" if self._easy_mode else "RED-hard"
