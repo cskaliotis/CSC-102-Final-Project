@@ -263,13 +263,13 @@ class Button(PhaseThread):
         super().__init__(name)
         self._state_pin = state_pin
         self._r, self._g, self._b = rgb_pins
-        self._rgb = rgb_pins            # <-- you added this ✔
-        self._hz        = flashes_per_sec
+        self._rgb = rgb_pins           
+        self._hz = flashes_per_sec
         self._easy_mode = None
         if RPi:
-            self._state_pin.switch_to_input(pull=digitalio.Pull.UP)
+            self._state_pin.switch_to_input(pull=Pull.UP)
             for p in self._rgb:
-                p.switch_to_output(value=True)      # LED off
+                p.switch_to_output(value=OFF)      # LED off
 
     def run(self):
         self._running = True
@@ -277,22 +277,18 @@ class Button(PhaseThread):
                   (OFF, OFF, OFF),   # OFF
                   (ON,  OFF, OFF),   # RED
                   (OFF, OFF, OFF)]   # OFF
-        idx, dt = 0, 1 / self._hz
+        idx = 0
+        interval = 1 / self._hz
         while self._running and self._easy_mode is None:
-            if RPi:
-                self._r.value, self._g.value, self._b.value = colors[idx]
+            self._r.value, self._g.value, self._b.value = colors[idx]
+            if RPi and not self._state_pin.value:
+                self._easy_mode = (colors[idx] == GREEN)
+                self._defused   = True
+                break
             idx = (idx + 1) % len(colors)
+            sleep(interval)
 
-            pressed = (not self._state_pin.value) if RPi else False
-            if pressed:
-                self._easy_mode = (colors[idx - 1] == (True, False, True))
-                self._defused = True
-                if RPi:                         # freeze color for feedback
-                    if self._easy_mode:
-                        self._r.value, self._g.value, self._b.value = (True, False, True)
-                    else:
-                        self._r.value, self._g.value, self._b.value = (False, True, True)
-            sleep(dt)
+            
 
     def __str__(self):
         if self._defused:
