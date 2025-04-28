@@ -81,7 +81,7 @@ if (RPi):
 # 3x3 pins: 12, 16, 20, 21, 3V3, 3V3, 3V3, 3V3, GND, GND, GND, GND
 #           -TOG1-  -TOG2-  --TOG3--  --TOG4--  --TOG5--  --TOG6--
 if (RPi):
-    # the pins
+    # the pins for toggles (D12, D16, D20, D21)
     toggle_pins = [board.D12, board.D16, board.D20, board.D21]
     toggle_directions = ["north", "east", "south", "west"]
     
