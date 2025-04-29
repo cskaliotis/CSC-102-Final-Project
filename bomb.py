@@ -299,8 +299,65 @@ def show_forgotten_fortress(window):
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
+    
     tk.Label(window, text="🏰 You’ve entered the Forgotten Fortress!",
-             font=("Helvetica", 20, "bold"), fg="#ffffff", bg="#1e1e2f").pack(pady=60)
+             font=("Helvetica", 20, "bold"), 
+             fg="#ffffff", 
+             bg="#1e1e2f").pack(pady=30)
+    
+    tk.Label(window, text="You're surrounded by ancient walls...\nA riddle echoes: 'Go where the sun sets.'",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=20)
+
+    tk.Label(window, text="Which direction will you go?",
+             font=("Helvetica", 16),
+             fg="#00ffcc",
+             bg="#1e1e2f").pack(pady=10)
+    
+    def choose_direction(direction):
+        for w in window.winfo_children():
+            w.destroy()
+        window.configure(bg="#1e1e2f")
+
+        if direction.lower() == "west":
+            tk.Label(window,
+                     text="💥 You tripped over a power barrier!",
+                     font=("Helvetica", 20, "bold"),
+                     fg="#ff6666",
+                     bg="#1e1e2f").pack(pady=30)
+
+            tk.Label(window,
+                     text="⚡ Solve the wires puzzle to deactivate it.",
+                     font=("Helvetica", 16),
+                     fg="#ffffff",
+                     bg="#1e1e2f").pack(pady=10)
+
+            # Small delay then show wires
+            window.after(1500, lambda: show_wires_screen(window))
+        else:
+            tk.Label(window,
+                     text="🚫 Wrong way. The path is blocked.",
+                     font=("Helvetica", 16),
+                     fg="#ff6666",
+                     bg="#1e1e2f").pack(pady=30)
+
+            tk.Button(window,
+                      text="Try Another Direction",
+                      font=("Helvetica", 14, "bold"),
+                      bg="#00ffcc",
+                      fg="#000000",
+                      command=lambda: show_forgotten_fortress(window)).pack(pady=20)
+
+    # Direction buttons
+    for dir in ["North", "South", "East", "West"]:
+        tk.Button(window,
+                  text=dir,
+                  font=("Helvetica", 14),
+                  width=10,
+                  command=lambda d=dir: choose_direction(d)).pack(pady=5)
+
+
     # Continue your game flow here (e.g., wires, keypad, etc.)
 
 def show_wires_screen(window):
