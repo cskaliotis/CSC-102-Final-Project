@@ -199,6 +199,7 @@ def show_entrance_puzzle_screen(window, prompt, target):
             window.after(100, poll_keypad)
 
     poll_keypad()
+    
 def show_toggle_screen(window):
     """Screen for the shifting-walls (Toggles) puzzle."""
     for w in window.winfo_children(): w.destroy()
