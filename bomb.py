@@ -209,6 +209,98 @@ def show_toggle_screen(window):
              justify="center", wraplength=600).pack(pady=40)
     tk.Button(window, text="Solve Toggles", font=("Helvetica",16),
               command=lambda: run_toggle_phase(window)).pack(pady=20)
+    
+def show_twilight_passage(window):
+    """User starts at Twilight Passage and uses toggles to proceed south."""
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window,
+             text="🌒 Twilight Passage",
+             font=("Helvetica", 24, "bold"),
+             fg="#00ffcc",
+             bg="#1e1e2f").pack(pady=(40, 10))
+
+    tk.Label(window,
+             text="You're facing NORTH.\nToggle to turn around and face SOUTH.",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=20)
+
+    # Toggle button to flip direction
+    def on_toggle_south():
+        for w in window.winfo_children():
+            w.destroy()
+        window.configure(bg="#1e1e2f")
+        tk.Label(window,
+                 text="🔄 Direction: SOUTH\nYou're heading south down the Twilight Passage.",
+                 font=("Helvetica", 18),
+                 fg="#ffffff",
+                 bg="#1e1e2f").pack(pady=30)
+        tk.Label(window,
+                 text="You're stopped by two doors...\nSolve the circuit puzzle to proceed.",
+                 font=("Helvetica", 16),
+                 fg="#ffffff",
+                 bg="#1e1e2f").pack(pady=20)
+
+        # Challenge screen with doors
+        tk.Label(window,
+                 text="What’s the circuit’s Boolean expression?",
+                 font=("Helvetica", 18, "bold"),
+                 fg="#00ffcc",
+                 bg="#1e1e2f").pack(pady=20)
+
+        tk.Label(window,
+                 text="Door 1: (A AND B) OR (C AND NOT D)\nDoor 2: (A OR B) AND (C OR D)",
+                 font=("Helvetica", 15),
+                 fg="#ffffff",
+                 bg="#1e1e2f",
+                 justify="center").pack(pady=10)
+
+        answer_entry = tk.Entry(window, font=("Courier New", 16), width=35, justify="center")
+        answer_entry.pack(pady=10)
+
+        def check_answer():
+            answer = answer_entry.get().replace(" ", "").upper()
+            if answer in ["(AANDB)OR(CANDNOTD)", "(AAND B)OR(CANDNOTD)"]:
+                tk.Label(window,
+                         text="✅ Correct! You enter the Forgotten Fortress.",
+                         font=("Helvetica", 16),
+                         fg="#00ffcc",
+                         bg="#1e1e2f").pack(pady=20)
+                window.after(2000, lambda: show_forgotten_fortress(window))
+            else:
+                tk.Label(window,
+                         text="❌ Wrong expression. Try again.",
+                         font=("Helvetica", 14),
+                         fg="#ff6666",
+                         bg="#1e1e2f").pack(pady=10)
+
+        tk.Button(window,
+                  text="Submit Answer",
+                  font=("Helvetica", 14, "bold"),
+                  bg="#00ffcc",
+                  fg="#000000",
+                  command=check_answer).pack(pady=20)
+
+    tk.Button(window,
+              text="Toggle SOUTH",
+              font=("Helvetica", 16, "bold"),
+              bg="#00ffcc",
+              fg="#000000",
+              padx=20,
+              pady=10,
+              command=on_toggle_south).pack(pady=40)
+
+# Placeholder for next room logic
+def show_forgotten_fortress(window):
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+    tk.Label(window, text="🏰 You’ve entered the Forgotten Fortress!",
+             font=("Helvetica", 20, "bold"), fg="#ffffff", bg="#1e1e2f").pack(pady=60)
+    # Continue your game flow here (e.g., wires, keypad, etc.)
 
 def show_wires_screen(window):
     """Screen for the power-barrier (Wires) puzzle."""
