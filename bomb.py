@@ -508,7 +508,43 @@ def check_easy_puzzle(window, answer):
     else:
         tk.Label(window, text="❌ Try again!", font=("Helvetica", 14), fg="red", bg="#1e1e2f").pack(pady=10)
 
+def show_hard_puzzle(window):
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
 
+    tk.Label(window,
+             text="🧠 Hard Puzzle:\nI have keys but no locks. I have space but no room. You can enter but can’t go outside. What am I?",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f",
+             wraplength=600).pack(pady=30)
+
+    answer_entry = tk.Entry(window, font=("Helvetica", 14))
+    answer_entry.pack(pady=10)
+
+    tk.Button(window, text="Submit",
+              font=("Helvetica", 14),
+              command=lambda: check_hard_puzzle(window, answer_entry.get())).pack(pady=10)
+    
+def check_hard_puzzle(window, answer):
+    if answer.lower().strip() == "keyboard":
+        for w in window.winfo_children():
+            w.destroy()
+        tk.Label(window,
+                 text="🎉 You solved all puzzles! Moving to the next point...",
+                 font=("Helvetica", 16),
+                 fg="#00ff00",
+                 bg="#1e1e2f").pack(pady=20)
+        window.after(2000, lambda: show_point_d(window))  # Create show_point_d later
+    else:
+        tk.Label(window,
+                 text="❌ Not quite. Try again!",
+                 font=("Helvetica", 14),
+                 fg="red",
+                 bg="#1e1e2f").pack(pady=10)
+        
+#placeholder for point D 
 def show_chest_screen(window):
     """Supply Chest: Button→Keypad bonus puzzle."""
     for w in window.winfo_children(): w.destroy()
