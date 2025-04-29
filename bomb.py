@@ -608,6 +608,26 @@ def defuse_success(window):
     window.after(2000, lambda: show_final_screen(window))  # Final win screen
 
 
+def explode_fail(window):
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+    
+    tk.Label(window, text="💥 BOOM! You triggered the bomb.",
+             font=("Helvetica", 18, "bold"),
+             fg="red",
+             bg="#1e1e2f").pack(pady=40)
+
+    tk.Label(window, text="But… a second chance awaits you.",
+             font=("Helvetica", 14),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=10)
+
+    tk.Button(window, text="Retry Mystic Hollow",
+              font=("Helvetica", 14),
+              command=lambda: show_mystic_hollow(window)).pack(pady=20)
+
+
 def show_final_screen(window):
     """Final defuse/boom decision."""
     for w in window.winfo_children(): w.destroy()
