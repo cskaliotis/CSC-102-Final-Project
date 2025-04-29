@@ -544,7 +544,7 @@ def check_hard_puzzle(window, answer):
                  fg="red",
                  bg="#1e1e2f").pack(pady=10)
         
-#placeholder for point D 
+
 def show_chest_screen(window):
     """Supply Chest: Button→Keypad bonus puzzle."""
     for w in window.winfo_children(): w.destroy()
@@ -554,6 +554,8 @@ def show_chest_screen(window):
              justify="center", wraplength=600).pack(pady=40)
     tk.Button(window, text="Begin Chest Puzzle", font=("Helvetica",16),
               command=lambda: run_chest_phase(window)).pack(pady=20)
+
+#placeholder for point D 
 
 def show_final_screen(window):
     """Final defuse/boom decision."""
