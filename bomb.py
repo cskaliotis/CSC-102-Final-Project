@@ -34,29 +34,45 @@ def update_timer(window):
         show_failure_screen(window)
     
 def show_welcome_screen(window):
+    """
+    Displays the welcome screen where the user can enter their name and start the game.
+    Clears any existing widgets, sets the background, and adds necessary labels and buttons.
+    """
+    # Clear existing widgets from the window
     for w in window.winfo_children():
         w.destroy()
-        
-    window.configure(bg="#1e1e2f")
-    title = tk.Label(window, text="MAZE RUNNER", font=("Helvetica", 42, "bold"), fg="#00ffcc", bg="#1e1e2f")
-    title.pack(pady=(60, 30))
 
-    input_frame = tk.Frame (window, bg="#1e1e2f")
+    # Set the background color for the window
+    window.configure(bg="#1e1e2f")
+
+    # Title label
+    title = tk.Label(window, text="MAZE RUNNER", font=("Helvetica", 42, "bold"), fg="#00ffcc", bg="#1e1e2f")
+    title.pack(pady=(60, 30))  # Adjust padding for title
+
+    # Input frame for better structure
+    input_frame = tk.Frame(window, bg="#1e1e2f")
     input_frame.pack(pady=10)
-    
+
+    # Name input label
     name_label = tk.Label(input_frame, text="Enter your name:", font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f")
-    name_label.pack(anchor="w", padx=10,pady=(0,5))
+    name_label.pack(anchor="w", padx=10, pady=(0, 5))
+
+    # Name entry box
     name_entry = tk.Entry(input_frame, font=("Helvetica", 16), width=25, bg="#f0f0f0", relief="flat", justify="center")
     name_entry.pack(padx=10)
 
+    # Function for starting the game
     def on_start():
         global player_name
+        # Get the entered name or default to "Player"
         player_name = name_entry.get().strip() or "Player"
-        show_instructions(window)
+        show_instructions(window)  # Proceed to instructions screen
 
-    start_btn = tk.Button(window, text="Start Game", font=("Helvetica", 16, "bold"), bg="#00ffcc", fg="#000000", activebackground="#00ddaa",
-        padx=20, pady=10, bd=0, command=on_start, cursor="hand2")
-    start_btn.pack(pady=40)
+    # Start game button
+    start_btn = tk.Button(window, text="Start Game", font=("Helvetica", 16, "bold"), bg="#00ffcc", fg="#000000", 
+                          activebackground="#00ddaa", padx=20, pady=10, bd=0, command=on_start, cursor="hand2")
+    start_btn.pack(pady=40)  # Adjust padding for button
+
     
 def show_instructions(window):
     for w in window.winfo_children():
