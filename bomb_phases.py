@@ -317,6 +317,7 @@ class Toggles(PhaseThread):
         self._value = []  # The current state of the toggles (on/off)
         self._defused = False
         self._failed = False
+        self._running = False
 
     # runs the thread
     def run(self):
@@ -336,6 +337,22 @@ class Toggles(PhaseThread):
                 self._running = False
             
             sleep(0.1)  # Sleep to prevent CPU overload
+
+    def defuse(self):
+        """Forcefully mark the phase as defused (e.g., upon correct answer in GUI)."""
+        self._defused = True
+        self._running = False
+
+    def fail(self):
+        """Forcefully mark the phase as failed."""
+        self._failed = True
+        self._running = False
+
+    def is_defused(self):
+        return self._defused
+
+    def is_failed(self):
+        return self._failed
 
     # returns the toggle switches state as a string
     def __str__(self):
