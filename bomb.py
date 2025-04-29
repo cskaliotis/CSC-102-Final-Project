@@ -370,6 +370,30 @@ def show_wires_screen(window):
     tk.Button(window, text="Solve Wires", font=("Helvetica",16),
               command=lambda: run_wires_phase(window)).pack(pady=20)
 
+def run_wires_phase(window):
+    # Simulate getting user input - replace this part with real input logic
+    user_input = [1, 2, 3]  # example placeholder, change to actual wire input logic
+
+    if tuple(user_input) == tuple(wires_target):  # wire order is correct
+        for w in window.winfo_children():
+            w.destroy()
+        window.configure(bg="#1e1e2f")
+        tk.Label(window,
+                 text="✅ Wires deactivated! Power barrier down.",
+                 font=("Helvetica", 18),
+                 fg="#00ff00",
+                 bg="#1e1e2f").pack(pady=30)
+
+        # Proceed to Phantom’s Lair after short pause
+        window.after(2000, lambda: show_phantoms_lair(window))
+
+    else:
+        tk.Label(window,
+                 text="❌ Incorrect wire pattern! Try again.",
+                 font=("Helvetica", 16),
+                 fg="red",
+                 bg="#1e1e2f").pack(pady=10)
+
 def show_chest_screen(window):
     """Supply Chest: Button→Keypad bonus puzzle."""
     for w in window.winfo_children(): w.destroy()
