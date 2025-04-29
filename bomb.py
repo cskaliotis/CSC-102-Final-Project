@@ -595,6 +595,18 @@ def show_mystic_hollow(window):
               width=10,
               command=lambda: explode_fail(window)).grid(row=0, column=1, padx=20)
 
+def defuse_success(window):
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+    
+    tk.Label(window, text="✅ Bomb defused! You’re a hero.",
+             font=("Helvetica", 18),
+             fg="#00ff00",
+             bg="#1e1e2f").pack(pady=40)
+
+    window.after(2000, lambda: show_final_screen(window))  # Final win screen
+
 
 def show_final_screen(window):
     """Final defuse/boom decision."""
