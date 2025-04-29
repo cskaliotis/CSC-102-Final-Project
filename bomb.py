@@ -394,6 +394,121 @@ def run_wires_phase(window):
                  fg="red",
                  bg="#1e1e2f").pack(pady=10)
 
+def show_phantoms_lair(window):
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window,
+             text="👻 You’ve entered the Phantom's Lair!",
+             font=("Helvetica", 20, "bold"),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=40)
+
+    tk.Label(window,
+             text="Hint: The sun rises in the...",
+             font=("Helvetica", 16),
+             fg="#ffff99",
+             bg="#1e1e2f").pack(pady=10)
+
+    tk.Button(window,
+              text="Go East",
+              font=("Helvetica", 16),
+              command=lambda: show_chest_and_riddle(window)).pack(pady=30)
+    
+def show_chest_and_riddle(window):
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window,
+             text="🧰 You found a chest filled with food!",
+             font=("Helvetica", 18),
+             fg="#00ffcc",
+             bg="#1e1e2f").pack(pady=20)
+
+    tk.Label(window,
+             text="🎉 Your life has been extended!",
+             font=("Helvetica", 16),
+             fg="#00ff00",
+             bg="#1e1e2f").pack(pady=10)
+
+    tk.Label(window,
+             text="To open the chest, solve this riddle:",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=20)
+
+    riddle = "I speak without a mouth and hear without ears. I have nobody, but I come alive with the wind. What am I?"
+    tk.Label(window, text=riddle, font=("Helvetica", 14), fg="#ddddff", bg="#1e1e2f", wraplength=600).pack(pady=10)
+
+    answer_entry = tk.Entry(window, font=("Helvetica", 14))
+    answer_entry.pack(pady=10)
+
+    tk.Button(window, text="Submit Answer", font=("Helvetica", 14),
+              command=lambda: check_riddle_answer(window, answer_entry.get())).pack(pady=10)
+
+    tk.Button(window, text="Skip Puzzle", font=("Helvetica", 14),
+              command=lambda: show_flash_button_wall(window)).pack(pady=10)
+
+def check_riddle_answer(window, answer):
+    if answer.lower().strip() == "echo":
+        for w in window.winfo_children():
+            w.destroy()
+        tk.Label(window,
+                 text="✅ Correct! The chest opens and you're well-fed.",
+                 font=("Helvetica", 16),
+                 fg="#00ff00",
+                 bg="#1e1e2f").pack(pady=20)
+        window.after(2000, lambda: show_flash_button_wall(window))
+    else:
+        tk.Label(window,
+                 text="❌ That's not the right answer. Try again or skip.",
+                 font=("Helvetica", 14),
+                 fg="red",
+                 bg="#1e1e2f").pack(pady=10)
+
+def show_flash_button_wall(window):
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window,
+             text="🚪 A wall blocks your path. Flash the hidden button to open it!",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f",
+             wraplength=600).pack(pady=30)
+
+    tk.Button(window, text="Flash Button",
+              font=("Helvetica", 14),
+              command=lambda: show_easy_puzzle(window)).pack(pady=20)
+    
+def show_easy_puzzle(window):
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window, text="🧩 Easy Puzzle:\nWhat number comes next?\n2, 4, 6, 8, ?", 
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f").pack(pady=20)
+
+    answer_entry = tk.Entry(window, font=("Helvetica", 14))
+    answer_entry.pack(pady=10)
+
+    tk.Button(window, text="Submit",
+              font=("Helvetica", 14),
+              command=lambda: check_easy_puzzle(window, answer_entry.get())).pack(pady=10)
+
+def check_easy_puzzle(window, answer):
+    if answer.strip() == "10":
+        for w in window.winfo_children():
+            w.destroy()
+        tk.Label(window, text="✅ Correct!", font=("Helvetica", 16), fg="#00ff00", bg="#1e1e2f").pack(pady=20)
+        window.after(1500, lambda: show_hard_puzzle(window))
+    else:
+        tk.Label(window, text="❌ Try again!", font=("Helvetica", 14), fg="red", bg="#1e1e2f").pack(pady=10)
+
+
 def show_chest_screen(window):
     """Supply Chest: Button→Keypad bonus puzzle."""
     for w in window.winfo_children(): w.destroy()
