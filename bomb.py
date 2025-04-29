@@ -556,6 +556,45 @@ def show_chest_screen(window):
               command=lambda: run_chest_phase(window)).pack(pady=20)
 
 #placeholder for point D 
+def show_mystic_hollow(window):
+    for w in window.winfo_children():
+        w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window, text="💣 Mystic Hollow – The Bomb Challenge!",
+             font=("Helvetica", 20, "bold"),
+             fg="#ff6666",
+             bg="#1e1e2f").pack(pady=30)
+
+    tk.Label(window, text="Only one button defuses the bomb...",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=10)
+
+    tk.Label(window, text="Press GREEN to defuse, RED to explode.",
+             font=("Helvetica", 14),
+             fg="#ffff99",
+             bg="#1e1e2f").pack(pady=10)
+
+    button_frame = tk.Frame(window, bg="#1e1e2f")
+    button_frame.pack(pady=30)
+
+    tk.Button(button_frame,
+              text="🟢 Defuse",
+              font=("Helvetica", 16, "bold"),
+              bg="#00cc66",
+              fg="#ffffff",
+              width=10,
+              command=lambda: defuse_success(window)).grid(row=0, column=0, padx=20)
+
+    tk.Button(button_frame,
+              text="🔴 Explode",
+              font=("Helvetica", 16, "bold"),
+              bg="#cc0000",
+              fg="#ffffff",
+              width=10,
+              command=lambda: explode_fail(window)).grid(row=0, column=1, padx=20)
+
 
 def show_final_screen(window):
     """Final defuse/boom decision."""
