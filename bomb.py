@@ -11,8 +11,11 @@ from bomb_phases import Timer, Keypad, Wires,Button, Toggles, Lcd
 from bomb_configs import (component_button_state,
     component_button_RGB,
     component_keypad,
+    component_wires,
+    wires_target,
     NUM_STRIKES,
     NUM_PHASES,
+    RPi
 )
 from time import sleep
 
