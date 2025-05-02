@@ -142,24 +142,28 @@ class PhaseThread(Thread):
 
 # the timer phase
 class Timer(PhaseThread):
-    def __init__(self, component, initial_value, name="Timer"):
+    def __init__(self, component, initial_value=600, failure_callback=None, name="Timer"):
         super().__init__(name, component)
         self._value = initial_value  # countdown in seconds
         self._paused = False
-        self._interval = 1  # seconds per tick
+        self._interval = 1
         self._min = ""
         self._sec = ""
+        self._running = False
+        self._failure_callback = failure_callback  # Function to call when time runs out
 
     def run(self):
         self._running = True
         while self._running:
             if not self._paused:
                 self._update()
-                self._component.print(str(self))  # Display on bomb
+                self._component.print(str(self))  # Print to the bomb’s display
                 sleep(self._interval)
                 if self._value == 0:
                     self._running = False
-                    break  # Optional: explode logic here
+                    if self._failure_callback:
+                        self._failure_callback()
+                    break
                 self._value -= 1
             else:
                 sleep(0.1)
@@ -171,6 +175,9 @@ class Timer(PhaseThread):
     def pause(self):
         self._paused = not self._paused
         self._component.blink_rate = 2 if self._paused else 0
+
+    def stop(self):
+        self._running = False
 
     def __str__(self):
         return f"{self._min}:{self._sec}"
