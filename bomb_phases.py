@@ -144,48 +144,37 @@ class PhaseThread(Thread):
 class Timer(PhaseThread):
     def __init__(self, component, initial_value, name="Timer"):
         super().__init__(name, component)
-        # the default value is the specified initial value
-        self._value = initial_value
-        # is the timer paused?
+        self._value = initial_value  # countdown in seconds
         self._paused = False
-        # initialize the timer's minutes/seconds representation
+        self._interval = 1  # seconds per tick
         self._min = ""
         self._sec = ""
-        # by default, each tick is 1 second
-        self._interval = 1
 
-    # runs the thread
     def run(self):
         self._running = True
-        while (self._running):
-            if (not self._paused):
-                # update the timer and display its value on the 7-segment display
+        while self._running:
+            if not self._paused:
                 self._update()
-                self._component.print(str(self))
-                # wait 1s (default) and continue
+                self._component.print(str(self))  # Display on bomb
                 sleep(self._interval)
-                # the timer has expired -> phase failed (explode)
-                if (self._value == 0):
+                if self._value == 0:
                     self._running = False
+                    break  # Optional: explode logic here
                 self._value -= 1
             else:
                 sleep(0.1)
 
-    # updates the timer (only internally called)
     def _update(self):
-        self._min = f"{self._value // 60}".zfill(2)
-        self._sec = f"{self._value % 60}".zfill(2)
+        self._min = str(self._value // 60).zfill(2)
+        self._sec = str(self._value % 60).zfill(2)
 
-    # pauses and unpauses the timer
     def pause(self):
-        # toggle the paused state
         self._paused = not self._paused
-        # blink the 7-segment display when paused
-        self._component.blink_rate = (2 if self._paused else 0)
+        self._component.blink_rate = 2 if self._paused else 0
 
-    # returns the timer as a string (mm:ss)
     def __str__(self):
         return f"{self._min}:{self._sec}"
+
 
 # the keypad phase
 class Keypad(PhaseThread):
