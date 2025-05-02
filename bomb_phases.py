@@ -300,19 +300,21 @@ class Button(PhaseThread):
         return "Pressed" if (RPi and not self._state_pin.value) else "Released"
   
 class Toggles(PhaseThread):
-    def __init__(self, component, target, name="Toggles"):
-        super().__init__(name, component, target)
+    def __init__(self, component, target_direction, name="Toggles"):
+        super().__init__(name, component, target_direction)
         self._value = [False, False, False, False]  # Initial state of toggles (North, East, South, West)
-        self._current_direction = None  # The current direction based on toggles
+        self._current_direction = None  # The currently selected direction
         self._defused = False
         self._failed = False
         self._running = False
 
-    # runs the thread
     def run(self):
+        """
+        Monitor the toggles to determine the selected direction and check against the target.
+        """
         self._running = True
         while self._running:
-            # Assume component.toggles is a list representing the state of each toggle switch
+            # Get the current state of the toggles
             current = list(self._component.toggles)
             self._value = current
 
@@ -347,60 +349,6 @@ class Toggles(PhaseThread):
         """
         states = [(direction, "ON" if state else "OFF") for direction, state in zip(["North", "East", "South", "West"], self._value)]
         return " | ".join([f"{dir}: {state}" for dir, state in states])
-# the toggle switches phase
-class Toggles(PhaseThread):
-    def __init__(self, component, target, name="Toggles"):
-        super().__init__(name, component, target)
-        self._value = []  # The current state of the toggles (on/off)
-        self._defused = False
-        self._failed = False
-        self._running = False
-
-    # runs the thread
-    def run(self):
-        self._running = True
-        while self._running:
-            # Assume component.toggles is a list or array representing the state of each toggle switch
-            current = list(self._component.toggles)
-            self._value = current
-            
-            # Correct set of toggles => defused
-            if current == self._target:
-                self._defused = True
-                self._running = False
-            # If any incorrect toggle state => fail (strike)
-            elif any(current[i] != self._target[i] for i in range(len(self._target))):
-                self._failed = True
-                self._running = False
-            
-            sleep(0.1)  # Sleep to prevent CPU overload
-
-    def defuse(self):
-        """Forcefully mark the phase as defused (e.g., upon correct answer in GUI)."""
-        self._defused = True
-        self._running = False
-
-    def fail(self):
-        """Forcefully mark the phase as failed."""
-        self._failed = True
-        self._running = False
-
-    def is_defused(self):
-        return self._defused
-
-    def is_failed(self):
-        return self._failed
-
-    # returns the toggle switches state as a string
-    def __str__(self):
-        if self._defused:
-            return "DEFUSED"  # The correct state, bomb defused
-        elif self._failed:
-            return "FAILED"  # Incorrect toggle state, failure
-        else:
-            # Display current toggle state as ON/OFF for each pin
-            toggle_state = [("ON" if state else "OFF") for state in self._value]
-            return " | ".join(toggle_state)  # Output toggle states as a string
 
 # final phase handler
 def run_final_phase(window):
