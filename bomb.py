@@ -12,7 +12,7 @@ from bomb_configs import (component_button_state,
     component_button_RGB,
     component_keypad,
     component_wires,
-    wires_target,
+    wires_target as _wires_target_int,
     NUM_STRIKES,
     NUM_PHASES,
     RPi
@@ -22,6 +22,10 @@ from time import sleep
 ###########
 # functions
 
+def int_to_index_list(val, width=5):
+    return [i for i in range(width) if (val >> (width - 1 - i)) & 1]
+
+wires_target = int_to_index_list(_wires_target_int)
 
 wires_hints = {
     tuple(wires_target): "Cut the wires whose letters appear first in the serial."
