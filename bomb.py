@@ -23,6 +23,11 @@ from time import sleep
 # functions
 
 
+wires_hints = {
+    tuple(wires_target): "Cut the wires whose letters appear first in the serial."
+}
+
+
 def update_timer(window):
     # Debug: confirm this is being called
     print(f"[TIMER DEBUG] remaining={window.remaining}")
@@ -380,15 +385,38 @@ def show_forgotten_fortress(window):
     # Continue your game flow here (e.g., wires, keypad, etc.)
 
 def show_wires_screen(window):
-    """Screen for the power-barrier (Wires) puzzle."""
-    for w in window.winfo_children(): w.destroy()
+    """Power‑barrier room – player must cut the correct wires."""
+    for w in window.winfo_children():
+        w.destroy()
     window.configure(bg="#1e1e2f")
-    hint = wires_hints.get(tuple(wires_target), "Cut the correct wires!")
-    tk.Label(window, text=hint, font=("Helvetica", 18), fg="#fff", bg="#1e1e2f",
-             justify="center", wraplength=600).pack(pady=40)
-    tk.Button(window, text="Solve Wires", font=("Helvetica",16),
-              command=lambda: run_wires_phase(window)).pack(pady=20)
 
+    hint = wires_hints.get(tuple(wires_target), "Cut the correct wires!")
+    tk.Label(window, text=hint, font=("Helvetica", 18),
+             fg="#ffffff", bg="#1e1e2f", wraplength=600).pack(pady=30)
+
+    # -------- clickable wire buttons (useful for dev/testing) --------
+    dev_frame = tk.Frame(window, bg="#1e1e2f")
+    dev_frame.pack(pady=10)
+    cut_order = []          # remembers the order player clicks
+
+    def toggle_wire(idx, btn):
+        if idx in cut_order:
+            cut_order.remove(idx)
+            btn.config(relief="raised", bg="grey30")
+        else:
+            cut_order.append(idx)
+            btn.config(relief="sunken", bg="#cc0000")
+
+    for i in range(5):
+        b = tk.Button(dev_frame, text=f"Wire {i+1}", width=8,
+                      font=("Helvetica", 14), bg="grey30", fg="#ffffff")
+        b.config(command=lambda i=i, btn=b: toggle_wire(i, btn))
+        b.grid(row=0, column=i, padx=4, pady=4)
+
+    tk.Button(window, text="Cut!", font=("Helvetica", 16, "bold"),
+              bg="#00ffcc", fg="#000000",
+              command=lambda: run_wires_phase(window, cut_order)
+    ).pack(pady=25)
 def run_wires_phase(window):
     # Simulate getting user input - replace this part with real input logic
     user_input = [1, 2, 3]  # example placeholder, change to actual wire input logic
@@ -412,6 +440,35 @@ def run_wires_phase(window):
                  font=("Helvetica", 16),
                  fg="red",
                  bg="#1e1e2f").pack(pady=10)
+
+def run_wires_phase(window, gui_order):
+    """
+    Starts (or consults) the Wires phase thread, then polls until
+    defused/failed.  On the Pi we rely on GPIO; in GUI test mode we
+    judge by gui_order.
+    """
+    # --- create the thread only once ---
+    if not hasattr(run_wires_phase, "thread"):
+        run_wires_phase.thread = Wires(component_wires, wires_target)
+        run_wires_phase.thread.start()
+    phase = run_wires_phase.thread
+
+    # --- helpers decide success/failure ---
+    def is_defused():
+        return phase._defused if RPi else gui_order == wires_target
+
+    def is_failed():
+        return phase._failed if RPi else (bool(gui_order) and gui_order != wires_target)
+
+    # --- act on the outcome ---
+    if is_defused():
+        show_phantoms_lair(window)        # advance to next room
+    elif is_failed():
+        tk.Label(window, text="❌ Incorrect wire pattern! Try again.",
+                 font=("Helvetica", 14), fg="red", bg="#1e1e2f").pack(pady=10)
+        window.after(1500, lambda: show_wires_screen(window))
+    else:
+        window.after(100, lambda: run_wires_phase(window, gui_order))
 
 def show_phantoms_lair(window):
     for w in window.winfo_children():
