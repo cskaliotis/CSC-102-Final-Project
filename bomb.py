@@ -239,23 +239,56 @@ def show_toggle_screen(window):
     tk.Button(window, text="Solve Toggles", font=("Helvetica",16),
               command=lambda: run_toggle_phase(window)).pack(pady=20)
     
-def show_twilight_passage(window):
-    """User starts at Twilight Passage and uses toggles to proceed south."""
+def show_twilight_passage(window, toggles):
+    """
+    Screen for the Twilight Passage phase, where the player must flip the correct toggle to proceed.
+    """
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
     tk.Label(window,
-             text="🌒 Twilight Passage",
+             text="🌌 Twilight Passage",
              font=("Helvetica", 24, "bold"),
              fg="#00ffcc",
              bg="#1e1e2f").pack(pady=(40, 10))
 
     tk.Label(window,
-             text="You're facing NORTH.\nToggle to turn around and face SOUTH.",
+             text="You're facing NORTH. Flip the correct toggle to turn SOUTH and proceed.",
              font=("Helvetica", 16),
              fg="#ffffff",
              bg="#1e1e2f").pack(pady=20)
+
+    direction_label = tk.Label(window, text="Current Direction: None",
+                               font=("Helvetica", 16), fg="#00ffcc", bg="#1e1e2f")
+    direction_label.pack(pady=20)
+
+    # Function to update the direction label and check the toggle state
+    def update_direction():
+        direction = toggles.get_direction()
+        if direction:
+            direction_label.config(text=f"Current Direction: {direction}")
+        else:
+            direction_label.config(text="Current Direction: None")
+
+        # Check if the direction is correct
+        if toggles._defused:
+            tk.Label(window,
+                     text="🎉 Correct! You turned SOUTH and moved to the next challenge.",
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
+            window.after(2000, lambda: show_circuit_puzzle(window))  # Proceed to the next phase
+        elif toggles._failed:
+            tk.Label(window,
+                     text="❌ Wrong toggle! Try again.",
+                     font=("Helvetica", 16), fg="red", bg="#1e1e2f").pack(pady=20)
+
+    # Continuously poll the toggles
+    def poll_toggles():
+        update_direction()
+        if toggles._running:
+            window.after(100, poll_toggles)
+
+    poll_toggles()
 
     # Toggle button to flip direction
     def on_toggle_south():
