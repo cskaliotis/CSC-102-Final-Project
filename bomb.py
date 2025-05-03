@@ -164,8 +164,20 @@ def show_entrance_screen(window):
     ).pack(pady=30)
 
 
+def ensure_timer_support(window):
+    if not hasattr(window, "bomb_display"):
+        # invisible label simply satisfies Timer(component=…) for now
+        window.bomb_display = tk.Label(window)
+    if not hasattr(window, "game_over"):
+        # called if the Timer thread signals failure
+        def _fail():
+            show_failure_screen(window)
+        window.game_over = _fail
+
 def entrance_challenge(window):
     # run the flashing‐button thread
+    print("[DEBUG] entrance_challenge reached")          # keep for testing
+
     btn = Button(component_button_state, component_button_RGB)
     btn.start()
     btn.join()   # blocks until you press
