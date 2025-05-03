@@ -305,54 +305,40 @@ def show_entrance_puzzle_screen(window, prompt, target):
     
 def show_twilight_passage(window):
     """
-    Displays the Twilight Passage screen, starts the toggles thread (once), reads its bitstring,
-    maps to compass directions, and advances when it reads South ("1110").
+    Twilight Passage:
+    Reads the physical 4-way toggle switches directly, forming a 4-bit string
+    (0000→1000→1100→1110→1111) and mapping to N, E, S, W.
+    Advances when the user sets the toggles to the South pattern (1110).
     """
-    from bomb_configs import component_toggles
-    from bomb_phases import MazeToggles
-
-    # 1) Start the toggles thread if not already running
-    global toggles
-    try:
-        toggles  # if toggles exists, assume running
-    except NameError:
-        toggles = MazeToggles(ToggleComponent(component_toggles))
-        toggles.set_target("South")
-        toggles.start()
-
-    # 2) Clear previous widgets and set background
+    # 1) Clear previous UI
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # 3) Static UI elements
+    # 2) Static labels
     tk.Label(window,
              text="🌌 Twilight Passage",
              font=("Helvetica", 24, "bold"),
-             fg="#00ffcc",
-             bg="#1e1e2f").pack(pady=(40, 10))
-
+             fg="#00ffcc", bg="#1e1e2f").pack(pady=(40,10))
     tk.Label(window,
              text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.",
-             font=("Helvetica", 16),
-             fg="#ffffff",
-             bg="#1e1e2f",
-             wraplength=600,
-             justify="center").pack(pady=20)
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center").pack(pady=20)
 
+    # Status label shows bit pattern and mapped direction
     status = tk.Label(window,
                       text="Toggle code: 0000 → None",
-                      font=("Courier New", 18),
-                      fg="#00ffcc",
-                      bg="#1e1e2f")
+                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # 4) Poll loop: read toggles._value
+    # 3) Poll loop
     def poll():
-        bits = getattr(toggles, '_value', '0000')
+        # Read each toggle pin: 1 if flipped ON, else 0
+        bits = "".join("1" if pin.value else "0" for pin in component_toggles)
         direction = TOGGLE_CODE_TO_DIR.get(bits)
-        print(f"[DEBUG] toggles bits={bits}, direction={direction}")
+        print(f"[DEBUG] bits={bits}, direction={direction}")
 
+        # Update UI
         status.config(
             text=f"Toggle code: {bits}" + (f" → {direction}" if direction else " → None")
         )
@@ -360,14 +346,14 @@ def show_twilight_passage(window):
         if direction == "South":
             tk.Label(window,
                      text="🎉 Correct! You're heading south…",
-                     font=("Helvetica", 16),
-                     fg="green",
-                     bg="#1e1e2f").pack(pady=20)
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
             window.after(1500, lambda: show_circuit_puzzle(window))
         else:
             window.after(100, poll)
 
+    # Start polling immediately
     poll()
+
 
     
 def show_circuit_puzzle(window):
