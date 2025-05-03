@@ -8,7 +8,9 @@
 import tkinter as tk
 import time
 from bomb_phases import Timer, Keypad, Wires, Button, Toggles, Lcd, MazeToggles
-from bomb_configs import (component_button_state,
+from bomb_configs import (
+    component_7seg,
+    component_button_state,
     component_button_RGB,
     component_keypad,
     component_toggles,
@@ -147,19 +149,16 @@ def ensure_timer_support(window):
 
 
 def show_entrance_screen(window):
-    # 1) guarantee our placeholder exists
-    ensure_timer_support(window)
-
-    # 2) clear out the old widgets
+    # clear everything
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # 3) now that window.bomb_display is real, start the timer
-    window.remaining = 600
-    update_timer(window, window.bomb_display)
+    # start our countdown
+    window.remaining = 600  # seconds
+    update_timer(window, component_7seg)
 
-    # 4) render the entrance prompt
+    # now render the entrance UI
     prompt = (
         "🚪 Welcome to the Maze Runner Challenge!\n\n"
         "The entrance is locked.\n"
@@ -168,19 +167,13 @@ def show_entrance_screen(window):
         "🔴 RED for a *hard* one\n\n"
         "Choose wisely. Good luck, runner!"
     )
-    tk.Label(window,
-             text=prompt,
-             font=("Helvetica", 18),
-             fg="#ffffff",
-             bg="#1e1e2f",
-             justify="center",
-             wraplength=600).pack(pady=50)
+    tk.Label(window, text=prompt, font=("Helvetica", 18), fg="#fff", bg="#1e1e2f",
+             justify="center", wraplength=600).pack(pady=50)
 
     tk.Button(window,
               text="Start Puzzle",
               font=("Helvetica", 16, "bold"),
-              bg="#00ffcc",
-              fg="#000000",
+              bg="#00ffcc", fg="#000",
               activebackground="#00ddaa",
               cursor="hand2",
               padx=30, pady=12, bd=0,
