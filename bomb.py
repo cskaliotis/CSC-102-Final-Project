@@ -19,7 +19,7 @@ from bomb_configs import (component_button_state,
 )
 from time import sleep
 
-toggles = MazeToggles(component_toggles)   # uses the GPIO pins from bomb_configs
+toggles = Toggles(component_toggles, target_direction="South")   # uses the GPIO pins from bomb_configs
 toggles.start()
 
 ###########
@@ -250,7 +250,7 @@ def show_entrance_puzzle_screen(window, prompt, target):
             # ✔ correct combination
             for w in window.winfo_children():
                 w.destroy()
-            show_twilight_passage(window)           # go to next room
+            show_twilight_passage(window, toggles)           # go to next room
 
         elif kd._failed:
             # ✖ wrong key sequence → restart entrance challenge
