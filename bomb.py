@@ -4,6 +4,7 @@
 
 
 import tkinter as tk
+from tkinter import ttk
 import time
 from bomb_phases import Timer, Keypad, Wires, Button, Toggles, Lcd, MazeToggles
 from bomb_configs import (
@@ -938,8 +939,5 @@ def turn_off():
 # MAIN
 ######
 if __name__ == "__main__":
-    window = tk.Tk()
-    window.geometry("800x600")
-    window.title("Maze Runner")
-    show_welcome_screen(window)
+    show_welcome_screen()      
     window.mainloop()
