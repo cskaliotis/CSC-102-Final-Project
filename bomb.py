@@ -255,7 +255,21 @@ def show_toggle_screen(window):
              justify="center", wraplength=600).pack(pady=40)
     tk.Button(window, text="Solve Toggles", font=("Helvetica",16),
               command=lambda: run_toggle_phase(window)).pack(pady=20)
-    
+
+from bomb_phases import twilight_passage, forgotten_fortress, phantom_lair
+
+def show_twilight_passage(window):
+    toggles.set_target("South")
+    twilight_passage(window, toggles)
+
+def show_forgotten_fortress(window):
+    toggles.set_target("West")
+    forgotten_fortress(window, toggles)
+
+def show_phantom_lair(window):
+    toggles.set_target("East")
+    phantom_lair(window, toggles)
+
 def show_twilight_passage(window, toggles):
     """
     Screen for the Twilight Passage phase, where the player must flip the correct toggle to proceed.
