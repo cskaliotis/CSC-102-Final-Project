@@ -32,7 +32,7 @@ wires_hints = {
 }
 
 
-def update_timer(window):
+def update_timer(window, display):
     # Debug: confirm this is being called
     print(f"[TIMER DEBUG] remaining={window.remaining}")
     
@@ -141,6 +141,10 @@ def show_entrance_screen(window):
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
+
+    # Initialize remaining time and start the timer
+    window.remaining = 600  # 10 minutes
+    update_timer(window, window.bomb_display)
 
     prompt = (
         "🚪 Welcome to the Maze Runner Challenge!\n\n"
