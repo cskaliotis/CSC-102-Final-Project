@@ -249,7 +249,8 @@ def show_entrance_puzzle_screen(window, prompt, target):
                 w.destroy()
             show_twilight_passage(window)
         elif kd._failed:
-            # … your reset logic …
+            status.config(text="❌ Wrong code — resetting…")
+            window.after(1500, lambda: entrance_challenge(window))
         else:
             window.after(100, poll_keypad)
 
