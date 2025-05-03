@@ -77,30 +77,29 @@ if (RPi):
         pin.direction = Direction.OUTPUT
         pin.value = True
 
-# toggle switches
-# 3x3 pins: 12, 16, 20, 21, 3V3, 3V3, 3V3, 3V3, GND, GND, GND, GND
-#           -TOG1-  -TOG2-  --TOG3--  --TOG4--  --TOG5--  --TOG6--
-if (RPi):
-    toggle_pins = [board.D12, board.D16, board.D20, board.D21]
-    component_toggles = [DigitalInOut(pin) for pin in toggle_pins]
-    for pin in component_toggles:
+         -TOG1-  -TOG2-  --TOG3--  --TOG4--  --TOG5--  --TOG6--
+if RPi:
+    # set up the raw pins
+    toggle_gpio_pins = [board.D12, board.D16, board.D20, board.D21]
+    _toggles_pins = []
+    for gp in toggle_gpio_pins:
+        pin = DigitalInOut(gp)
         pin.direction = Direction.INPUT
         pin.pull = Pull.DOWN
+        _toggles_pins.append(pin)
 
-if (RPi):
-    # the pins for toggles (D12, D16, D20, D21)
-    toggle_pins = [board.D12, board.D16, board.D20, board.D21]
-    toggle_directions = ["north", "east", "south", "west"]
-    
-    # create a dictionary to map each toggle to a direction
-    component_toggles = {
-        direction: DigitalInOut(pin) for direction, pin in zip(toggle_directions, toggle_pins)
-    }
-    
-    for direction, pin in component_toggles.items():
-        # pins are input and pulled down
-        pin.direction = Direction.INPUT
-        pin.pull = Pull.DOWN
+    # wrap into an object whose `.toggles` is a list of pin.value booleans
+    class TogglesComponent:
+        def __init__(self, pins):
+            self._pins = pins
+
+        @property
+        def toggles(self):
+            # return a list of True/False
+            return [pin.value for pin in self._pins]
+
+    component_toggles = TogglesComponent(_toggles_pins)
+
 
 ###########
 # functions
