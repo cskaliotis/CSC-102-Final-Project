@@ -184,24 +184,26 @@ def show_entrance_screen(window):
 
 
 def entrance_challenge(window):
-    # Debug
-    print("[DEBUG] entrance_challenge reached")
-
-    # --- run the flashing‑button thread ---
+    """
+    Flash the red/green button, wait for a press, then launch the keypad screen.
+    """
+    # Start the flashing‐LED Button thread and wait for the press
     btn = Button(component_button_state, component_button_RGB)
     btn.start()
-    btn.join()                     # waits until you press
+    btn.join()
 
-    # --- pick the riddle based on LED color ---
-    target = "610"
-    if btn._easy_mode:             # green
+    # Swap the riddle mapping so green = easy, red = hard (or vice versa as you like):
+    if btn._easy_mode:   # GREEN
         prompt = "Enter the decimal code on the keypad: 610"
-    else:                          # red
+        target = "610"
+    else:                # RED
         prompt = ("Convert this binary to decimal, then enter on keypad:\n"
                   "1001100010")
+        target = "1001100010"
 
-    # --- show keypad screen ---
+    # Now hand off to the keypad‐UI
     show_entrance_puzzle_screen(window, prompt, target)
+
 
 
 
@@ -295,24 +297,47 @@ def show_twilight_passage(window):
     def poll():
         cur = toggles.get_direction()
         status.config(text=f"Current Direction: {cur or 'None'}")
+
         if cur == "South":
             tk.Label(window,
                      text="🎉 Correct! You're heading south…",
                      font=("Helvetica", 16), fg="green", bg="#1e1e2f")\
               .pack(pady=20)
             window.after(1500, lambda: show_circuit_puzzle(window))
+            return   # ← stop polling
+
         elif cur is not None and cur != "South":
             tk.Label(window,
                      text="❌ Wrong toggle! Try again.",
                      font=("Helvetica", 16), fg="red", bg="#1e1e2f")\
               .pack(pady=20)
-            toggles._failed = False
-            window.after(100, poll)
-        else:
-            window.after(100, poll)
+            window.after(1000, poll)   # re-poll after a second
+            return   # ← don't fall through to the final else
+
+        # still None, keep polling
+        window.after(100, poll)
 
     poll()
 
+
+def show_circuit_puzzle(window):
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+    tk.Label(window,
+             text="🛠  Solve (A AND B) OR ¬C\nSelect the correct door:",
+             font=("Helvetica", 18), fg="white", bg="#1e1e2f",
+             wraplength=600).pack(pady=30)
+
+    def choose(door):
+        if door == "Door 1":    # replace with your actual correct door
+            show_forgotten_fortress(window)
+        else:
+            tk.Label(window, text="❌ Wrong door! Try again.",
+                     fg="red", bg="#1e1e2f").pack(pady=10)
+
+    frm = tk.Frame(window, bg="#1e1e2f"); frm.pack(pady=20)
+    tk.Button(frm, text="Door 1", command=lambda: choose("Door 1")).grid(row=0, column=0, padx=10)
+    tk.Button(frm, text="Door 2", command=lambda: choose("Door 2")).grid(row=0, column=1, padx=10)
 
 
 
@@ -907,5 +932,22 @@ if __name__ == "__main__":
     window.geometry("800x600")
     window.title("Maze Runner")
 
+    # 1) Start the countdown timer
+    timer = Timer(
+        component_7seg,
+        initial_value=COUNTDOWN, 
+        failure_callback=lambda: show_failure_screen(window)
+    )
+    lcd = Lcd(window)          # hook the LCD into your Tk window
+    lcd.setTimer(timer)
+    timer.start()
+
+    # 2) Prepare the other phases (we’ll .start() them when it’s their turn)
+    keypad_phase = Keypad(component_keypad, target="")     # target set dynamically
+    wires_phase  = Wires(component_wires, wires_target)
+    maze_toggles = MazeToggles(component_toggles, target_direction="") 
+    maze_toggles.start()         # always listening for toggle flips
+
+    # 3) Kick off the UI
     show_welcome_screen(window)
     window.mainloop()
