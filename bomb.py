@@ -138,18 +138,28 @@ def show_instructions(window):
     )
     cont_btn.pack(pady=30)
 
+def ensure_timer_support(window):
+    if not hasattr(window, "bomb_display"):
+        window.bomb_display = tk.Label(window)
+    if not hasattr(window, "game_over"):
+        window.game_over = lambda: show_failure_screen(window)
 
 
 
 def show_entrance_screen(window):
+    # 1) guarantee our placeholder exists
+    ensure_timer_support(window)
+
+    # 2) clear out the old widgets
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # Initialize remaining time and start the timer
-    window.remaining = 600  # 10 minutes
+    # 3) now that window.bomb_display is real, start the timer
+    window.remaining = 600
     update_timer(window, window.bomb_display)
 
+    # 4) render the entrance prompt
     prompt = (
         "🚪 Welcome to the Maze Runner Challenge!\n\n"
         "The entrance is locked.\n"
@@ -173,22 +183,12 @@ def show_entrance_screen(window):
               fg="#000000",
               activebackground="#00ddaa",
               cursor="hand2",
-              padx=30,
-              pady=12,
-              bd=0,
+              padx=30, pady=12, bd=0,
               command=lambda: entrance_challenge(window)
     ).pack(pady=30)
 
 
-def ensure_timer_support(window):
-    if not hasattr(window, "bomb_display"):
-        # invisible label simply satisfies Timer(component=…) for now
-        window.bomb_display = tk.Label(window)
-    if not hasattr(window, "game_over"):
-        # called if the Timer thread signals failure
-        def _fail():
-            show_failure_screen(window)
-        window.game_over = _fail
+
 
 def entrance_challenge(window):
     # Debug
