@@ -366,31 +366,34 @@ class WiresComponent:
 def show_forgotten_fortress(window):
     """
     Forgotten Fortress:
-    Reads the 4-way toggles until the West pattern ("1111") is detected,
-    then transitions to the wires puzzle with a riddle hint.
+    Displays the serial, waits for toggles to read West ('1111'),
+    then transitions to the wire-cutting screen.
     """
-    # Clear UI
-    for w in window.winfo_children():
-        w.destroy()
+    # 1) Clear UI
+    for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # Display title and riddle
+    # 2) Show serial at top right
+    tk.Label(window,
+             text=f"Serial: {serial}",
+             font=("Courier New", 12), fg="#ffffff", bg="#1e1e2f")
+    
+    # 3) Display title & riddle
     tk.Label(window,
              text="🏰 Forgotten Fortress",
-             font=("Helvetica", 24, "bold"),
-             fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
+             font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
     tk.Label(window,
              text="Riddle: Go where the sun sets.",
              font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center").pack(pady=20)
 
-    # Status label shows current toggle code
+    # 4) Status label for toggle code
     status = tk.Label(window,
                       text="Toggle code: 0000 → None",
                       font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # Poll loop: wait for West (1111)
+    # 5) Poll toggles until West
     def poll_fortress():
         bits = "".join("1" if pin.value else "0" for pin in component_toggles)
         direction = toggle_code_to_dir.get(bits)
@@ -404,6 +407,7 @@ def show_forgotten_fortress(window):
             window.after(100, poll_fortress)
 
     poll_fortress()
+
 
 
 def show_wires_screen(window):
