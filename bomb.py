@@ -409,14 +409,16 @@ def show_wires_screen(window):
     """
     Wires Puzzle:
     Displays a riddle hint and monitors physical wires being cut.
-    Only cutting the correct wires (wires_target_list) defuses the barrier.
+    Only cutting the correct indices (wires_target_list) defuses the barrier.
+
+    Polls the actual GPIO pins directly and does NOT return to the fortress on failure,
+    so the barrier screen remains until the correct wires are cut.
     """
     # Clear UI
-    for w in window.winfo_children():
-        w.destroy()
+    for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # Display barrier prompt and riddle hint
+    # 2) Display barrier prompt and riddle hint
     hint = wires_hints.get(tuple(wires_target_list),
                            "Cut the correct wire(s) to deactivate the barrier.")
     tk.Label(window,
@@ -427,32 +429,25 @@ def show_wires_screen(window):
              font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center").pack(pady=20)
 
-    # Start the hardware Wires phase with our component wrapper
-    wires_component = WiresComponent(component_wires)
-    wires = Wires(wires_component, wires_target_list)
-    wires.start()
-
-    # Status label to show current cuts
+    # 3) Status label to show current cuts
     status = tk.Label(window,
                       text="Cuts: []",
                       font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # Poll loop: update cuts and check for defuse/failure
+    # 4) Poll loop: read raw component_wires pins
     def poll_wires():
-        cuts = getattr(wires, '_value', [])
+        # Directly read each wire pin: 1 if cut (True), 0 if intact
+        cuts = [i for i, pin in enumerate(component_wires) if pin.value]
         status.config(text=f"Cuts: {cuts}")
-        if getattr(wires, '_defused', False):
+        if cuts == wires_target_list:
+            # Success: defuse barrier
             tk.Label(window,
                      text="✅ Barrier deactivated!",
                      font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
             window.after(1500, lambda: show_phantoms_lair(window))
-        elif getattr(wires, '_failed', False):
-            tk.Label(window,
-                     text="❌ Wrong wires! The barrier remains.",
-                     font=("Helvetica", 16), fg="red", bg="#1e1e2f").pack(pady=20)
-            window.after(1500, lambda: show_forgotten_fortress(window))
         else:
+            # Keep polling until correct pattern
             window.after(100, poll_wires)
 
     poll_wires()
