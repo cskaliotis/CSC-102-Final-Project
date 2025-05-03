@@ -170,6 +170,10 @@ def entrance_challenge(window):
     btn.start()
     btn.join()   # blocks until you press
 
+    # start the countdown timer
+    timer = Timer(component=window.bomb_display, failure_callback=window.game_over)
+    timer.start()
+
     # pick your riddle
     target = "610"
     if btn._easy_mode:
