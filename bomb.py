@@ -1,4 +1,4 @@
-#################################
+x#################################
 # CSC 102 Defuse the Bomb Project
 # Main program
 # Team: 
@@ -22,14 +22,7 @@ from bomb_configs import (
 )
 from time import sleep
 
-toggle_pins = [
-    component_toggles["north"],
-    component_toggles["east"],
-    component_toggles["south"],
-    component_toggles["west"],
-]
-
-toggles = Toggles(toggle_pins, target_direction="South")
+toggles = Toggles(component_toggles, "South")
 toggles.start()
 
 ###########
@@ -246,7 +239,6 @@ def show_entrance_puzzle_screen(window, prompt, target):
         status.config(text=f"Entered: {kd._value}")
         if kd._defused:
             for w in window.winfo_children():
-                w.destroy()
             show_twilight_passage(window)
         elif kd._failed:
             status.config(text="❌ Wrong code — resetting…")
@@ -283,44 +275,45 @@ def show_phantom_lair(window):
     phantom_lair(window, toggles)
 '''
 def show_twilight_passage(window):
-    # Point A – polls the GPIO toggles
-    for w in window.winfo_children(): 
-        w.destroy()
+    toggles.set_target("South")
+    for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
 
     tk.Label(window, text="🌌 Twilight Passage",
-             font=("Helvetica", 24, "bold"),
-             fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
-
+             font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f")\
+      .pack(pady=(40,10))
     tk.Label(window,
-             text="Hint: What direction do you face when you turn 180° from NORTH?",
-             font=("Helvetica", 16),
-             fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center").pack(pady=20)
+             text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.",
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=20)
 
-    dir_lbl = tk.Label(window, text="Current Direction: None",
-                       font=("Helvetica", 16), fg="#00ffcc", bg="#1e1e2f")
-    dir_lbl.pack(pady=20)
+    status = tk.Label(window, text="Current Direction: None",
+                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
+    status.pack(pady=20)
 
     def poll():
         cur = toggles.get_direction()
-        dir_lbl.config(text=f"Current Direction: {cur or 'None'}")
-
-        if toggles._defused:
+        status.config(text=f"Current Direction: {cur or 'None'}")
+        if cur == "South":
             tk.Label(window,
-                     text="🎉 Correct! You're heading south down the passage...",
-                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
-            window.after(1800, lambda: show_circuit_puzzle(window))
-        elif toggles._failed:
+                     text="🎉 Correct! You're heading south…",
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f")\
+              .pack(pady=20)
+            window.after(1500, lambda: show_circuit_puzzle(window))
+        elif cur is not None and cur != "South":
             tk.Label(window,
                      text="❌ Wrong toggle! Try again.",
-                     font=("Helvetica", 16), fg="red", bg="#1e1e2f").pack(pady=20)
-            toggles._failed = False      # allow retry
+                     font=("Helvetica", 16), fg="red", bg="#1e1e2f")\
+              .pack(pady=20)
+            toggles._failed = False
             window.after(100, poll)
         else:
             window.after(100, poll)
 
     poll()
+
+
 
 
 
