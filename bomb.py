@@ -23,6 +23,38 @@ from bomb_configs import (
 from types import SimpleNamespace
 from time import sleep
 
+
+window = tk.Tk()
+window.geometry("800x600")
+window.title("Maze Runner")
+
+# Top bar for serial
+top_frame = tk.Frame(window, bg="#1e1e2f")
+top_frame.pack(side="top", fill="x")
+serial_label = tk.Label(
+    top_frame,
+    text=f"Serial: {serial}",
+    font=("Courier New", 12, "bold"),
+    fg="red",        # show in red on black
+    bg="#1e1e2f"
+)
+serial_label.pack(side="right", padx=10, pady=5)
+
+# Middle frame for all your puzzle screens
+content_frame = tk.Frame(window, bg="#1e1e2f")
+content_frame.pack(expand=True, fill="both")
+
+# Bottom bar for progress
+bottom_frame = tk.Frame(window, bg="#1e1e2f")
+bottom_frame.pack(side="bottom", fill="x")
+progress = ttk.Progressbar(
+    bottom_frame,
+    orient="horizontal",
+    mode="determinate",
+    maximum=COUNTDOWN
+)
+progress.pack(fill="x", padx=10, pady=5)
+
 toggle_code_to_dir = {
     "1000": "North",
     "1100": "East",
