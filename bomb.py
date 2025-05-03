@@ -352,16 +352,15 @@ def show_circuit_puzzle(window):
 def show_forgotten_fortress(window):
     """
     Forgotten Fortress:
-    Reads the 4-bit toggle switches on the Raspberry Pi,
-    maps them to compass directions via TOGGLE_CODE_TO_DIR,
-    and advances when West ("1111") is detected.
+    Reads the physical 4-way toggle switches, builds a 4-bit code string,
+    and advances when the West pattern ("1111") is detected.
     """
-    # 1) Clear the UI and background
+    # 1) Clear the UI
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # 2) Static UI elements
+    # 2) Static UI labels
     tk.Label(window, text="🏰 Forgotten Fortress",
              font=("Helvetica", 24, "bold"),
              fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
@@ -369,29 +368,31 @@ def show_forgotten_fortress(window):
              font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center").pack(pady=20)
 
-    # Status label shows the 4-bit code and mapped direction
+    # Status label showing code and direction
     status = tk.Label(window,
                       text="Toggle code: 0000 → None",
                       font=("Courier New", 18),
                       fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # 3) Poll loop: read toggles, update status, and check for West
+    # 3) Poll loop to read toggles and check for West
     def poll_fortress():
+        # Build 4-bit string: '1' if switch is up, '0' if down
         bits = "".join("1" if pin.value else "0" for pin in component_toggles)
-        direction = TOGGLE_CODE_TO_DIR.get(bits)
+        direction = toggle_code_to_dir.get(bits)
+        print(f"[DEBUG] Fortress bits={bits}, direction={direction}")
         status.config(text=f"Toggle code: {bits} → {direction or 'None'}")
 
         if direction == "West":
-            tk.Label(window, text="🎉 Correct! You head west and find the barrier…",
-                     font=("Helvetica", 16), fg="green", bg="#1e1e2f")
-            .pack(pady=20)
+            tk.Label(window,
+                     text="🎉 Correct! You head west and find the barrier…",
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
             window.after(1500, lambda: show_wires_screen(window))
         else:
             window.after(100, poll_fortress)
 
-    # Start polling
     poll_fortress()
+
 
 
 def show_wires_screen(window):
