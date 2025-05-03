@@ -30,15 +30,26 @@ from time import sleep
 ###########
 # functions
 
-# Wraps the raw GPIO pins into a .toggles list of booleans
 class ToggleComponent:
+    """
+    Wrap the raw GPIO pin objects so that:
+      - raw_pins = [DigitalInOut(...), …]
+      - toggles returns a list of booleans in the same order,
+        *inverting* pin.value so that a flipped switch (which
+        pulls the pin HIGH) shows up as True.
+    """
     def __init__(self, pins):
         self._pins = pins
 
     @property
     def toggles(self):
-        # Read .value on each pin, giving True/False
-        return [pin.value for pin in self._pins]
+        # Print raw pin.value for debugging
+        raw = [pin.value for pin in self._pins]
+        print(f"[DEBUG] raw pin values = {raw}")
+        inv  = [not v for v in raw]
+        print(f"[DEBUG] interpreted toggles = {inv}")
+        return inv
+
 
 
 def int_to_index_list(val, width=5):
@@ -312,45 +323,40 @@ def show_phantom_lair(window):
     phantom_lair(window, toggles)
 '''
 def show_twilight_passage(window):
-    # ─── Start the toggles thread with a boolean‐valued component ─────
+    # Wrap & start the toggles thread **here**, once you enter this room:
     from bomb_configs import component_toggles as raw_pins
 
-    toggles_component = ToggleComponent(raw_pins)
     global toggles
-    toggles = MazeToggles(toggles_component)   # now .toggles is [True/False,...]
+    toggles = MazeToggles(ToggleComponent(raw_pins))
     toggles.set_target("South")
     toggles.start()
 
-    # ─── Then build your UI as before ───────────────────────────────
+    # … then your existing UI code …
     for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
-    tk.Label(window, text="🌌 Twilight Passage",
-             font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f")\
-      .pack(pady=(40,10))
+
+    tk.Label(window, text="🌌 Twilight Passage", …).pack(pady=(40,10))
     tk.Label(window,
              text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.",
-             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center")\
-      .pack(pady=20)
+             …).pack(pady=20)
 
-    status = tk.Label(window, text="Current Direction: None",
-                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
+    status = tk.Label(window, text="Current Direction: None", …)
     status.pack(pady=20)
 
     def poll():
         cur = toggles.get_direction()
-        print(f"[DEBUG] toggle direction read = {cur}")
+        print(f"[DEBUG] mapped direction = {cur}")
         status.config(text=f"Current Direction: {cur or 'None'}")
         if cur == "South":
             tk.Label(window,
                      text="🎉 Correct! You're heading south…",
-                     font=("Helvetica", 16), fg="green", bg="#1e1e2f")\
-              .pack(pady=20)
+                     fg="green", bg="#1e1e2f").pack(pady=20)
             window.after(1500, lambda: show_circuit_puzzle(window))
             return
         window.after(100, poll)
 
     poll()
+
 
 
 
