@@ -17,7 +17,8 @@ from bomb_configs import (
     COUNTDOWN,
     NUM_STRIKES,
     NUM_PHASES,
-    RPi
+    RPi,
+    serial
 )
 from types import SimpleNamespace
 from time import sleep
