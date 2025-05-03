@@ -175,55 +175,47 @@ def ensure_timer_support(window):
         window.game_over = _fail
 
 def entrance_challenge(window):
-    # Debug: Confirm the function is reached
+    # Debug
     print("[DEBUG] entrance_challenge reached")
 
-    def run_button_thread():
-        # Run the flashing-button thread
-        if not hasattr(window, "bomb_display"):                # ← add this
-            window.bomb_display = tk.Label(window)             # invisible placeholder
-    
-        print("[DEBUG] entrance_challenge reached")
+    # --- run the flashing‑button thread ---
+    btn = Button(component_button_state, component_button_RGB)
+    btn.start()
+    btn.join()                     # waits until you press
 
-        
-        btn = Button(component_button_state, component_button_RGB)
-        btn.start()
-        btn.join()  # blocks until you press
+    # --- pick the riddle based on LED color ---
+    target = "610"
+    if btn._easy_mode:             # green
+        prompt = "Enter the decimal code on the keypad: 610"
+    else:                          # red
+        prompt = ("Convert this binary to decimal, then enter on keypad:\n"
+                  "1001100010")
 
-        # Start the countdown timer
-        timer = Timer(component=window.bomb_display, failure_callback=window.game_over)
-        timer.start()
+    # --- show keypad screen ---
+    show_entrance_puzzle_screen(window, prompt, target)
 
-        # Pick your riddle
-        target = "610"
-        if btn._easy_mode:
-            prompt = "Enter the decimal code on the keypad: 610"
-        else:
-            prompt = "Convert this binary to decimal, then enter on keypad:\n1001100010"
-
-        # Transition to the keypad screen
-        show_entrance_puzzle_screen(window, prompt, target)
-
-    # Run the button thread in a non-blocking manner
-    window.after(100, run_button_thread)
 
 
 def show_entrance_puzzle_screen(window, prompt, target):
-    # clear old widgets
+    """
+    Prompt the player with a keypad challenge.  `target` is the digit string
+    that defuses the lock (e.g., "610").
+    """
+    # ─── clear previous widgets ─────────────────────────────────────────────
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # riddle text
+    # ─── riddle / instructions ─────────────────────────────────────────────
     tk.Label(window,
              text=prompt,
              font=("Helvetica", 18),
              fg="#ffffff",
              bg="#1e1e2f",
-             justify="center",
-             wraplength=600).pack(pady=(80, 20))
+             wraplength=600,
+             justify="center").pack(pady=(80, 20))
 
-    # echo label for hardware keypad
+    # live echo of what the physical keypad thread is reading
     status = tk.Label(window,
                       text="Entered: ",
                       font=("Courier New", 20),
@@ -231,25 +223,31 @@ def show_entrance_puzzle_screen(window, prompt, target):
                       bg="#1e1e2f")
     status.pack(pady=(0, 30))
 
-    # start the hardware Keypad thread
+    # ─── start keypad thread ───────────────────────────────────────────────
     kd = Keypad(component_keypad, target)
     kd.start()
 
-    # poll it
+    # ─── polling loop ──────────────────────────────────────────────────────
     def poll_keypad():
         status.config(text=f"Entered: {kd._value}")
+
         if kd._defused:
-            # correct → clear and boot bomb UI
+            # ✔ correct combination
             for w in window.winfo_children():
                 w.destroy()
-            show_twilight_passage(window)  
+            show_twilight_passage(window)           # go to next room
+
         elif kd._failed:
-            status.config(text="❌ Wrong code—resetting…")
+            # ✖ wrong key sequence → restart entrance challenge
+            status.config(text="❌ Wrong code — resetting…")
             window.after(1500, lambda: entrance_challenge(window))
+
         else:
+            # keep polling
             window.after(100, poll_keypad)
 
     poll_keypad()
+
     
 def show_toggle_screen(window):
     """Screen for the shifting-walls (Toggles) puzzle."""
