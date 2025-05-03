@@ -339,24 +339,31 @@ def show_twilight_passage():
 
 
     
-def show_circuit_puzzle(window):
-    for w in window.winfo_children(): w.destroy()
-    window.configure(bg="#1e1e2f")
-    tk.Label(window,
+def show_circuit_puzzle():
+    for w in content_frame.winfo_children(): w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+
+    tk.Label(content_frame,
              text="🛠  Solve (A AND B) OR ¬C\nSelect the correct door:",
-             font=("Helvetica", 18), fg="white", bg="#1e1e2f",
-             wraplength=600).pack(pady=30)
+             font=("Helvetica",18),
+             fg="white", bg="#1e1e2f",
+             wraplength=600)\
+      .pack(pady=30)
 
     def choose(door):
-        if door == "Door 1":    # replace with your actual correct door
-            show_forgotten_fortress(window)
+        if door == "Door 1":
+            show_forgotten_fortress()
         else:
-            tk.Label(window, text="❌ Wrong door! Try again.",
-                     fg="red", bg="#1e1e2f").pack(pady=10)
+            tk.Label(content_frame,
+                     text="❌ Wrong door! Try again.",
+                     fg="red", bg="#1e1e2f")\
+              .pack(pady=10)
 
-    frm = tk.Frame(window, bg="#1e1e2f"); frm.pack(pady=20)
-    tk.Button(frm, text="Door 1", command=lambda: choose("Door 1")).grid(row=0, column=0, padx=10)
-    tk.Button(frm, text="Door 2", command=lambda: choose("Door 2")).grid(row=0, column=1, padx=10)
+    frm = tk.Frame(content_frame, bg="#1e1e2f"); frm.pack(pady=20)
+    tk.Button(frm, text="Door 1", command=lambda: choose("Door 1"))\
+      .grid(row=0, column=0, padx=10)
+    tk.Button(frm, text="Door 2", command=lambda: choose("Door 2"))\
+      .grid(row=0, column=1, padx=10)
 
 class WiresComponent:
     def __init__(self, pins):
