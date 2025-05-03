@@ -74,17 +74,18 @@ def start_game(window):
     lcd.setTimer(timer)
     timer.start()
 
-    # 2) Maze‐toggle switches thread
-    #    Wrap the raw pin list so MazeToggles can do `component.toggles`
-    toggles_component = SimpleNamespace(toggles=component_toggles)
+        # 2) Start the 4-way toggle thread with the actual GPIO pins
+    from bomb_configs import component_toggles
+    toggle_pins = [
+        component_toggles["north"],
+        component_toggles["east"],
+        component_toggles["south"],
+        component_toggles["west"],
+    ]
     global toggles
-    toggles = MazeToggles(toggles_component)
+    toggles = MazeToggles(toggle_pins, target_direction=None)
     toggles.start()
 
-    # 3) (Optionally) prime your other phases here if desired,
-    #    but you can also start Keypad/Wires threads inside each screen as you had before.
-
-    # 4) Finally, hand off to your very first puzzle
     show_entrance_screen(window)
 
 
@@ -330,6 +331,8 @@ def show_twilight_passage(window):
 
     def poll():
         cur = toggles.get_direction()
+        print(f"[DEBUG] toggle direction read = {cur}")   # ← add this
+
         status.config(text=f"Current Direction: {cur or 'None'}")
 
         if cur == "South":
@@ -340,10 +343,8 @@ def show_twilight_passage(window):
             window.after(1500, lambda: show_circuit_puzzle(window))
             return
 
-        # otherwise just keep checking until they hit South
         window.after(100, poll)
 
-    poll()
 
 
 
