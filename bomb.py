@@ -30,6 +30,11 @@ toggle_code_to_dir = {
     "1111": "West",
 }
 
+def int_to_index_list(val, width):
+    return [i for i in range(width)
+            if (val >> (width - 1 - i)) & 1]
+
+wires_target_list = int_to_index_list(_wires_target_int, width=len(component_wires))
 
 window = tk.Tk()
 window.geometry("800x600")
@@ -93,12 +98,7 @@ class ToggleComponent:
 
 
 
-# convert integer bitmask to list of wire indices
-def int_to_index_list(val, width):
-    return [i for i in range(width) if (val >> (width - 1 - i)) & 1]
 
-# List of wire indices that need to be cut to defuse the barrier
-wires_target_list = int_to_index_list(_wires_target_int, width=len(component_wires))
 
 # Riddle hints for the wires phase
 wires_hints = {
