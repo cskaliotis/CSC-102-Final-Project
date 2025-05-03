@@ -175,26 +175,31 @@ def ensure_timer_support(window):
         window.game_over = _fail
 
 def entrance_challenge(window):
-    # run the flashing‐button thread
-    print("[DEBUG] entrance_challenge reached")          # keep for testing
+    # Debug: Confirm the function is reached
+    print("[DEBUG] entrance_challenge reached")
 
-    btn = Button(component_button_state, component_button_RGB)
-    btn.start()
-    btn.join()   # blocks until you press
+    def run_button_thread():
+        # Run the flashing-button thread
+        btn = Button(component_button_state, component_button_RGB)
+        btn.start()
+        btn.join()  # blocks until you press
 
-    # start the countdown timer
-    timer = Timer(component=window.bomb_display, failure_callback=window.game_over)
-    timer.start()
+        # Start the countdown timer
+        timer = Timer(component=window.bomb_display, failure_callback=window.game_over)
+        timer.start()
 
-    # pick your riddle
-    target = "610"
-    if btn._easy_mode:
-        prompt = "Enter the decimal code on the keypad: 610"
-    else:
-        prompt = "Convert this binary to decimal, then enter on keypad:\n1001100010"
+        # Pick your riddle
+        target = "610"
+        if btn._easy_mode:
+            prompt = "Enter the decimal code on the keypad: 610"
+        else:
+            prompt = "Convert this binary to decimal, then enter on keypad:\n1001100010"
 
-    # hand off to the keypad‐screen
-    show_entrance_puzzle_screen(window, prompt, target)
+        # Transition to the keypad screen
+        show_entrance_puzzle_screen(window, prompt, target)
+
+    # Run the button thread in a non-blocking manner
+    window.after(100, run_button_thread)
 
 
 def show_entrance_puzzle_screen(window, prompt, target):
