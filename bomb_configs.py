@@ -78,25 +78,14 @@ if (RPi):
         pin.value = True
 
 if RPi:
-    # raw GPIO pins
     toggle_gpio_pins = [board.D12, board.D16, board.D20, board.D21]
-    _toggles_pins = []
+    component_toggles = []
     for gp in toggle_gpio_pins:
         pin = DigitalInOut(gp)
         pin.direction = Direction.INPUT
         pin.pull = Pull.DOWN
-        _toggles_pins.append(pin)
+        component_toggles.append(pin)
 
-    # wrap them so that .toggles gives you [True/False, …]
-    class TogglesComponent:
-        def __init__(self, pins):
-            self._pins = pins
-
-        @property
-        def toggles(self):
-            return [p.value for p in self._pins]
-
-    component_toggles = TogglesComponent(_toggles_pins)
 
 
 
