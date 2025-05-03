@@ -184,21 +184,8 @@ def show_entrance_screen(window):
     for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # initialize countdown
     window.remaining = 600  # seconds
 
-    # ─── Create the on-screen timer label ────────────────────────────────
-    window.timer_label = tk.Label(
-        window,
-        text="Time Left: 10:00",
-        font=("Helvetica", 18),
-        fg="#00ffcc",
-        bg="#1e1e2f"
-    )
-    window.timer_label.pack(pady=(20,10))
-
-    # kick off the update loop (this will now have a timer_label to update)
-    update_timer(window, component_7seg)
 
     # now render the entrance UI
     prompt = (
@@ -346,20 +333,13 @@ def show_twilight_passage(window):
                      font=("Helvetica", 16), fg="green", bg="#1e1e2f")\
               .pack(pady=20)
             window.after(1500, lambda: show_circuit_puzzle(window))
-            return   # ← stop polling
+            return
 
-        elif cur is not None and cur != "South":
-            tk.Label(window,
-                     text="❌ Wrong toggle! Try again.",
-                     font=("Helvetica", 16), fg="red", bg="#1e1e2f")\
-              .pack(pady=20)
-            window.after(1000, poll)   # re-poll after a second
-            return   # ← don't fall through to the final else
-
-        # still None, keep polling
+        # otherwise just keep checking until they hit South
         window.after(100, poll)
 
     poll()
+
 
 
 def show_circuit_puzzle(window):
