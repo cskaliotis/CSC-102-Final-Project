@@ -53,13 +53,15 @@ class ToggleComponent:
 
 
 
-def int_to_index_list(val, width=5):
+# Convert the integer wires target bitmask into a list of wire indices
+def int_to_index_list(val, width):
     return [i for i in range(width) if (val >> (width - 1 - i)) & 1]
 
-wires_target = int_to_index_list(_wires_target_int)
+# List of wire indices that must be cut to defuse\wires_target_list = int_to_index_list(_wires_target_int, width=len(component_wires))
 
+# Riddle hints for the wires phase
 wires_hints = {
-    tuple(wires_target): "Cut the wires whose letters appear first in the serial."
+    tuple(wires_target_list): "Cut the wires whose letters appear first in the serial."
 }
 
 
@@ -348,44 +350,42 @@ def show_circuit_puzzle(window):
     tk.Button(frm, text="Door 1", command=lambda: choose("Door 1")).grid(row=0, column=0, padx=10)
     tk.Button(frm, text="Door 2", command=lambda: choose("Door 2")).grid(row=0, column=1, padx=10)
 
-
 class WiresComponent:
     def __init__(self, pins):
         self._pins = pins
 
     @property
     def cuts(self):
-        # Return indices of pins whose .value is True (wire cut)
+        # Return list of indices for wires whose .value is True (cut)
         return [i for i, pin in enumerate(self._pins) if pin.value]
 
 
 def show_forgotten_fortress(window):
     """
     Forgotten Fortress:
-    Reads the 4-bit toggle switches and advances when the West pattern ("1111") is detected.
-    Then transitions to the wire-cutting challenge.
+    Reads the 4-way toggles until the West pattern ("1111") is detected,
+    then transitions to the wire-cutting challenge with a riddle hint.
     """
     # Clear UI
-    for w in window.winfo_children():
-        w.destroy()
+    for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # Static UI elements
+    # Title and riddle
     tk.Label(window,
              text="🏰 Forgotten Fortress",
-             font=("Helvetica", 24, "bold"),
-             fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
+             font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
     tk.Label(window,
              text="Riddle: Go where the sun sets.",
              font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center").pack(pady=20)
 
+    # Status for toggle code
     status = tk.Label(window,
                       text="Toggle code: 0000 → None",
                       font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # Poll loop: read component_toggles directly
+    # Poll loop to detect West
     def poll_fortress():
         bits = "".join("1" if pin.value else "0" for pin in component_toggles)
         direction = toggle_code_to_dir.get(bits)
@@ -403,16 +403,15 @@ def show_forgotten_fortress(window):
 def show_wires_screen(window):
     """
     Wires Puzzle:
-    Displays a riddle hint from wires_hints, then monitors the physical wires being cut.
-    Only the correct set of cuts (as per wires_target) will defuse the barrier.
+    Displays a riddle hint and monitors physical wires being cut.
+    Only cutting the correct indices (wires_target_list) will defuse the barrier.
     """
     # Clear UI
-    for w in window.winfo_children():
-        w.destroy()
+    for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # Display riddle hint defined in wires_hints mapping
-    hint = wires_hints.get(tuple(_wires_target_int),
+    # Display riddle hint
+    hint = wires_hints.get(tuple(wires_target_list),
                            "Cut the correct wire(s) to deactivate the barrier.")
     tk.Label(window,
              text="⚡ Power Barrier Activated!",
@@ -422,17 +421,18 @@ def show_wires_screen(window):
              font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center").pack(pady=20)
 
-    # Start the hardware Wires phase with our component wrapper
+    # Start Wires phase with our component wrapper
     wires_component = WiresComponent(component_wires)
-    wires = Wires(wires_component, _wires_target_int)
+    wires = Wires(wires_component, wires_target_list)
     wires.start()
 
+    # Status label to show current cuts list
     status = tk.Label(window,
                       text="Cuts: []",
                       font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # Poll loop: update cuts list and check for success/failure
+    # Poll loop: update cuts and check for defuse/failure
     def poll_wires():
         cuts = getattr(wires, '_value', [])
         status.config(text=f"Cuts: {cuts}")
@@ -449,6 +449,7 @@ def show_wires_screen(window):
         else:
             window.after(100, poll_wires)
     poll_wires()
+
 
 
 
