@@ -16,14 +16,16 @@ from bomb_configs import (
     component_toggles,
     component_wires,
     wires_target as _wires_target_int,
+    COUNTDOWN,
     NUM_STRIKES,
     NUM_PHASES,
     RPi
 )
+from types import SimpleNamespace
+
 from time import sleep
 
-toggles = Toggles(component_toggles, "South")
-toggles.start()
+
 
 ###########
 # functions
@@ -58,12 +60,10 @@ def update_timer(window, display):
     else:
         # out of time!
         show_failure_screen(window)
+
 def start_game(window):
-    """
-    Fired when the player clicks Continue on the instructions screen.
-    Now we spin up the Pi hardware (timer, LCD, toggles, keypad, wires)
-    and then dive into the first puzzle.
-    """
+    print("[DEBUG] start_game() called")
+
     # 1) Countdown timer + LCD
     timer = Timer(
         component_7seg,
@@ -74,14 +74,19 @@ def start_game(window):
     lcd.setTimer(timer)
     timer.start()
 
-    # 2) Prime (but don’t .start() them yet) the other phases
-    _kp = Keypad(component_keypad, target="")
-    _wires = Wires(component_wires, wires_target)
-    _tog  = MazeToggles(component_toggles, target_direction="")
-    _tog.start()
+    # 2) Maze‐toggle switches thread
+    #    Wrap the raw pin list so MazeToggles can do `component.toggles`
+    toggles_component = SimpleNamespace(toggles=component_toggles)
+    global toggles
+    toggles = MazeToggles(toggles_component)
+    toggles.start()
 
-    # 3) All hardware is live — go to the very first puzzle
+    # 3) (Optionally) prime your other phases here if desired,
+    #    but you can also start Keypad/Wires threads inside each screen as you had before.
+
+    # 4) Finally, hand off to your very first puzzle
     show_entrance_screen(window)
+
 
 
 
