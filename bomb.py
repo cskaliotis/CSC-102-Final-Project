@@ -301,32 +301,38 @@ def show_phantom_lair(window):
     phantom_lair(window, toggles)
 '''
 def show_twilight_passage(window):
-    # ─── Start toggles only when you enter this room ──────────────
-    from bomb_configs import component_toggles
-    toggle_pins = [
-        component_toggles["north"],
-        component_toggles["east"],
-        component_toggles["south"],
-        component_toggles["west"],
-    ]
+    # ─── Start the toggles thread ───────────────────────────────
+    from bomb_configs import component_toggles  # this is a list of 4 pins
+
+    # Wrap that list so MazeToggles can do `component.toggles`
+    toggles_component = SimpleNamespace(toggles=component_toggles)
+
     global toggles
-    toggles = MazeToggles(toggle_pins, target_direction=None)
+    toggles = MazeToggles(toggles_component)
+    toggles.set_target("South")
     toggles.start()
 
-    # ─── Now your existing UI setup ────────────────────────────────
-    for w in window.winfo_children(): w.destroy()
+    # ─── Now clear the UI and build the Twilight Passage screen ────
+    for w in window.winfo_children(): 
+        w.destroy()
     window.configure(bg="#1e1e2f")
-    tk.Label(window, text="🌌 Twilight Passage", …).pack(pady=(40,10))
-    tk.Label(window, text="Hint: Turn 180° from NORTH …", …).pack(pady=20)
 
-    status = tk.Label(window, text="Current Direction: None", …)
+    tk.Label(window, text="🌌 Twilight Passage",
+             font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f")\
+      .pack(pady=(40,10))
+    tk.Label(window,
+             text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.",
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=20)
+
+    status = tk.Label(window, text="Current Direction: None",
+                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
-
 
     def poll():
         cur = toggles.get_direction()
-        print(f"[DEBUG] toggle direction read = {cur}")   # ← add this
-
+        print(f"[DEBUG] toggle direction read = {cur}")
         status.config(text=f"Current Direction: {cur or 'None'}")
 
         if cur == "South":
@@ -338,6 +344,9 @@ def show_twilight_passage(window):
             return
 
         window.after(100, poll)
+
+    poll()
+
 
 
 
