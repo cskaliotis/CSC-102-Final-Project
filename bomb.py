@@ -1,10 +1,6 @@
 #################################
 # CSC 102 Defuse the Bomb Project
 # Main program
-# Team: 
-#################################
-
-# import the configs
 import tkinter as tk
 import time
 from bomb_phases import Timer, Keypad, Wires, Button, Toggles, Lcd, MazeToggles
@@ -22,17 +18,15 @@ from bomb_configs import (
     RPi
 )
 from types import SimpleNamespace
-
 from time import sleep
 
-TOGGLE_CODE_TO_DIR = {
+# Reusable mapping of 4-bit toggle patterns to compass directions
+toggle_code_to_dir = {
     "1000": "North",
     "1100": "East",
     "1110": "South",
-    "1111": "West"
+    "1111": "West",
 }
-
-
 ###########
 # functions
 
@@ -306,53 +300,31 @@ def show_entrance_puzzle_screen(window, prompt, target):
 def show_twilight_passage(window):
     """
     Twilight Passage:
-    Reads the physical 4-way toggle switches directly, forming a 4-bit string
-    (0000→1000→1100→1110→1111) and mapping to N, E, S, W.
-    Advances when the user sets the toggles to the South pattern (1110).
+    Reads the physical 4-way toggle switches directly (0000→1000→1100→1110→1111)
+    and advances when the user sets the toggles to South ("1110").
     """
-    # 1) Clear previous UI
+    # Clear previous UI
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # 2) Static labels
-    tk.Label(window,
-             text="🌌 Twilight Passage",
-             font=("Helvetica", 24, "bold"),
-             fg="#00ffcc", bg="#1e1e2f").pack(pady=(40,10))
-    tk.Label(window,
-             text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.",
-             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center").pack(pady=20)
-
-    # Status label shows bit pattern and mapped direction
-    status = tk.Label(window,
-                      text="Toggle code: 0000 → None",
-                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
+    # Static UI
+    tk.Label(window, text="🌌 Twilight Passage", font=("Helvetica",24,"bold"), fg="#00ffcc", bg="#1e1e2f").pack(pady=(40,10))
+    tk.Label(window, text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.", font=("Helvetica",16), fg="#ffffff", bg="#1e1e2f", wraplength=600, justify="center").pack(pady=20)
+    status = tk.Label(window, text="Toggle code: 0000 → None", font=("Courier New",18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # 3) Poll loop
-    def poll():
-        # Read each toggle pin: 1 if flipped ON, else 0
+    # Poll for toggle state
+    def poll_twilight():
         bits = "".join("1" if pin.value else "0" for pin in component_toggles)
-        direction = TOGGLE_CODE_TO_DIR.get(bits)
-        print(f"[DEBUG] bits={bits}, direction={direction}")
-
-        # Update UI
-        status.config(
-            text=f"Toggle code: {bits}" + (f" → {direction}" if direction else " → None")
-        )
-
+        direction = toggle_code_to_dir.get(bits)
+        status.config(text=f"Toggle code: {bits} → {direction or 'None'}")
         if direction == "South":
-            tk.Label(window,
-                     text="🎉 Correct! You're heading south…",
-                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
+            tk.Label(window, text="🎉 Correct! You're heading south…", font=("Helvetica",16), fg="green", bg="#1e1e2f").pack(pady=20)
             window.after(1500, lambda: show_circuit_puzzle(window))
         else:
-            window.after(100, poll)
-
-    # Start polling immediately
-    poll()
+            window.after(100, poll_twilight)
+    poll_twilight()
 
 
     
@@ -377,72 +349,50 @@ def show_circuit_puzzle(window):
 
 
 
-
-# Placeholder for next room logic
 def show_forgotten_fortress(window):
+    """
+    Forgotten Fortress:
+    Reads the 4-bit toggle switches on the Raspberry Pi,
+    maps them to compass directions via TOGGLE_CODE_TO_DIR,
+    and advances when West ("1111") is detected.
+    """
+    # 1) Clear the UI and background
     for w in window.winfo_children():
         w.destroy()
     window.configure(bg="#1e1e2f")
-    
-    tk.Label(window, text="🏰 You’ve entered the Forgotten Fortress!",
-             font=("Helvetica", 20, "bold"), 
-             fg="#ffffff", 
-             bg="#1e1e2f").pack(pady=30)
-    
-    tk.Label(window, text="You're surrounded by ancient walls...\nA riddle echoes: 'Go where the sun sets.'",
-             font=("Helvetica", 16),
-             fg="#ffffff",
-             bg="#1e1e2f").pack(pady=20)
 
-    tk.Label(window, text="Which direction will you go?",
-             font=("Helvetica", 16),
-             fg="#00ffcc",
-             bg="#1e1e2f").pack(pady=10)
-    
-    def choose_direction(direction):
-        for w in window.winfo_children():
-            w.destroy()
-        window.configure(bg="#1e1e2f")
+    # 2) Static UI elements
+    tk.Label(window, text="🏰 Forgotten Fortress",
+             font=("Helvetica", 24, "bold"),
+             fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
+    tk.Label(window, text="Riddle: Go where the sun sets.",
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center").pack(pady=20)
 
-        if direction.lower() == "west":
-            tk.Label(window,
-                     text="💥 You tripped over a power barrier!",
-                     font=("Helvetica", 20, "bold"),
-                     fg="#ff6666",
-                     bg="#1e1e2f").pack(pady=30)
+    # Status label shows the 4-bit code and mapped direction
+    status = tk.Label(window,
+                      text="Toggle code: 0000 → None",
+                      font=("Courier New", 18),
+                      fg="#00ffcc", bg="#1e1e2f")
+    status.pack(pady=20)
 
-            tk.Label(window,
-                     text="⚡ Solve the wires puzzle to deactivate it.",
-                     font=("Helvetica", 16),
-                     fg="#ffffff",
-                     bg="#1e1e2f").pack(pady=10)
+    # 3) Poll loop: read toggles, update status, and check for West
+    def poll_fortress():
+        bits = "".join("1" if pin.value else "0" for pin in component_toggles)
+        direction = TOGGLE_CODE_TO_DIR.get(bits)
+        status.config(text=f"Toggle code: {bits} → {direction or 'None'}")
 
-            # Small delay then show wires
+        if direction == "West":
+            tk.Label(window, text="🎉 Correct! You head west and find the barrier…",
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f")
+            .pack(pady=20)
             window.after(1500, lambda: show_wires_screen(window))
         else:
-            tk.Label(window,
-                     text="🚫 Wrong way. The path is blocked.",
-                     font=("Helvetica", 16),
-                     fg="#ff6666",
-                     bg="#1e1e2f").pack(pady=30)
+            window.after(100, poll_fortress)
 
-            tk.Button(window,
-                      text="Try Another Direction",
-                      font=("Helvetica", 14, "bold"),
-                      bg="#00ffcc",
-                      fg="#000000",
-                      command=lambda: show_forgotten_fortress(window)).pack(pady=20)
+    # Start polling
+    poll_fortress()
 
-    # Direction buttons
-    for dir in ["North", "South", "East", "West"]:
-        tk.Button(window,
-                  text=dir,
-                  font=("Helvetica", 14),
-                  width=10,
-                  command=lambda d=dir: choose_direction(d)).pack(pady=5)
-
-
-    # Continue your game flow here (e.g., wires, keypad, etc.)
 
 def show_wires_screen(window):
     """Power‑barrier room – player must cut the correct wires."""
