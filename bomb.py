@@ -647,39 +647,42 @@ def check_hard_puzzle(answer):
 
 
 def show_mystic_hollow():
+    """
+    Mystic Hollow – Bomb Challenge:
+    Flashes the physical button red/green, waits for the user to press it,
+    then defuses (green) or explodes (red).
+    """
+    # 1) Clear only the center UI
     for w in content_frame.winfo_children():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
+    # 2) Prompt text
     tk.Label(content_frame,
              text="💣 Mystic Hollow – The Bomb Challenge!",
-             font=("Helvetica", 20, "bold"), fg="#ff6666", bg="#1e1e2f")\
+             font=("Helvetica", 20, "bold"),
+             fg="#ff6666", bg="#1e1e2f")\
       .pack(pady=30)
     tk.Label(content_frame,
-             text="Only one button defuses the bomb...",
-             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f")\
-      .pack(pady=10)
-    tk.Label(content_frame,
-             text="Press 🟢 to defuse, 🔴 to explode.",
-             font=("Helvetica", 14), fg="#ffff99", bg="#1e1e2f")\
+             text="Only one flash will save you...\nPress the button when it glows GREEN to defuse, RED means BOOM!",
+             font=("Helvetica", 16),
+             fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
       .pack(pady=10)
 
-    btnfrm = tk.Frame(content_frame, bg="#1e1e2f")
-    btnfrm.pack(pady=20)
-    tk.Button(btnfrm,
-              text="🟢 Defuse",
-              font=("Helvetica", 16, "bold"),
-              bg="#00cc66", fg="#ffffff",
-              width=10,
-              command=defuse_success)\
-      .grid(row=0, column=0, padx=20)
-    tk.Button(btnfrm,
-              text="🔴 Explode",
-              font=("Helvetica", 16, "bold"),
-              bg="#cc0000", fg="#ffffff",
-              width=10,
-              command=explode_fail)\
-      .grid(row=0, column=1, padx=20)
+    # 3) Start the hardware Button phase (flashing red/green)
+    btn = Button(component_button_state, component_button_RGB)
+    btn.start()
+    btn.join()
+
+    # 4) Branch on the last color lit:
+    if btn._easy_mode:
+        # _easy_mode==True corresponds to GREEN flashing
+        defuse_success()
+    else:
+        # RED flashing
+        explode_fail()
+
         
 
 def show_chest_screen(window):
