@@ -356,8 +356,9 @@ class WiresComponent:
 
     @property
     def cuts(self):
-        # Return list of indices for wires whose .value is True (cut)
+        # Indices of pins that have been cut (pin.value is True)
         return [i for i, pin in enumerate(self._pins) if pin.value]
+
 
 
 def show_forgotten_fortress(window):
