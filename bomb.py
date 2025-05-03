@@ -22,7 +22,14 @@ from bomb_configs import (
 )
 from time import sleep
 
-toggles = Toggles(component_toggles, target_direction="South")   # uses the GPIO pins from bomb_configs
+toggle_pins = [
+    component_toggles["north"],
+    component_toggles["east"],
+    component_toggles["south"],
+    component_toggles["west"],
+]
+
+toggles = Toggles(toggle_pins, target_direction="South")
 toggles.start()
 
 ###########
@@ -232,27 +239,18 @@ def show_entrance_puzzle_screen(window, prompt, target):
                       bg="#1e1e2f")
     status.pack(pady=(0, 30))
 
-    # ─── start keypad thread ───────────────────────────────────────────────
     kd = Keypad(component_keypad, target)
     kd.start()
 
-    # ─── polling loop ──────────────────────────────────────────────────────
     def poll_keypad():
         status.config(text=f"Entered: {kd._value}")
-
         if kd._defused:
-            # ✔ correct combination
             for w in window.winfo_children():
                 w.destroy()
-            show_twilight_passage(window, toggles)           # go to next room
-
+            show_twilight_passage(window)
         elif kd._failed:
-            # ✖ wrong key sequence → restart entrance challenge
-            status.config(text="❌ Wrong code — resetting…")
-            window.after(1500, lambda: entrance_challenge(window))
-
+            # … your reset logic …
         else:
-            # keep polling
             window.after(100, poll_keypad)
 
     poll_keypad()
@@ -283,9 +281,10 @@ def show_phantom_lair(window):
     toggles.set_target("East")
     phantom_lair(window, toggles)
 '''
-def show_twilight_passage(window, toggles):
+def show_twilight_passage(window):
     # Point A – polls the GPIO toggles
-    for w in window.winfo_children(): w.destroy()
+    for w in window.winfo_children(): 
+        w.destroy()
     window.configure(bg="#1e1e2f")
 
     tk.Label(window, text="🌌 Twilight Passage",
