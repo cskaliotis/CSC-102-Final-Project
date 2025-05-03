@@ -144,87 +144,80 @@ def start_game():
 
 
 
-def show_welcome_screen(window):
-    """
-    Displays the welcome screen where the user can enter their name and start the game.
-    Clears any existing widgets, sets the background, and adds necessary labels and buttons.
-    """
-    # Clear existing widgets from the window
-    for w in window.winfo_children():
+def show_welcome_screen():
+    for w in content_frame.winfo_children():
         w.destroy()
+    content_frame.configure(bg="#1e1e2f")
 
-    # Set the background color for the window
-    window.configure(bg="#1e1e2f")
+    tk.Label(content_frame,
+             text="MAZE RUNNER",
+             font=("Helvetica", 42, "bold"),
+             fg="#00ffcc",
+             bg="#1e1e2f")\
+      .pack(pady=(60,30))
 
-    # Title label
-    title = tk.Label(window, text="MAZE RUNNER", font=("Helvetica", 42, "bold"), fg="#00ffcc", bg="#1e1e2f")
-    title.pack(pady=(60, 30))  # Adjust padding for title
-
-    # Input frame for better structure
-    input_frame = tk.Frame(window, bg="#1e1e2f")
+    input_frame = tk.Frame(content_frame, bg="#1e1e2f")
     input_frame.pack(pady=10)
-
-    # Name input label
-    name_label = tk.Label(input_frame, text="Enter your name:", font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f")
-    name_label.pack(anchor="w", padx=10, pady=(0, 5))
-
-    # Name entry box
-    name_entry = tk.Entry(input_frame, font=("Helvetica", 16), width=25, bg="#f0f0f0", relief="flat", justify="center")
+    tk.Label(input_frame,
+             text="Enter your name:",
+             font=("Helvetica",16),
+             fg="#ffffff",
+             bg="#1e1e2f")\
+      .pack(anchor="w", padx=10, pady=(0,5))
+    name_entry = tk.Entry(input_frame,
+                          font=("Helvetica",16),
+                          width=25,
+                          bg="#f0f0f0",
+                          relief="flat",
+                          justify="center")
     name_entry.pack(padx=10)
 
-    # Function for starting the game
     def on_start():
         global player_name
-        # Get the entered name or default to "Player"
         player_name = name_entry.get().strip() or "Player"
-        show_instructions(window)  # Proceed to instructions screen
+        show_instructions()
 
-    # Start game button
-    start_btn = tk.Button(window, text="Start Game", font=("Helvetica", 16, "bold"), bg="#00ffcc", fg="#000000", 
-                          activebackground="#00ddaa", padx=20, pady=10, bd=0, command=on_start, cursor="hand2")
-    start_btn.pack(pady=40)  # Adjust padding for button
+    tk.Button(content_frame,
+              text="Start Game",
+              font=("Helvetica",16,"bold"),
+              bg="#00ffcc", fg="#000000",
+              activebackground="#00ddaa",
+              padx=20, pady=10, bd=0,
+              command=on_start,
+              cursor="hand2")\
+      .pack(pady=40)
 
-    
-def show_instructions(window):
-    for w in window.winfo_children():
+def show_instructions():
+    for w in content_frame.winfo_children():
         w.destroy()
-    window.configure(bg="#1e1e2f")
+    content_frame.configure(bg="#1e1e2f")
 
-    instr_text = (
-        "Welcome, {}!\n\n"
+    instr = (
+        f"Welcome, {player_name}!\n\n"
         "Your goal: Escape the maze before time runs out.\n"
         "- Use the button and keypad to unlock doors.\n"
         "- Flip toggles to shift walls (riddles will guide you).\n"
         "- Cut wires to disable barriers.\n\n"
         "Click 'Continue' when you're ready."
-    ).format(player_name)
-
-    instr_label = tk.Label(
-        window,
-        text=instr_text,                # <<-- was instr
-        font=("Helvetica", 15),
-        fg="#ffffff",
-        bg="#1e1e2f",
-        justify="left",
-        wraplength=600
     )
-    instr_label.pack(padx=50, pady=(60, 30))
+    tk.Label(content_frame,
+             text=instr,
+             font=("Helvetica",15),
+             fg="#ffffff",
+             bg="#1e1e2f",
+             justify="left",
+             wraplength=600)\
+      .pack(padx=50, pady=(60,30))
 
-    cont_btn = tk.Button(
-        window,
-        text="Continue",
-        font=("Helvetica", 16, "bold"),
-        bg="#00ffcc",
-        fg="#000000",
-        activebackground="#00ddaa",
-        cursor="hand2",               
-        padx=20,
-        pady=10,
-        bd=0,
-        command=lambda: start_game(window)
-    )
-    cont_btn.pack(pady=30)
-
+    tk.Button(content_frame,
+              text="Continue",
+              font=("Helvetica",16,"bold"),
+              bg="#00ffcc", fg="#000000",
+              activebackground="#00ddaa",
+              padx=20, pady=10, bd=0,
+              command=start_game)\
+      .pack(pady=30)
+    
 def ensure_timer_support(window):
     if not hasattr(window, "bomb_display"):
         window.bomb_display = tk.Label(window)
@@ -233,107 +226,74 @@ def ensure_timer_support(window):
 
 
 
-def show_entrance_screen(window):
-    # clear everything
-    for w in window.winfo_children(): w.destroy()
-    window.configure(bg="#1e1e2f")
+def show_entrance_screen():
+    for w in content_frame.winfo_children():
+        w.destroy()
+    content_frame.configure(bg="#1e1e2f")
 
-    window.remaining = 600  # seconds
+    tk.Label(content_frame,
+             text=(
+               "🚪 Welcome to the Maze Runner Challenge!\n\n"
+               "Press the BIG BUTTON when it flashes:\n"
+               "🟢 GREEN = easy riddle\n"
+               "🔴 RED   = hard   riddle"
+             ),
+             font=("Helvetica",18),
+             fg="#ffffff", bg="#1e1e2f",
+             justify="center", wraplength=600)\
+      .pack(pady=50)
 
-
-    # now render the entrance UI
-    prompt = (
-        "🚪 Welcome to the Maze Runner Challenge!\n\n"
-        "The entrance is locked.\n"
-        "To unlock it, press the BIG BUTTON when it flashes:\n\n"
-        "🟢 GREEN for an *easy* riddle\n"
-        "🔴 RED for a *hard* one\n\n"
-        "Choose wisely. Good luck, runner!"
-    )
-    tk.Label(window, text=prompt, font=("Helvetica", 18), fg="#fff", bg="#1e1e2f",
-             justify="center", wraplength=600).pack(pady=50)
-
-    tk.Button(window,
+    tk.Button(content_frame,
               text="Start Puzzle",
-              font=("Helvetica", 16, "bold"),
-              bg="#00ffcc", fg="#000",
+              font=("Helvetica",16,"bold"),
+              bg="#00ffcc", fg="#000000",
               activebackground="#00ddaa",
-              cursor="hand2",
               padx=30, pady=12, bd=0,
-              command=lambda: entrance_challenge(window)
-    ).pack(pady=30)
+              command=lambda: entrance_challenge())\
+      .pack(pady=30)
 
-
-
-
-def entrance_challenge(window):
-    """
-    Flash the red/green button, wait for a press, then launch the keypad screen.
-    """
-    # Start the flashing‐LED Button thread and wait for the press
+def entrance_challenge():
     btn = Button(component_button_state, component_button_RGB)
-    btn.start()
-    btn.join()
-
-    # Swap the riddle mapping so green = easy, red = hard (or vice versa as you like):
-    if btn._easy_mode:   # GREEN
+    btn.start(); btn.join()
+    if btn._easy_mode:
         prompt = "Enter the decimal code on the keypad: 610"
-    else:                # RED
+    else:
         prompt = ("Convert this binary to decimal, then enter on keypad:\n"
                   "1001100010")
     target = "610"
-    
-    # Now hand off to the keypad‐UI
-    show_entrance_puzzle_screen(window, prompt, target)
+    show_entrance_puzzle_screen(prompt, target)
 
-
-
-
-def show_entrance_puzzle_screen(window, prompt, target):
-    """
-    Prompt the player with a keypad challenge.  `target` is the digit string
-    that defuses the lock (e.g., "610").
-    """
-    # ─── clear previous widgets ─────────────────────────────────────────────
-    for w in window.winfo_children():
+def show_entrance_puzzle_screen(prompt, target):
+    for w in content_frame.winfo_children():
         w.destroy()
-    window.configure(bg="#1e1e2f")
+    content_frame.configure(bg="#1e1e2f")
 
-    # ─── riddle / instructions ─────────────────────────────────────────────
-    tk.Label(window,
+    tk.Label(content_frame,
              text=prompt,
-             font=("Helvetica", 18),
-             fg="#ffffff",
-             bg="#1e1e2f",
-             wraplength=600,
-             justify="center").pack(pady=(80, 20))
+             font=("Helvetica",18),
+             fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=(80,20))
 
-    # live echo of what the physical keypad thread is reading
-    status = tk.Label(window,
+    status = tk.Label(content_frame,
                       text="Entered: ",
-                      font=("Courier New", 20),
-                      fg="#00ffcc",
-                      bg="#1e1e2f")
-    status.pack(pady=(0, 30))
+                      font=("Courier New",20),
+                      fg="#00ffcc", bg="#1e1e2f")
+    status.pack(pady=(0,30))
 
     kd = Keypad(component_keypad, target)
     kd.start()
 
     def poll_keypad():
         status.config(text=f"Entered: {kd._value}")
-
         if kd._defused:
-            for w in window.winfo_children():
-                w.destroy()
-            show_twilight_passage(window)
-            return       
-
-        elif kd._failed:
+            for w in content_frame.winfo_children(): w.destroy()
+            show_twilight_passage()
+            return
+        if kd._failed:
             status.config(text="❌ Wrong code — resetting…")
-            window.after(1500, lambda: entrance_challenge(window))
-            return       # ← stop here as well
-
-        # still not defused or failed? keep polling
+            window.after(1500, entrance_challenge)
+            return
         window.after(100, poll_keypad)
 
     poll_keypad()
