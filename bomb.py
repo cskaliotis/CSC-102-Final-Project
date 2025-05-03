@@ -740,7 +740,6 @@ def explode_fail(window):
               font=("Helvetica", 14),
               command=lambda: show_mystic_hollow(window)).pack(pady=20)
 
-
 def show_final_screen(window):
     """Final defuse/boom decision."""
     for w in window.winfo_children(): w.destroy()
@@ -769,6 +768,9 @@ def show_failure_screen(window):
     tk.Label(window, text="The defusal failed. The maze collapses…",
              font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center").pack(pady=20)
+
+def on_timer_failure():
+    show_failure_screen(window)
 
 # generates the bootup sequence on the LCD
 def bootup(n=0):
