@@ -77,9 +77,8 @@ if (RPi):
         pin.direction = Direction.OUTPUT
         pin.value = True
 
-         -TOG1-  -TOG2-  --TOG3--  --TOG4--  --TOG5--  --TOG6--
 if RPi:
-    # set up the raw pins
+    # raw GPIO pins
     toggle_gpio_pins = [board.D12, board.D16, board.D20, board.D21]
     _toggles_pins = []
     for gp in toggle_gpio_pins:
@@ -88,17 +87,17 @@ if RPi:
         pin.pull = Pull.DOWN
         _toggles_pins.append(pin)
 
-    # wrap into an object whose `.toggles` is a list of pin.value booleans
+    # wrap them so that .toggles gives you [True/False, …]
     class TogglesComponent:
         def __init__(self, pins):
             self._pins = pins
 
         @property
         def toggles(self):
-            # return a list of True/False
-            return [pin.value for pin in self._pins]
+            return [p.value for p in self._pins]
 
     component_toggles = TogglesComponent(_toggles_pins)
+
 
 
 ###########
