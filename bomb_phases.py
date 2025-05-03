@@ -10,6 +10,7 @@ from tkinter import *
 import tkinter
 from threading import Thread
 from time import sleep
+from adafruit_ht16k33.segments import Seg7x4  # Import the 7-segment display library
 import os, sys
 
 if RPi:
@@ -150,14 +151,15 @@ class Timer(PhaseThread):
         self._min = ""
         self._sec = ""
         self._running = False
+        self._component = component
         self._failure_callback = failure_callback  # Function to call when time runs out
 
     def run(self):
         self._running = True
         while self._running:
             if not self._paused:
-                self._update()
-                self._component.print(str(self))  # Print to the bomb’s display
+                self._update() # Update minutes and seconds
+                self._component.print(str(self)) # Display to the 7-segment display
                 sleep(self._interval)
                 if self._value == 0:
                     self._running = False
@@ -169,8 +171,9 @@ class Timer(PhaseThread):
                 sleep(0.1)
 
     def _update(self):
+        """Update the minutes and seconds for the countdown."""
         self._min, self._sec = divmod(self._value, 60)
-        self._min = str(self._min).zfill(2)
+        self._min = str(self._min).zfill(2)  # Pad with zeros for formatting
         self._sec = str(self._sec).zfill(2)
         
     def pause(self):
