@@ -53,11 +53,12 @@ class ToggleComponent:
 
 
 
-# Convert the integer wires target bitmask into a list of wire indices
+# convert integer bitmask to list of wire indices
 def int_to_index_list(val, width):
     return [i for i in range(width) if (val >> (width - 1 - i)) & 1]
 
-# List of wire indices that must be cut to defuse\wires_target_list = int_to_index_list(_wires_target_int, width=len(component_wires))
+# List of wire indices that need to be cut to defuse the barrier
+wires_target_list = int_to_index_list(_wires_target_int, width=len(component_wires))
 
 # Riddle hints for the wires phase
 wires_hints = {
