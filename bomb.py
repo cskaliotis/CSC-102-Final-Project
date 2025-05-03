@@ -408,14 +408,15 @@ def show_forgotten_fortress():
 
     # 5) Poll toggles until West
     def poll_fortress():
-        bits = "".join("1" if pin.value else "0" for pin in component_toggles)
+        bits = "".join("1" if p.value else "0" for p in component_toggles)
         direction = toggle_code_to_dir.get(bits)
         status.config(text=f"Toggle code: {bits} → {direction or 'None'}")
         if direction == "West":
-            tk.Label(window,
+            tk.Label(content_frame,
                      text="🎉 Correct! You head west and encounter a power barrier…",
-                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
-            window.after(1500, lambda: show_wires_screen(window))
+                     font=("Helvetica",16), fg="green", bg="#1e1e2f")\
+              .pack(pady=20)
+            window.after(1500, show_wires_screen)
         else:
             window.after(100, poll_fortress)
 
