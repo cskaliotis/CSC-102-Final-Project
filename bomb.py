@@ -36,6 +36,17 @@ def int_to_index_list(val, width):
 
 wires_target_list = int_to_index_list(_wires_target_int, width=len(component_wires))
 
+
+def indices_to_letters(indices):
+    return [chr(ord('A') + i) for i in indices]
+
+def generate_wire_riddle(target_indices):
+    labels = indices_to_letters(target_indices)
+    if len(labels) == 1:
+        return f"Cut wire {labels[0]} to deactivate the barrier."
+    return f"Cut wires {', '.join(labels[:-1])} and {labels[-1]} to deactivate the barrier."
+
+
 window = tk.Tk()
 window.geometry("800x600")
 window.title("Maze Runner")
