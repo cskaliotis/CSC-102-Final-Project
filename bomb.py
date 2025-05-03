@@ -413,17 +413,19 @@ def show_forgotten_fortress(window):
 def show_wires_screen(window):
     """
     Wires Puzzle:
-    Displays a riddle hint and monitors physical wires being cut.
-    Only cutting the correct indices (wires_target_list) defuses the barrier.
-
-    Polls the actual GPIO pins directly and does NOT return to the fortress on failure,
-    so the barrier screen remains until the correct wires are cut.
+    Displays the serial and a clear riddle hint, then monitors physical wires
+    until the correct set (wires_target_list) is cut, defusing the barrier.
     """
-    # Clear UI
+    # 1) Clear UI
     for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # 2) Display barrier prompt and riddle hint
+    # 2) Show serial at top right
+    tk.Label(window,
+             text=f"Serial: {serial}",
+             font=("Courier New", 12), fg="#ffffff", bg="#1e1e2f")
+
+    # 3) Show barrier prompt & riddle hint
     hint = wires_hints.get(tuple(wires_target_list),
                            "Cut the correct wire(s) to deactivate the barrier.")
     tk.Label(window,
@@ -434,25 +436,24 @@ def show_wires_screen(window):
              font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center").pack(pady=20)
 
-    # 3) Status label to show current cuts
+    # 4) Status label to show cut wires by letter
     status = tk.Label(window,
                       text="Cuts: []",
                       font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # 4) Poll loop: read raw component_wires pins
+    # 5) Poll loop: read raw wires, convert indices to letters, check target
     def poll_wires():
-        # Directly read each wire pin: 1 if cut (True), 0 if intact
-        cuts = [i for i, pin in enumerate(component_wires) if pin.value]
-        status.config(text=f"Cuts: {cuts}")
-        if cuts == wires_target_list:
-            # Success: defuse barrier
+        cut_indices = [i for i, pin in enumerate(component_wires) if pin.value]
+        # Convert 0->'A', 1->'B', etc.
+        cut_letters = [chr(ord('A') + i) for i in cut_indices]
+        status.config(text=f"Cuts: {cut_letters}")
+        if cut_indices == wires_target_list:
             tk.Label(window,
                      text="✅ Barrier deactivated!",
                      font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
             window.after(1500, lambda: show_phantoms_lair(window))
         else:
-            # Keep polling until correct pattern
             window.after(100, poll_wires)
 
     poll_wires()
