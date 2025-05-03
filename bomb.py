@@ -181,12 +181,23 @@ def ensure_timer_support(window):
 
 def show_entrance_screen(window):
     # clear everything
-    for w in window.winfo_children():
-        w.destroy()
+    for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # start our countdown
+    # initialize countdown
     window.remaining = 600  # seconds
+
+    # ─── Create the on-screen timer label ────────────────────────────────
+    window.timer_label = tk.Label(
+        window,
+        text="Time Left: 10:00",
+        font=("Helvetica", 18),
+        fg="#00ffcc",
+        bg="#1e1e2f"
+    )
+    window.timer_label.pack(pady=(20,10))
+
+    # kick off the update loop (this will now have a timer_label to update)
     update_timer(window, component_7seg)
 
     # now render the entrance UI
