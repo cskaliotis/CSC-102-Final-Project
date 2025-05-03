@@ -271,7 +271,7 @@ def show_toggle_screen(window):
              justify="center", wraplength=600).pack(pady=40)
     tk.Button(window, text="Solve Toggles", font=("Helvetica",16),
               command=lambda: run_toggle_phase(window)).pack(pady=20)
-
+'''
 from bomb_phases import twilight_passage, forgotten_fortress, phantom_lair
 
 def show_twilight_passage(window):
@@ -285,122 +285,54 @@ def show_forgotten_fortress(window):
 def show_phantom_lair(window):
     toggles.set_target("East")
     phantom_lair(window, toggles)
-
+'''
 def show_twilight_passage(window, toggles):
     """
-    Screen for the Twilight Passage phase, where the player must flip the correct toggle to proceed.
+    Point A – Twilight Passage.
+    Player must flip the SOUTH toggle (180° from North) to advance.
     """
-    for w in window.winfo_children():
-        w.destroy()
+    # ─── basic GUI ────────────────────────────────────────────────────
+    for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
 
-    tk.Label(window,
-             text="🌌 Twilight Passage",
+    tk.Label(window, text="🌌 Twilight Passage",
              font=("Helvetica", 24, "bold"),
-             fg="#00ffcc",
-             bg="#1e1e2f").pack(pady=(40, 10))
+             fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
 
     tk.Label(window,
-             text="You're facing NORTH. Flip the correct toggle to turn SOUTH and proceed.",
+             text="Hint: What direction do you face when you turn 180° from NORTH?",
              font=("Helvetica", 16),
-             fg="#ffffff",
-             bg="#1e1e2f").pack(pady=20)
+             fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center").pack(pady=20)
 
-    direction_label = tk.Label(window, text="Current Direction: None",
-                               font=("Helvetica", 16), fg="#00ffcc", bg="#1e1e2f")
-    direction_label.pack(pady=20)
+    direction_lbl = tk.Label(window, text="Current Direction: None",
+                              font=("Helvetica", 16),
+                              fg="#00ffcc", bg="#1e1e2f")
+    direction_lbl.pack(pady=20)
 
-    # Function to update the direction label and check the toggle state
-    def update_direction():
-        direction = toggles.get_direction()
-        if direction:
-            direction_label.config(text=f"Current Direction: {direction}")
-        else:
-            direction_label.config(text="Current Direction: None")
+    # ─── polling loop ────────────────────────────────────────────────
+    def poll():
+        dir_now = toggles.get_direction()
+        direction_lbl.config(text=f"Current Direction: {dir_now or 'None'}")
 
-        # Check if the direction is correct
-        if toggles._defused:
+        if toggles._defused:               # SOUTH reached
             tk.Label(window,
-                     text="🎉 Correct! You turned SOUTH and moved to the next challenge.",
-                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
-            window.after(2000, lambda: show_circuit_puzzle(window))  # Proceed to the next phase
+                     text="🎉 Correct! You're heading south down the passage...",
+                     font=("Helvetica", 16), fg="green",
+                     bg="#1e1e2f").pack(pady=20)
+            window.after(1800, lambda: show_circuit_puzzle(window))
         elif toggles._failed:
             tk.Label(window,
                      text="❌ Wrong toggle! Try again.",
-                     font=("Helvetica", 16), fg="red", bg="#1e1e2f").pack(pady=20)
+                     font=("Helvetica", 16), fg="red",
+                     bg="#1e1e2f").pack(pady=20)
+            toggles._failed = False        # allow retry
+            window.after(100, poll)
+        else:
+            window.after(100, poll)
 
-    # Continuously poll the toggles
-    def poll_toggles():
-        update_direction()
-        if toggles._running:
-            window.after(100, poll_toggles)
+    poll()
 
-    poll_toggles()
-
-    # Toggle button to flip direction
-    def on_toggle_south():
-        for w in window.winfo_children():
-            w.destroy()
-        window.configure(bg="#1e1e2f")
-        tk.Label(window,
-                 text="🔄 Direction: SOUTH\nYou're heading south down the Twilight Passage.",
-                 font=("Helvetica", 18),
-                 fg="#ffffff",
-                 bg="#1e1e2f").pack(pady=30)
-        tk.Label(window,
-                 text="You're stopped by two doors...\nSolve the circuit puzzle to proceed.",
-                 font=("Helvetica", 16),
-                 fg="#ffffff",
-                 bg="#1e1e2f").pack(pady=20)
-
-        # Challenge screen with doors
-        tk.Label(window,
-                 text="What’s the circuit’s Boolean expression?",
-                 font=("Helvetica", 18, "bold"),
-                 fg="#00ffcc",
-                 bg="#1e1e2f").pack(pady=20)
-
-        tk.Label(window,
-                 text="Door 1: (A AND B) OR (C AND NOT D)\nDoor 2: (A OR B) AND (C OR D)",
-                 font=("Helvetica", 15),
-                 fg="#ffffff",
-                 bg="#1e1e2f",
-                 justify="center").pack(pady=10)
-
-        answer_entry = tk.Entry(window, font=("Courier New", 16), width=35, justify="center")
-        answer_entry.pack(pady=10)
-
-        def check_answer():
-            answer = answer_entry.get().replace(" ", "").upper()
-            if answer in ["(AANDB)OR(CANDNOTD)", "(AAND B)OR(CANDNOTD)"]:
-                tk.Label(window,
-                         text="✅ Correct! You enter the Forgotten Fortress.",
-                         font=("Helvetica", 16),
-                         fg="#00ffcc",
-                         bg="#1e1e2f").pack(pady=20)
-                window.after(2000, lambda: show_forgotten_fortress(window))
-            else:
-                tk.Label(window,
-                         text="❌ Wrong expression. Try again.",
-                         font=("Helvetica", 14),
-                         fg="#ff6666",
-                         bg="#1e1e2f").pack(pady=10)
-
-        tk.Button(window,
-                  text="Submit Answer",
-                  font=("Helvetica", 14, "bold"),
-                  bg="#00ffcc",
-                  fg="#000000",
-                  command=check_answer).pack(pady=20)
-
-    tk.Button(window,
-              text="Toggle SOUTH",
-              font=("Helvetica", 16, "bold"),
-              bg="#00ffcc",
-              fg="#000000",
-              padx=20,
-              pady=10,
-              command=on_toggle_south).pack(pady=40)
 
 # Placeholder for next room logic
 def show_forgotten_fortress(window):
