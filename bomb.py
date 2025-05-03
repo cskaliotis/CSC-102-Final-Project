@@ -219,11 +219,7 @@ def show_entrance_puzzle_screen(window, prompt, target):
             # correct → clear and boot bomb UI
             for w in window.winfo_children():
                 w.destroy()
-            global gui, strikes_left, active_phases
-            gui           = Lcd(window)
-            strikes_left  = NUM_STRIKES
-            active_phases = NUM_PHASES
-            gui.after(1000, bootup)
+            show_twilight_passage(window)  
         elif kd._failed:
             status.config(text="❌ Wrong code—resetting…")
             window.after(1500, lambda: entrance_challenge(window))
