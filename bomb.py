@@ -719,41 +719,52 @@ def explode_fail():
               command=show_mystic_hollow)\
       .pack(pady=20)
 
+def show_final_screen():
+    for w in content_frame.winfo_children():
+        w.destroy()
+    content_frame.configure(bg="#1e1e2f")
 
-def show_final_screen(window):
-    """Final defuse/boom decision."""
-    for w in window.winfo_children(): w.destroy()
-    window.configure(bg="#1e1e2f")
-    tk.Label(window, text="🚪 Final Door Ahead!\nPress GREEN to defuse, RED to boom.",
-             font=("Helvetica",18), fg="#fff", bg="#1e1e2f",
-             justify="center", wraplength=600).pack(pady=40)
-    # map directly to your Button‐only phase
-    tk.Button(window, text="Press Button", font=("Helvetica",16),
-              command=lambda: run_final_phase(window)).pack(pady=20)
+    tk.Label(content_frame,
+             text="🚪 Final Door Ahead!\nPress 🟢 to defuse, 🔴 to boom.",
+             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
+             justify="center", wraplength=600)\
+      .pack(pady=40)
+    tk.Button(content_frame,
+              text="Press Button",
+              font=("Helvetica", 16),
+              command=defuse_success)\
+      .pack(pady=10)
     
 def show_victory_screen():
-    for w in content_frame.winfo_children(): w.destroy()
+    for w in content_frame.winfo_children():
+        w.destroy()
     content_frame.configure(bg="#1e1e2f")
+
     tk.Label(content_frame,
              text="🎉 YOU WIN!",
-             font=("Helvetica",28,"bold"),
-             fg="#00ffcc", bg="#1e1e2f")\
+             font=("Helvetica", 28, "bold"), fg="#00ffcc", bg="#1e1e2f")\
       .pack(pady=40)
     tk.Label(content_frame,
              text="You defused the final challenge and escaped the maze!",
-             font=("Helvetica",18),
-             fg="#ffffff", bg="#1e1e2f",
+             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center")\
       .pack(pady=20)
 
-def show_failure_screen(window):
-    for w in window.winfo_children(): w.destroy()
-    window.configure(bg="#1e1e2f")
-    tk.Label(window, text="💥 BOOM!", font=("Helvetica", 28, "bold"),
-             fg="#ff5555", bg="#1e1e2f").pack(pady=40)
-    tk.Label(window, text="The defusal failed. The maze collapses…",
+
+def show_failure_screen():
+    for w in content_frame.winfo_children():
+        w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+
+    tk.Label(content_frame,
+             text="💥 BOOM!",
+             font=("Helvetica", 28, "bold"), fg="#ff5555", bg="#1e1e2f")\
+      .pack(pady=40)
+    tk.Label(content_frame,
+             text="The defusal failed. The maze collapses…",
              font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center").pack(pady=20)
+             wraplength=600, justify="center")\
+      .pack(pady=20)
 
 def on_timer_failure():
     show_failure_screen(window)
