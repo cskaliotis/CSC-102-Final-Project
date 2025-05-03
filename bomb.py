@@ -11,6 +11,7 @@ from bomb_phases import Timer, Keypad, Wires, Button, Toggles, Lcd, MazeToggles
 from bomb_configs import (component_button_state,
     component_button_RGB,
     component_keypad,
+    component_toggles,
     component_wires,
     wires_target as _wires_target_int,
     NUM_STRIKES,
