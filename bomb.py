@@ -334,13 +334,17 @@ def show_twilight_passage(window):
     # … then your existing UI code …
     for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
-
-    tk.Label(window, text="🌌 Twilight Passage", …).pack(pady=(40,10))
+    tk.Label(window, text="🌌 Twilight Passage",
+             font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f")\
+      .pack(pady=(40,10))
     tk.Label(window,
              text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.",
-             …).pack(pady=20)
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=20)
 
-    status = tk.Label(window, text="Current Direction: None", …)
+    status = tk.Label(window, text="Current Direction: None",
+                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
     def poll():
