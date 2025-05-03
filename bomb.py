@@ -63,7 +63,6 @@ def update_timer(window, display):
 
 def start_game(window):
     print("[DEBUG] start_game() called")
-
     # 1) Countdown timer + LCD
     timer = Timer(
         component_7seg,
@@ -74,19 +73,9 @@ def start_game(window):
     lcd.setTimer(timer)
     timer.start()
 
-        # 2) Start the 4-way toggle thread with the actual GPIO pins
-    from bomb_configs import component_toggles
-    toggle_pins = [
-        component_toggles["north"],
-        component_toggles["east"],
-        component_toggles["south"],
-        component_toggles["west"],
-    ]
-    global toggles
-    toggles = MazeToggles(toggle_pins, target_direction=None)
-    toggles.start()
-
+    # 2) Immediately go to the first puzzle
     show_entrance_screen(window)
+
 
 
 
@@ -312,22 +301,27 @@ def show_phantom_lair(window):
     phantom_lair(window, toggles)
 '''
 def show_twilight_passage(window):
-    toggles.set_target("South")
+    # ─── Start toggles only when you enter this room ──────────────
+    from bomb_configs import component_toggles
+    toggle_pins = [
+        component_toggles["north"],
+        component_toggles["east"],
+        component_toggles["south"],
+        component_toggles["west"],
+    ]
+    global toggles
+    toggles = MazeToggles(toggle_pins, target_direction=None)
+    toggles.start()
+
+    # ─── Now your existing UI setup ────────────────────────────────
     for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
+    tk.Label(window, text="🌌 Twilight Passage", …).pack(pady=(40,10))
+    tk.Label(window, text="Hint: Turn 180° from NORTH …", …).pack(pady=20)
 
-    tk.Label(window, text="🌌 Twilight Passage",
-             font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f")\
-      .pack(pady=(40,10))
-    tk.Label(window,
-             text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.",
-             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center")\
-      .pack(pady=20)
-
-    status = tk.Label(window, text="Current Direction: None",
-                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
+    status = tk.Label(window, text="Current Direction: None", …)
     status.pack(pady=20)
+
 
     def poll():
         cur = toggles.get_direction()
