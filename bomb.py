@@ -7,7 +7,7 @@
 # import the configs
 import tkinter as tk
 import time
-from bomb_phases import Timer, Keypad, Wires,Button, Toggles, Lcd
+from bomb_phases import Timer, Keypad, Wires, Button, Toggles, Lcd, MazeToggles
 from bomb_configs import (component_button_state,
     component_button_RGB,
     component_keypad,
@@ -18,6 +18,9 @@ from bomb_configs import (component_button_state,
     RPi
 )
 from time import sleep
+
+toggles = MazeToggles(component_toggles)   # uses the GPIO pins from bomb_configs
+toggles.start()
 
 ###########
 # functions
@@ -287,11 +290,7 @@ def show_phantom_lair(window):
     phantom_lair(window, toggles)
 '''
 def show_twilight_passage(window, toggles):
-    """
-    Point A – Twilight Passage.
-    Player must flip the SOUTH toggle (180° from North) to advance.
-    """
-    # ─── basic GUI ────────────────────────────────────────────────────
+    # Point A – polls the GPIO toggles
     for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
 
@@ -305,33 +304,30 @@ def show_twilight_passage(window, toggles):
              fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center").pack(pady=20)
 
-    direction_lbl = tk.Label(window, text="Current Direction: None",
-                              font=("Helvetica", 16),
-                              fg="#00ffcc", bg="#1e1e2f")
-    direction_lbl.pack(pady=20)
+    dir_lbl = tk.Label(window, text="Current Direction: None",
+                       font=("Helvetica", 16), fg="#00ffcc", bg="#1e1e2f")
+    dir_lbl.pack(pady=20)
 
-    # ─── polling loop ────────────────────────────────────────────────
     def poll():
-        dir_now = toggles.get_direction()
-        direction_lbl.config(text=f"Current Direction: {dir_now or 'None'}")
+        cur = toggles.get_direction()
+        dir_lbl.config(text=f"Current Direction: {cur or 'None'}")
 
-        if toggles._defused:               # SOUTH reached
+        if toggles._defused:
             tk.Label(window,
                      text="🎉 Correct! You're heading south down the passage...",
-                     font=("Helvetica", 16), fg="green",
-                     bg="#1e1e2f").pack(pady=20)
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
             window.after(1800, lambda: show_circuit_puzzle(window))
         elif toggles._failed:
             tk.Label(window,
                      text="❌ Wrong toggle! Try again.",
-                     font=("Helvetica", 16), fg="red",
-                     bg="#1e1e2f").pack(pady=20)
-            toggles._failed = False        # allow retry
+                     font=("Helvetica", 16), fg="red", bg="#1e1e2f").pack(pady=20)
+            toggles._failed = False      # allow retry
             window.after(100, poll)
         else:
             window.after(100, poll)
 
     poll()
+
 
 
 # Placeholder for next room logic
