@@ -299,34 +299,43 @@ def show_entrance_puzzle_screen(prompt, target):
     poll_keypad()
 
     
-def show_twilight_passage(window):
-    """
-    Twilight Passage:
-    Reads the physical 4-way toggle switches directly (0000→1000→1100→1110→1111)
-    and advances when the user sets the toggles to South ("1110").
-    """
-    # Clear previous UI
-    for w in window.winfo_children():
-        w.destroy()
-    window.configure(bg="#1e1e2f")
+def show_twilight_passage():
+    for w in content_frame.winfo_children(): w.destroy()
+    content_frame.configure(bg="#1e1e2f")
 
-    # Static UI
-    tk.Label(window, text="🌌 Twilight Passage", font=("Helvetica",24,"bold"), fg="#00ffcc", bg="#1e1e2f").pack(pady=(40,10))
-    tk.Label(window, text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.", font=("Helvetica",16), fg="#ffffff", bg="#1e1e2f", wraplength=600, justify="center").pack(pady=20)
-    status = tk.Label(window, text="Toggle code: 0000 → None", font=("Courier New",18), fg="#00ffcc", bg="#1e1e2f")
+    tk.Label(content_frame,
+             text="🌌 Twilight Passage",
+             font=("Helvetica",24,"bold"),
+             fg="#00ffcc", bg="#1e1e2f")\
+      .pack(pady=(40,10))
+    tk.Label(content_frame,
+             text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.",
+             font=("Helvetica",16),
+             fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=20)
+
+    status = tk.Label(content_frame,
+                      text="Toggle code: 0000 → None",
+                      font=("Courier New",18),
+                      fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # Poll for toggle state
     def poll_twilight():
-        bits = "".join("1" if pin.value else "0" for pin in component_toggles)
+        bits = "".join("1" if p.value else "0" for p in component_toggles)
         direction = toggle_code_to_dir.get(bits)
         status.config(text=f"Toggle code: {bits} → {direction or 'None'}")
         if direction == "South":
-            tk.Label(window, text="🎉 Correct! You're heading south…", font=("Helvetica",16), fg="green", bg="#1e1e2f").pack(pady=20)
-            window.after(1500, lambda: show_circuit_puzzle(window))
+            tk.Label(content_frame,
+                     text="🎉 Correct! You're heading south…",
+                     font=("Helvetica",16), fg="green", bg="#1e1e2f")\
+              .pack(pady=20)
+            window.after(1500, show_circuit_puzzle)
         else:
             window.after(100, poll_twilight)
+
     poll_twilight()
+
 
 
     
