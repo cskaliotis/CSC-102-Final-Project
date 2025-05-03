@@ -110,48 +110,36 @@ class ToggleComponent:
 
 
 
-# Riddle hints for the wires phase
-wires_hints = {
-    tuple(wires_target_list): "Cut the wires whose letters appear first in the serial."
-}
 
 
 def update_timer(window, display):
-    # Debug: confirm this is being called
-    print(f"[TIMER DEBUG] remaining={window.remaining}")
-    
     mins, secs = divmod(window.remaining, 60)
     time_str = f"{mins:02d}:{secs:02d}"
-
-    # Update the GUI label with the remaining time
     window.timer_label.config(text=f"Time Left: {time_str}")
-    
-    # Update the 7-segment display with the remaining time
-    display.print(time_str)  # Assuming 'display' is the 7-segment object
-    
+    display.print(time_str)
+    progress['value'] = window.remaining
     if window.remaining > 0:
         window.remaining -= 1
-        # schedule the next tick
         window.after(1000, update_timer, window, display)
     else:
-        # out of time!
-        show_failure_screen(window)
+        show_failure_screen()
 
-def start_game(window):
-    print("[DEBUG] start_game() called")
-    # 1) Countdown timer + LCD
-    timer = Timer(
-        component_7seg,
-        initial_value=COUNTDOWN,
-        failure_callback=lambda: show_failure_screen(window)
-    )
+def start_game():
+    # initialize countdown
+    window.remaining = COUNTDOWN
+
+    # hardware timer + LCD
+    timer = Timer(component_7seg, initial_value=COUNTDOWN,
+                  failure_callback=show_failure_screen)
     lcd = Lcd(window)
     lcd.setTimer(timer)
     timer.start()
 
-    # 2) Immediately go to the first puzzle
-    show_entrance_screen(window)
+    # kick off the UI timer
+    update_timer(window, component_7seg)
 
+    # first puzzle
+    show_entrance_screen()
 
 
 
