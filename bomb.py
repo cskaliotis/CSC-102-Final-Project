@@ -611,14 +611,23 @@ def show_easy_puzzle():
               command=lambda: check_easy_puzzle(entry.get()))\
       .pack(pady=10)
 
-def check_easy_puzzle(window, answer):
+
+def check_easy_puzzle(answer):
+    for w in content_frame.winfo_children():
+        w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+
     if answer.strip() == "10":
-        for w in window.winfo_children():
-            w.destroy()
-        tk.Label(window, text="✅ Correct!", font=("Helvetica", 16), fg="#00ff00", bg="#1e1e2f").pack(pady=20)
-        window.after(1500, lambda: show_hard_puzzle(window))
+        tk.Label(content_frame,
+                 text="✅ Correct!",
+                 font=("Helvetica", 16), fg="#00ff00", bg="#1e1e2f")\
+          .pack(pady=20)
+        window.after(1500, show_hard_puzzle)
     else:
-        tk.Label(window, text="❌ Try again!", font=("Helvetica", 14), fg="red", bg="#1e1e2f").pack(pady=10)
+        tk.Label(content_frame,
+                 text="❌ Try again!",
+                 font=("Helvetica", 14), fg="red", bg="#1e1e2f")\
+          .pack(pady=10)
 
 def show_hard_puzzle(window):
     for w in window.winfo_children():
