@@ -30,6 +30,17 @@ from time import sleep
 ###########
 # functions
 
+# Wraps the raw GPIO pins into a .toggles list of booleans
+class ToggleComponent:
+    def __init__(self, pins):
+        self._pins = pins
+
+    @property
+    def toggles(self):
+        # Read .value on each pin, giving True/False
+        return [pin.value for pin in self._pins]
+
+
 def int_to_index_list(val, width=5):
     return [i for i in range(width) if (val >> (width - 1 - i)) & 1]
 
@@ -301,22 +312,18 @@ def show_phantom_lair(window):
     phantom_lair(window, toggles)
 '''
 def show_twilight_passage(window):
-    # ─── Start the toggles thread ───────────────────────────────
-    from bomb_configs import component_toggles  # this is a list of 4 pins
+    # ─── Start the toggles thread with a boolean‐valued component ─────
+    from bomb_configs import component_toggles as raw_pins
 
-    # Wrap that list so MazeToggles can do `component.toggles`
-    toggles_component = SimpleNamespace(toggles=component_toggles)
-
+    toggles_component = ToggleComponent(raw_pins)
     global toggles
-    toggles = MazeToggles(toggles_component)
+    toggles = MazeToggles(toggles_component)   # now .toggles is [True/False,...]
     toggles.set_target("South")
     toggles.start()
 
-    # ─── Now clear the UI and build the Twilight Passage screen ────
-    for w in window.winfo_children(): 
-        w.destroy()
+    # ─── Then build your UI as before ───────────────────────────────
+    for w in window.winfo_children(): w.destroy()
     window.configure(bg="#1e1e2f")
-
     tk.Label(window, text="🌌 Twilight Passage",
              font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f")\
       .pack(pady=(40,10))
@@ -334,7 +341,6 @@ def show_twilight_passage(window):
         cur = toggles.get_direction()
         print(f"[DEBUG] toggle direction read = {cur}")
         status.config(text=f"Current Direction: {cur or 'None'}")
-
         if cur == "South":
             tk.Label(window,
                      text="🎉 Correct! You're heading south…",
@@ -342,10 +348,10 @@ def show_twilight_passage(window):
               .pack(pady=20)
             window.after(1500, lambda: show_circuit_puzzle(window))
             return
-
         window.after(100, poll)
 
     poll()
+
 
 
 
