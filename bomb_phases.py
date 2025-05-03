@@ -365,6 +365,231 @@ class MazeToggles(PhaseThread):
         states = [(direction, "ON" if state else "OFF") for direction, state in zip(["North", "East", "South", "West"], self._value)]
         return " | ".join([f"{dir}: {state}" for dir, state in states])
 
+# Function for handling the Twilight Passage challenge
+def twilight_passage(window, toggles):
+    """
+    Screen for the Twilight Passage phase, where the player must flip the correct toggle to proceed.
+    """
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window,
+             text="🌌 Twilight Passage",
+             font=("Helvetica", 24, "bold"),
+             fg="#00ffcc",
+             bg="#1e1e2f").pack(pady=(40, 10))
+
+    tk.Label(window,
+             text="You're facing NORTH. Flip the correct toggle to turn SOUTH and proceed.",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=20)
+
+    direction_label = tk.Label(window, text="Current Direction: None",
+                                font=("Helvetica", 16), fg="#00ffcc", bg="#1e1e2f")
+    direction_label.pack(pady=20)
+
+    # Function to update the direction label and check the toggle state
+    def update_direction():
+        direction = toggles.get_direction()
+        if direction:
+            direction_label.config(text=f"Current Direction: {direction}")
+        else:
+            direction_label.config(text="Current Direction: None")
+
+        # Check if the direction is correct
+        if toggles._defused:
+            tk.Label(window,
+                     text="🎉 Correct! You turned SOUTH and moved to the next challenge.",
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
+            window.after(2000, lambda: forgotten_fortress(window))  # Proceed to the next phase
+        elif toggles._failed:
+            tk.Label(window,
+                     text="❌ Wrong toggle! Try again.",
+                     font=("Helvetica", 16), fg="red", bg="#1e1e2f").pack(pady=20)
+
+    # Continuously poll the toggles
+    def poll_toggles():
+        update_direction()
+        if toggles._running:
+            window.after(100, poll_toggles)
+
+    poll_toggles()
+
+# Function for handling the Forgotten Fortress challenge
+def forgotten_fortress(window, toggles):
+    """
+    Screen for the Forgotten Fortress phase, where the player must flip the correct toggle to move West.
+    """
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window,
+             text="🏰 Forgotten Fortress",
+             font=("Helvetica", 24, "bold"),
+             fg="#00ffcc",
+             bg="#1e1e2f").pack(pady=(40, 10))
+
+    tk.Label(window,
+             text="Hint: Move in the direction where the sun sets.",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=20)
+
+    direction_label = tk.Label(window, text="Current Direction: None",
+                                font=("Helvetica", 16), fg="#00ffcc", bg="#1e1e2f")
+    direction_label.pack(pady=20)
+
+    toggles.set_target("West")  # Set the target direction for this challenge
+
+    # Function to update the direction label and check the toggle state
+    def update_direction():
+        direction = toggles.get_direction()
+        if direction:
+            direction_label.config(text=f"Current Direction: {direction}")
+        else:
+            direction_label.config(text="Current Direction: None")
+
+        # Check if the direction is correct
+        if toggles._defused:
+            tk.Label(window,
+                     text="🎉 Correct! You moved West and encountered a power barrier.",
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
+            window.after(2000, lambda: wire_puzzle(window))  # Proceed to the wire puzzle
+        elif toggles._failed:
+            tk.Label(window,
+                     text="❌ Wrong toggle! Try again.",
+                     font=("Helvetica", 16), fg="red", bg="#1e1e2f").pack(pady=20)
+
+    # Continuously poll the toggles
+    def poll_toggles():
+        update_direction()
+        if toggles._running:
+            window.after(100, poll_toggles)
+
+    poll_toggles()
+
+
+# Function for handling the Phantom's Lair challenge
+def phantom_lair(window, toggles):
+    """
+    Screen for the Phantom's Lair phase, where the player must flip the correct toggle to move East.
+    """
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window,
+             text="👻 Phantom's Lair",
+             font=("Helvetica", 24, "bold"),
+             fg="#00ffcc",
+             bg="#1e1e2f").pack(pady=(40, 10))
+
+    tk.Label(window,
+             text="Hint: Move in the direction where the sun rises.",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=20)
+
+    direction_label = tk.Label(window, text="Current Direction: None",
+                                font=("Helvetica", 16), fg="#00ffcc", bg="#1e1e2f")
+    direction_label.pack(pady=20)
+
+    toggles.set_target("East")  # Set the target direction for this challenge
+
+    # Function to update the direction label and check the toggle state
+    def update_direction():
+        direction = toggles.get_direction()
+        if direction:
+            direction_label.config(text=f"Current Direction: {direction}")
+        else:
+            direction_label.config(text="Current Direction: None")
+
+        # Check if the direction is correct
+        if toggles._defused:
+            tk.Label(window,
+                     text="🎉 Correct! You moved East and found a chest filled with food.",
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
+            window.after(2000, lambda: chest_puzzle(window))  # Proceed to the chest puzzle
+        elif toggles._failed:
+            tk.Label(window,
+                     text="❌ Wrong toggle! Try again.",
+                     font=("Helvetica", 16), fg="red", bg="#1e1e2f").pack(pady=20)
+
+    # Continuously poll the toggles
+    def poll_toggles():
+        update_direction()
+        if toggles._running:
+            window.after(100, poll_toggles)
+
+    poll_toggles()
+
+# Function for the Wire Puzzle in Forgotten Fortress
+def wire_puzzle(window):
+    """
+    Screen for the wire puzzle in the Forgotten Fortress phase.
+    """
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window,
+             text="⚡ Power Barrier Challenge",
+             font=("Helvetica", 24, "bold"),
+             fg="#ffcc00",
+             bg="#1e1e2f").pack(pady=(40, 10))
+
+    tk.Label(window,
+             text="Cut the correct wires to deactivate the barrier.",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=20)
+
+    # Add wire puzzle logic here
+    # For example, display clickable wire buttons and validate the sequence
+
+
+# Function for the Chest Puzzle in Phantom's Lair
+def chest_puzzle(window):
+    """
+    Screen for the chest puzzle in the Phantom's Lair phase.
+    """
+    for w in window.winfo_children(): w.destroy()
+    window.configure(bg="#1e1e2f")
+
+    tk.Label(window,
+             text="🗝️ Chest Puzzle",
+             font=("Helvetica", 24, "bold"),
+             fg="#00ffcc",
+             bg="#1e1e2f").pack(pady=(40, 10))
+
+    tk.Label(window,
+             text="To unlock the chest, solve the following riddle:",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f").pack(pady=20)
+
+    riddle = "I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?"
+    tk.Label(window, text=riddle, font=("Helvetica", 14), fg="#ddddff", bg="#1e1e2f", wraplength=600).pack(pady=10)
+
+    answer_entry = tk.Entry(window, font=("Helvetica", 14))
+    answer_entry.pack(pady=10)
+
+    def check_answer():
+        answer = answer_entry.get().strip().lower()
+        if answer == "echo":
+            tk.Label(window,
+                     text="✅ Correct! The chest opens and you're well-fed.",
+                     font=("Helvetica", 16), fg="#00ff00", bg="#1e1e2f").pack(pady=20)
+            window.after(2000, lambda: show_next_phase(window))  # Proceed to the next phase
+        else:
+            tk.Label(window,
+                     text="❌ Incorrect answer. Try again.",
+                     font=("Helvetica", 14), fg="red", bg="#1e1e2f").pack(pady=10)
+
+    tk.Button(window,
+              text="Submit Answer",
+              font=("Helvetica", 14),
+              command=check_answer).pack(pady=10)
+
 class Toggles(PhaseThread):
     def __init__(self, component, target_direction, name="Toggles"):
         super().__init__(name, component, target_direction)
