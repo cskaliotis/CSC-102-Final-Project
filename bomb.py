@@ -224,12 +224,11 @@ def entrance_challenge(window):
     # Swap the riddle mapping so green = easy, red = hard (or vice versa as you like):
     if btn._easy_mode:   # GREEN
         prompt = "Enter the decimal code on the keypad: 610"
-        target = "610"
     else:                # RED
         prompt = ("Convert this binary to decimal, then enter on keypad:\n"
                   "1001100010")
-        target = "1001100010"
-
+    target = "610"
+    
     # Now hand off to the keypad‐UI
     show_entrance_puzzle_screen(window, prompt, target)
 
@@ -268,14 +267,20 @@ def show_entrance_puzzle_screen(window, prompt, target):
 
     def poll_keypad():
         status.config(text=f"Entered: {kd._value}")
+
         if kd._defused:
             for w in window.winfo_children():
-                show_twilight_passage(window)
+                w.destroy()
+            show_twilight_passage(window)
+            return       
+
         elif kd._failed:
             status.config(text="❌ Wrong code — resetting…")
             window.after(1500, lambda: entrance_challenge(window))
-        else:
-            window.after(100, poll_keypad)
+            return       # ← stop here as well
+
+        # still not defused or failed? keep polling
+        window.after(100, poll_keypad)
 
     poll_keypad()
 
