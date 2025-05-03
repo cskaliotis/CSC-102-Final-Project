@@ -56,19 +56,23 @@ window.configure(bg="#1e1e2f")
 top_frame = tk.Frame(window, bg="#1e1e2f")
 top_frame.pack(side="top", fill="x")
 serial_label = tk.Label(
-    top_frame,
-    text=f"Serial: {serial}",
+    top_frame, text=f"Serial: {serial}",
     font=("Courier New", 12, "bold"),
-    fg="red",        # show in red on black
-    bg="#1e1e2f"
+    fg="red", bg="#1e1e2f"
 )
 serial_label.pack(side="right", padx=10, pady=5)
+time_label = tk.Label(
+    top_frame, text="",  # set in start_game
+    font=("Courier New", 12, "bold"),
+    fg="#00ff00", bg="#1e1e2f"
+)
+time_label.pack(side="left", padx=10, pady=5)
+window.timer_label = time_label 
 
 # Middle frame for all your puzzle screens
 content_frame = tk.Frame(window, bg="#1e1e2f")
 content_frame.pack(expand=True, fill="both")
 
-# Bottom bar for progress
 bottom_frame = tk.Frame(window, bg="#1e1e2f")
 bottom_frame.pack(side="bottom", fill="x")
 progress = ttk.Progressbar(
@@ -79,12 +83,6 @@ progress = ttk.Progressbar(
 )
 progress.pack(fill="x", padx=10, pady=5)
 
-toggle_code_to_dir = {
-    "1000": "North",
-    "1100": "East",
-    "1110": "South",
-    "1111": "West",
-}
 ###########
 # functions
 
