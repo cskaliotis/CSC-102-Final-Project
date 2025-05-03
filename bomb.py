@@ -303,16 +303,63 @@ def show_entrance_puzzle_screen(window, prompt, target):
     poll_keypad()
 
     
-def show_toggle_screen(window):
-    """Screen for the shifting-walls (Toggles) puzzle."""
-    for w in window.winfo_children(): w.destroy()
+def show_twilight_passage(window):
+    """
+    Displays the Twilight Passage screen, polls the four GPIO toggle pins,
+    and advances when the code for South ("1110") is detected.
+    """
+    from bomb_configs import component_toggles
+
+    # 1) Clear previous widgets and set background
+    for w in window.winfo_children():
+        w.destroy()
     window.configure(bg="#1e1e2f")
-    # Display the riddle for the current toggles_target
-    riddle = toggles_riddles[toggles_target.index(True)]
-    tk.Label(window, text=riddle, font=("Helvetica", 18), fg="#fff", bg="#1e1e2f",
-             justify="center", wraplength=600).pack(pady=40)
-    tk.Button(window, text="Solve Toggles", font=("Helvetica",16),
-              command=lambda: run_toggle_phase(window)).pack(pady=20)
+
+    # 2) Build UI
+    tk.Label(window,
+             text="🌌 Twilight Passage",
+             font=("Helvetica", 24, "bold"),
+             fg="#00ffcc",
+             bg="#1e1e2f").pack(pady=(40, 10))
+
+    tk.Label(window,
+             text="Hint: Turn 180° from NORTH (i.e. SOUTH) on the toggles.",
+             font=("Helvetica", 16),
+             fg="#ffffff",
+             bg="#1e1e2f",
+             wraplength=600,
+             justify="center").pack(pady=20)
+
+    status = tk.Label(window,
+                      text="Toggle code: 0000",
+                      font=("Courier New", 18),
+                      fg="#00ffcc",
+                      bg="#1e1e2f")
+    status.pack(pady=20)
+
+    # 3) Poll loop: read raw pin values, map to direction, update UI
+    def poll():
+        # Build the 4-bit code string from pin.value (1 if flipped)
+        bits = "".join("1" if p.value else "0" for p in component_toggles)
+        direction = TOGGLE_CODE_TO_DIR.get(bits)
+
+        # Update the status label with code and direction (if known)
+        status.config(
+            text=f"Toggle code: {bits}" + (f" → {direction}" if direction else "")
+        )
+
+        if direction == "South":
+            tk.Label(window,
+                     text="🎉 Correct! You're heading south…",
+                     font=("Helvetica", 16),
+                     fg="green",
+                     bg="#1e1e2f").pack(pady=20)
+            window.after(1500, lambda: show_circuit_puzzle(window))
+        else:
+            window.after(100, poll)
+
+    poll()
+    
 '''
 from bomb_phases import twilight_passage, forgotten_fortress, phantom_lair
 
