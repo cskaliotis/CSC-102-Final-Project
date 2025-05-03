@@ -575,36 +575,41 @@ def check_riddle_answer(answer):
                  font=("Helvetica", 14), fg="red", bg="#1e1e2f")\
           .pack(pady=10)
 
-def show_flash_button_wall(window):
-    for w in window.winfo_children():
+def show_flash_button_wall():
+    for w in content_frame.winfo_children():
         w.destroy()
-    window.configure(bg="#1e1e2f")
+    content_frame.configure(bg="#1e1e2f")
 
-    tk.Label(window,
+    tk.Label(content_frame,
              text="🚪 A wall blocks your path. Flash the hidden button to open it!",
-             font=("Helvetica", 16),
-             fg="#ffffff",
-             bg="#1e1e2f",
-             wraplength=600).pack(pady=30)
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=30)
 
-    tk.Button(window, text="Flash Button",
+    tk.Button(content_frame,
+              text="Flash Button",
               font=("Helvetica", 14),
-              command=lambda: show_easy_puzzle(window)).pack(pady=20)
+              command=show_easy_puzzle)\
+      .pack(pady=20)
     
-def show_easy_puzzle(window):
-    for w in window.winfo_children():
+def show_easy_puzzle():
+    for w in content_frame.winfo_children():
         w.destroy()
-    window.configure(bg="#1e1e2f")
+    content_frame.configure(bg="#1e1e2f")
 
-    tk.Label(window, text="🧩 Easy Puzzle:\nWhat number comes next?\n2, 4, 6, 8, ?", 
-             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f").pack(pady=20)
+    tk.Label(content_frame,
+             text="🧩 Easy Puzzle:\nWhat number comes next?\n2, 4, 6, 8, ?",
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f")\
+      .pack(pady=20)
 
-    answer_entry = tk.Entry(window, font=("Helvetica", 14))
-    answer_entry.pack(pady=10)
+    entry = tk.Entry(content_frame, font=("Helvetica", 14))
+    entry.pack(pady=10)
 
-    tk.Button(window, text="Submit",
+    tk.Button(content_frame,
+              text="Submit",
               font=("Helvetica", 14),
-              command=lambda: check_easy_puzzle(window, answer_entry.get())).pack(pady=10)
+              command=lambda: check_easy_puzzle(entry.get()))\
+      .pack(pady=10)
 
 def check_easy_puzzle(window, answer):
     if answer.strip() == "10":
