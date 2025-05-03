@@ -180,6 +180,12 @@ def entrance_challenge(window):
 
     def run_button_thread():
         # Run the flashing-button thread
+        if not hasattr(window, "bomb_display"):                # ← add this
+            window.bomb_display = tk.Label(window)             # invisible placeholder
+    
+        print("[DEBUG] entrance_challenge reached")
+
+        
         btn = Button(component_button_state, component_button_RGB)
         btn.start()
         btn.join()  # blocks until you press
