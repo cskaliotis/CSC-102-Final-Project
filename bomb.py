@@ -1,6 +1,8 @@
 #################################
 # CSC 102 Defuse the Bomb Project
-# Main program
+# Main Program
+
+
 import tkinter as tk
 import time
 from bomb_phases import Timer, Keypad, Wires, Button, Toggles, Lcd, MazeToggles
@@ -20,7 +22,6 @@ from bomb_configs import (
 from types import SimpleNamespace
 from time import sleep
 
-# Reusable mapping of 4-bit toggle patterns to compass directions
 toggle_code_to_dir = {
     "1000": "North",
     "1100": "East",
@@ -348,20 +349,6 @@ def show_circuit_puzzle(window):
     tk.Button(frm, text="Door 2", command=lambda: choose("Door 2")).grid(row=0, column=1, padx=10)
 
 
-from bomb_configs import component_toggles, component_wires, wires_target as _wires_target_int, wires_hints
-import tkinter as tk
-from bomb_phases import Wires
-from types import SimpleNamespace
-
-# Reusable mapping of 4-bit toggle patterns to compass directions
-TOGGLE_CODE_TO_DIR = {
-    "1000": "North",
-    "1100": "East",
-    "1110": "South",
-    "1111": "West",
-}
-
-# Component wrapper that exposes which wires are "cut" via pin.value
 class WiresComponent:
     def __init__(self, pins):
         self._pins = pins
@@ -375,25 +362,38 @@ class WiresComponent:
 def show_forgotten_fortress(window):
     """
     Forgotten Fortress:
-    Prompts the user to set toggles West, then moves to the wires challenge.
+    Reads the 4-bit toggle switches and advances when the West pattern ("1111") is detected.
+    Then transitions to the wire-cutting challenge.
     """
     # Clear UI
-    for w in window.winfo_children(): w.destroy()
+    for w in window.winfo_children():
+        w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # Static UI
-    tk.Label(window, text="🏰 Forgotten Fortress", font=("Helvetica",24,"bold"), fg="#00ffcc", bg="#1e1e2f").pack(pady=(40,10))
-    tk.Label(window, text="Riddle: Go where the sun sets.", font=("Helvetica",16), fg="#ffffff", bg="#1e1e2f", wraplength=600, justify="center").pack(pady=20)
-    status = tk.Label(window, text="Toggle code: 0000 → None", font=("Courier New",18), fg="#00ffcc", bg="#1e1e2f")
+    # Static UI elements
+    tk.Label(window,
+             text="🏰 Forgotten Fortress",
+             font=("Helvetica", 24, "bold"),
+             fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
+    tk.Label(window,
+             text="Riddle: Go where the sun sets.",
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center").pack(pady=20)
+
+    status = tk.Label(window,
+                      text="Toggle code: 0000 → None",
+                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # Poll for West before wires
+    # Poll loop: read component_toggles directly
     def poll_fortress():
         bits = "".join("1" if pin.value else "0" for pin in component_toggles)
-        direction = TOGGLE_CODE_TO_DIR.get(bits)
+        direction = toggle_code_to_dir.get(bits)
         status.config(text=f"Toggle code: {bits} → {direction or 'None'}")
         if direction == "West":
-            tk.Label(window, text="🎉 Correct! You head west and encounter a power barrier…", font=("Helvetica",16), fg="green", bg="#1e1e2f").pack(pady=20)
+            tk.Label(window,
+                     text="🎉 Correct! You head west and encounter a power barrier…",
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
             window.after(1500, lambda: show_wires_screen(window))
         else:
             window.after(100, poll_fortress)
@@ -403,39 +403,53 @@ def show_forgotten_fortress(window):
 def show_wires_screen(window):
     """
     Wires Puzzle:
-    Displays a riddle hint, then monitors physical wires being cut.
-    Only the correct set of cuts (as per wires_target) defuses the barrier.
+    Displays a riddle hint from wires_hints, then monitors the physical wires being cut.
+    Only the correct set of cuts (as per wires_target) will defuse the barrier.
     """
     # Clear UI
-    for w in window.winfo_children(): w.destroy()
+    for w in window.winfo_children():
+        w.destroy()
     window.configure(bg="#1e1e2f")
 
-    # Riddle hint
-    hint = wires_hints.get(tuple(_wires_target_int), "Cut the correct wire(s) to deactivate the barrier.")
-    tk.Label(window, text="⚡ Power Barrier Activated!", font=("Helvetica",24,"bold"), fg="#00ffcc", bg="#1e1e2f").pack(pady=(40,10))
-    tk.Label(window, text=hint, font=("Helvetica",16), fg="#ffffff", bg="#1e1e2f", wraplength=600, justify="center").pack(pady=20)
+    # Display riddle hint defined in wires_hints mapping
+    hint = wires_hints.get(tuple(_wires_target_int),
+                           "Cut the correct wire(s) to deactivate the barrier.")
+    tk.Label(window,
+             text="⚡ Power Barrier Activated!",
+             font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
+    tk.Label(window,
+             text=hint,
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center").pack(pady=20)
 
-    # Start Wires phase with the wrapper
+    # Start the hardware Wires phase with our component wrapper
     wires_component = WiresComponent(component_wires)
     wires = Wires(wires_component, _wires_target_int)
     wires.start()
 
-    status = tk.Label(window, text="Cuts: []", font=("Courier New",18), fg="#00ffcc", bg="#1e1e2f")
+    status = tk.Label(window,
+                      text="Cuts: []",
+                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # Poll loop: show current cuts and check defuse/failure
+    # Poll loop: update cuts list and check for success/failure
     def poll_wires():
         cuts = getattr(wires, '_value', [])
         status.config(text=f"Cuts: {cuts}")
         if getattr(wires, '_defused', False):
-            tk.Label(window, text="✅ Barrier deactivated!", font=("Helvetica",16), fg="green", bg="#1e1e2f").pack(pady=20)
+            tk.Label(window,
+                     text="✅ Barrier deactivated!",
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
             window.after(1500, lambda: show_phantoms_lair(window))
         elif getattr(wires, '_failed', False):
-            tk.Label(window, text="❌ Wrong wires! The barrier remains.", font=("Helvetica",16), fg="red", bg="#1e1e2f").pack(pady=20)
+            tk.Label(window,
+                     text="❌ Wrong wires! The barrier remains.",
+                     font=("Helvetica", 16), fg="red", bg="#1e1e2f").pack(pady=20)
             window.after(1500, lambda: show_forgotten_fortress(window))
         else:
             window.after(100, poll_wires)
     poll_wires()
+
 
 
 def run_wires_phase(window):
