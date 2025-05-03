@@ -58,7 +58,32 @@ def update_timer(window, display):
     else:
         # out of time!
         show_failure_screen(window)
-    
+def start_game(window):
+    """
+    Called when the player clicks Continue on the instructions screen.
+    Spins up the Pi hardware (timer, LCD, toggles, keypad, wires),
+    then jumps into the entrance puzzle.
+    """
+    # 1) Countdown timer + LCD
+    timer = Timer(
+        component_7seg,
+        initial_value=COUNTDOWN,
+        failure_callback=lambda: show_failure_screen(window)
+    )
+    lcd = Lcd(window)
+    lcd.setTimer(timer)
+    timer.start()
+
+    # 2) Prime the other phases (they'll .start() when needed)
+    _kp = Keypad(component_keypad, target="")
+    _wires = Wires(component_wires, wires_target)
+    _tog = MazeToggles(component_toggles, target_direction="")
+    _tog.start()
+
+    # 3) Now that hardware is live, go to the first puzzle
+    show_entrance_screen(window)
+
+
 def show_welcome_screen(window):
     """
     Displays the welcome screen where the user can enter their name and start the game.
@@ -136,7 +161,7 @@ def show_instructions(window):
         padx=20,
         pady=10,
         bd=0,
-        command=lambda: show_entrance_screen(window)
+        command=lambda: start_game(window)
     )
     cont_btn.pack(pady=30)
 
@@ -241,7 +266,7 @@ def show_entrance_puzzle_screen(window, prompt, target):
         status.config(text=f"Entered: {kd._value}")
         if kd._defused:
             for w in window.winfo_children():
-            show_twilight_passage(window)
+                show_twilight_passage(window)
         elif kd._failed:
             status.config(text="❌ Wrong code — resetting…")
             window.after(1500, lambda: entrance_challenge(window))
@@ -931,23 +956,5 @@ if __name__ == "__main__":
     window = tk.Tk()
     window.geometry("800x600")
     window.title("Maze Runner")
-
-    # 1) Start the countdown timer
-    timer = Timer(
-        component_7seg,
-        initial_value=COUNTDOWN, 
-        failure_callback=lambda: show_failure_screen(window)
-    )
-    lcd = Lcd(window)          # hook the LCD into your Tk window
-    lcd.setTimer(timer)
-    timer.start()
-
-    # 2) Prepare the other phases (we’ll .start() them when it’s their turn)
-    keypad_phase = Keypad(component_keypad, target="")     # target set dynamically
-    wires_phase  = Wires(component_wires, wires_target)
-    maze_toggles = MazeToggles(component_toggles, target_direction="") 
-    maze_toggles.start()         # always listening for toggle flips
-
-    # 3) Kick off the UI
     show_welcome_screen(window)
     window.mainloop()
