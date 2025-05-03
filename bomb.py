@@ -376,34 +376,34 @@ class WiresComponent:
 
 
 
-def show_forgotten_fortress(window):
-    """
-    Forgotten Fortress:
-    Displays the serial, waits for toggles to read West ('1111'),
-    then transitions to the wire-cutting screen.
-    """
-    # 1) Clear UI
-    for w in window.winfo_children(): w.destroy()
-    window.configure(bg="#1e1e2f")
 
-    # 2) Show serial at top right
-    tk.Label(window,
+def show_forgotten_fortress():
+    for w in content_frame.winfo_children(): w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+
+    # show serial at top of content as well
+    tk.Label(content_frame,
              text=f"Serial: {serial}",
-             font=("Courier New", 12), fg="#ffffff", bg="#1e1e2f")
-    
-    # 3) Display title & riddle
-    tk.Label(window,
-             text="🏰 Forgotten Fortress",
-             font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
-    tk.Label(window,
-             text="Riddle: Go where the sun sets.",
-             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center").pack(pady=20)
+             font=("Courier New",12),
+             fg="#ffffff", bg="#1e1e2f")\
+      .pack(anchor="ne", padx=10, pady=(10,0))
 
-    # 4) Status label for toggle code
-    status = tk.Label(window,
+    tk.Label(content_frame,
+             text="🏰 Forgotten Fortress",
+             font=("Helvetica",24,"bold"),
+             fg="#00ffcc", bg="#1e1e2f")\
+      .pack(pady=(40,10))
+    tk.Label(content_frame,
+             text="Riddle: Go where the sun sets.",
+             font=("Helvetica",16),
+             fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=20)
+
+    status = tk.Label(content_frame,
                       text="Toggle code: 0000 → None",
-                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
+                      font=("Courier New",18),
+                      fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
     # 5) Poll toggles until West
