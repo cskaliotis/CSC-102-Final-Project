@@ -424,132 +424,71 @@ def show_forgotten_fortress():
 
 
 
-def show_wires_screen(window):
-    """
-    Wires Puzzle:
-    Displays the serial and a clear riddle hint, then monitors physical wires
-    until the correct set (wires_target_list) is cut, defusing the barrier.
-    """
-    # 1) Clear UI
-    for w in window.winfo_children(): w.destroy()
-    window.configure(bg="#1e1e2f")
+def show_wires_screen():
+    for w in content_frame.winfo_children(): w.destroy()
+    content_frame.configure(bg="#1e1e2f")
 
-    # 2) Show serial at top right
-    tk.Label(window,
+    # show serial
+    tk.Label(content_frame,
              text=f"Serial: {serial}",
-             font=("Courier New", 12), fg="#ffffff", bg="#1e1e2f")
+             font=("Courier New",12),
+             fg="#ffffff", bg="#1e1e2f")\
+      .pack(anchor="ne", padx=10, pady=(10,0))
 
-    # 3) Show barrier prompt & riddle hint
-    hint = wires_hints.get(tuple(wires_target_list),
-                           "Cut the correct wire(s) to deactivate the barrier.")
-    tk.Label(window,
+    hint = generate_wire_riddle(wires_target_list)
+    tk.Label(content_frame,
              text="⚡ Power Barrier Activated!",
-             font=("Helvetica", 24, "bold"), fg="#00ffcc", bg="#1e1e2f").pack(pady=(40, 10))
-    tk.Label(window,
+             font=("Helvetica",24,"bold"),
+             fg="#00ffcc", bg="#1e1e2f")\
+      .pack(pady=(40,10))
+    tk.Label(content_frame,
              text=hint,
-             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center").pack(pady=20)
+             font=("Helvetica",16),
+             fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=20)
 
-    # 4) Status label to show cut wires by letter
-    status = tk.Label(window,
+    status = tk.Label(content_frame,
                       text="Cuts: []",
-                      font=("Courier New", 18), fg="#00ffcc", bg="#1e1e2f")
+                      font=("Courier New",18),
+                      fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # 5) Poll loop: read raw wires, convert indices to letters, check target
     def poll_wires():
-        cut_indices = [i for i, pin in enumerate(component_wires) if pin.value]
-        # Convert 0->'A', 1->'B', etc.
-        cut_letters = [chr(ord('A') + i) for i in cut_indices]
-        status.config(text=f"Cuts: {cut_letters}")
-        if cut_indices == wires_target_list:
-            tk.Label(window,
+        cuts = [i for i,p in enumerate(component_wires) if p.value]
+        letters = indices_to_letters(cuts)
+        status.config(text=f"Cuts: {letters}")
+        if cuts == wires_target_list:
+            tk.Label(content_frame,
                      text="✅ Barrier deactivated!",
-                     font=("Helvetica", 16), fg="green", bg="#1e1e2f").pack(pady=20)
-            window.after(1500, lambda: show_phantoms_lair(window))
+                     font=("Helvetica",16), fg="green", bg="#1e1e2f")\
+              .pack(pady=20)
+            window.after(1500, show_phantoms_lair)
         else:
             window.after(100, poll_wires)
 
     poll_wires()
 
 
-
-
-
-def run_wires_phase(window):
-    # Simulate getting user input - replace this part with real input logic
-    user_input = [1, 2, 3]  # example placeholder, change to actual wire input logic
-
-    if tuple(user_input) == tuple(wires_target):  # wire order is correct
-        for w in window.winfo_children():
-            w.destroy()
-        window.configure(bg="#1e1e2f")
-        tk.Label(window,
-                 text="✅ Wires deactivated! Power barrier down.",
-                 font=("Helvetica", 18),
-                 fg="#00ff00",
-                 bg="#1e1e2f").pack(pady=30)
-
-        # Proceed to Phantom’s Lair after short pause
-        window.after(2000, lambda: show_phantoms_lair(window))
-
-    else:
-        tk.Label(window,
-                 text="❌ Incorrect wire pattern! Try again.",
-                 font=("Helvetica", 16),
-                 fg="red",
-                 bg="#1e1e2f").pack(pady=10)
-
-def run_wires_phase(window, gui_order):
-    """
-    Starts (or consults) the Wires phase thread, then polls until
-    defused/failed.  On the Pi we rely on GPIO; in GUI test mode we
-    judge by gui_order.
-    """
-    # --- create the thread only once ---
-    if not hasattr(run_wires_phase, "thread"):
-        run_wires_phase.thread = Wires(component_wires, wires_target)
-        run_wires_phase.thread.start()
-    phase = run_wires_phase.thread
-
-    # --- helpers decide success/failure ---
-    def is_defused():
-        return phase._defused if RPi else gui_order == wires_target
-
-    def is_failed():
-        return phase._failed if RPi else (bool(gui_order) and gui_order != wires_target)
-
-    # --- act on the outcome ---
-    if is_defused():
-        show_phantoms_lair(window)        # advance to next room
-    elif is_failed():
-        tk.Label(window, text="❌ Incorrect wire pattern! Try again.",
-                 font=("Helvetica", 14), fg="red", bg="#1e1e2f").pack(pady=10)
-        window.after(1500, lambda: show_wires_screen(window))
-    else:
-        window.after(100, lambda: run_wires_phase(window, gui_order))
-
-def show_phantoms_lair(window):
-    for w in window.winfo_children():
-        w.destroy()
-    window.configure(bg="#1e1e2f")
-
-    tk.Label(window,
+def show_phantoms_lair():
+    for w in content_frame.winfo_children(): w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+    tk.Label(content_frame,
              text="👻 You’ve entered the Phantom's Lair!",
-             font=("Helvetica", 20, "bold"),
-             fg="#ffffff",
-             bg="#1e1e2f").pack(pady=40)
-
-    tk.Label(window,
-             text="Hint: The sun rises in the...",
-             font=("Helvetica", 16),
-             fg="#ffff99",
-             bg="#1e1e2f").pack(pady=10)
-
-    tk.Button(window,
+             font=("Helvetica",20,"bold"),
+             fg="#ffffff", bg="#1e1e2f")\
+      .pack(pady=40)
+    tk.Label(content_frame,
+             text="Hint: The sun rises in the EAST",
+             font=("Helvetica",16),
+             fg="#ffff99", bg="#1e1e2f")\
+      .pack(pady=10)
+    tk.Button(content_frame,
               text="Go East",
-              font=("Helvetica", 16),
-              command=lambda: show_chest_and_riddle(window)).pack(pady=30)
+              font=("Helvetica",16),
+              command=show_mystic_hollow)\
+      .pack(pady=30)
+
     
 def show_chest_and_riddle(window):
     for w in window.winfo_children():
