@@ -60,9 +60,9 @@ def update_timer(window, display):
         show_failure_screen(window)
 def start_game(window):
     """
-    Called when the player clicks Continue on the instructions screen.
-    Spins up the Pi hardware (timer, LCD, toggles, keypad, wires),
-    then jumps into the entrance puzzle.
+    Fired when the player clicks Continue on the instructions screen.
+    Now we spin up the Pi hardware (timer, LCD, toggles, keypad, wires)
+    and then dive into the first puzzle.
     """
     # 1) Countdown timer + LCD
     timer = Timer(
@@ -74,14 +74,15 @@ def start_game(window):
     lcd.setTimer(timer)
     timer.start()
 
-    # 2) Prime the other phases (they'll .start() when needed)
+    # 2) Prime (but don’t .start() them yet) the other phases
     _kp = Keypad(component_keypad, target="")
     _wires = Wires(component_wires, wires_target)
-    _tog = MazeToggles(component_toggles, target_direction="")
+    _tog  = MazeToggles(component_toggles, target_direction="")
     _tog.start()
 
-    # 3) Now that hardware is live, go to the first puzzle
+    # 3) All hardware is live — go to the very first puzzle
     show_entrance_screen(window)
+
 
 
 def show_welcome_screen(window):
@@ -157,7 +158,7 @@ def show_instructions(window):
         bg="#00ffcc",
         fg="#000000",
         activebackground="#00ddaa",
-        cursor="hand2",                 # <<-- moved inside the call
+        cursor="hand2",               
         padx=20,
         pady=10,
         bd=0,
