@@ -48,8 +48,9 @@ def generate_wire_riddle(target_indices):
 
 
 window = tk.Tk()
-window.geometry("800x600")
 window.title("Maze Runner")
+window.geometry("800x600")
+window.configure(bg="#1e1e2f")
 
 # Top bar for serial
 top_frame = tk.Frame(window, bg="#1e1e2f")
