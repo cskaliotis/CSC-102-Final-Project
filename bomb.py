@@ -23,6 +23,13 @@ from bomb_configs import (
 from types import SimpleNamespace
 from time import sleep
 
+toggle_code_to_dir = {
+    "1000": "North",
+    "1100": "East",
+    "1110": "South",
+    "1111": "West",
+}
+
 
 window = tk.Tk()
 window.geometry("800x600")
