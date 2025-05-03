@@ -25,6 +25,12 @@ from types import SimpleNamespace
 
 from time import sleep
 
+TOGGLE_CODE_TO_DIR = {
+    "1000": "North",
+    "1100": "East",
+    "1110": "South",
+    "1111": "West"
+}
 
 
 ###########
