@@ -489,58 +489,91 @@ def show_phantoms_lair():
               command=show_mystic_hollow)\
       .pack(pady=30)
 
+
+def show_mystic_hollow():
+    for w in content_frame.winfo_children(): w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+    tk.Label(content_frame,
+             text="💣 Mystic Hollow – The Bomb Challenge!",
+             font=("Helvetica",20,"bold"),
+             fg="#ff6666", bg="#1e1e2f")\
+      .pack(pady=30)
+    tk.Label(content_frame,
+             text="Only one button defuses the bomb...",
+             font=("Helvetica",16),
+             fg="#ffffff", bg="#1e1e2f")\
+      .pack(pady=10)
+    btnfrm = tk.Frame(content_frame, bg="#1e1e2f"); btnfrm.pack(pady=30)
+    tk.Button(btnfrm, text="🟢 Defuse",
+              font=("Helvetica",16,"bold"),
+              bg="#00cc66", fg="#ffffff",
+              width=10, command=defuse_success)\
+      .grid(row=0, column=0, padx=20)
+    tk.Button(btnfrm, text="🔴 Explode",
+              font=("Helvetica",16,"bold"),
+              bg="#cc0000", fg="#ffffff",
+              width=10, command=explode_fail)\
+      .grid(row=0, column=1, padx=20)
+
+
     
-def show_chest_and_riddle(window):
-    for w in window.winfo_children():
+def show_chest_and_riddle():
+    for w in content_frame.winfo_children():
         w.destroy()
-    window.configure(bg="#1e1e2f")
+    content_frame.configure(bg="#1e1e2f")
 
-    tk.Label(window,
+    tk.Label(content_frame,
              text="🧰 You found a chest filled with food!",
-             font=("Helvetica", 18),
-             fg="#00ffcc",
-             bg="#1e1e2f").pack(pady=20)
-
-    tk.Label(window,
+             font=("Helvetica", 18), fg="#00ffcc", bg="#1e1e2f")\
+      .pack(pady=20)
+    tk.Label(content_frame,
              text="🎉 Your life has been extended!",
-             font=("Helvetica", 16),
-             fg="#00ff00",
-             bg="#1e1e2f").pack(pady=10)
-
-    tk.Label(window,
+             font=("Helvetica", 16), fg="#00ff00", bg="#1e1e2f")\
+      .pack(pady=10)
+    tk.Label(content_frame,
              text="To open the chest, solve this riddle:",
-             font=("Helvetica", 16),
-             fg="#ffffff",
-             bg="#1e1e2f").pack(pady=20)
+             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f")\
+      .pack(pady=20)
 
-    riddle = "I speak without a mouth and hear without ears. I have nobody, but I come alive with the wind. What am I?"
-    tk.Label(window, text=riddle, font=("Helvetica", 14), fg="#ddddff", bg="#1e1e2f", wraplength=600).pack(pady=10)
+    riddle = ("I speak without a mouth and hear without ears. "
+              "I have nobody, but I come alive with the wind. What am I?")
+    tk.Label(content_frame,
+             text=riddle,
+             font=("Helvetica", 14), fg="#ddddff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=10)
 
-    answer_entry = tk.Entry(window, font=("Helvetica", 14))
-    answer_entry.pack(pady=10)
+    entry = tk.Entry(content_frame, font=("Helvetica", 14))
+    entry.pack(pady=10)
 
-    tk.Button(window, text="Submit Answer", font=("Helvetica", 14),
-              command=lambda: check_riddle_answer(window, answer_entry.get())).pack(pady=10)
+    tk.Button(content_frame,
+              text="Submit Answer",
+              font=("Helvetica", 14),
+              command=lambda: check_riddle_answer(entry.get()))\
+      .pack(pady=10)
+    tk.Button(content_frame,
+              text="Skip Puzzle",
+              font=("Helvetica", 14),
+              command=show_flash_button_wall)\
+      .pack(pady=5)
 
-    tk.Button(window, text="Skip Puzzle", font=("Helvetica", 14),
-              command=lambda: show_flash_button_wall(window)).pack(pady=10)
 
-def check_riddle_answer(window, answer):
+def check_riddle_answer(answer):
+    for w in content_frame.winfo_children():
+        w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+
     if answer.lower().strip() == "echo":
-        for w in window.winfo_children():
-            w.destroy()
-        tk.Label(window,
+        tk.Label(content_frame,
                  text="✅ Correct! The chest opens and you're well-fed.",
-                 font=("Helvetica", 16),
-                 fg="#00ff00",
-                 bg="#1e1e2f").pack(pady=20)
-        window.after(2000, lambda: show_flash_button_wall(window))
+                 font=("Helvetica", 16), fg="#00ff00", bg="#1e1e2f")\
+          .pack(pady=20)
+        window.after(2000, show_flash_button_wall)
     else:
-        tk.Label(window,
+        tk.Label(content_frame,
                  text="❌ That's not the right answer. Try again or skip.",
-                 font=("Helvetica", 14),
-                 fg="red",
-                 bg="#1e1e2f").pack(pady=10)
+                 font=("Helvetica", 14), fg="red", bg="#1e1e2f")\
+          .pack(pady=10)
 
 def show_flash_button_wall(window):
     for w in window.winfo_children():
@@ -629,77 +662,31 @@ def show_chest_screen(window):
     tk.Button(window, text="Begin Chest Puzzle", font=("Helvetica",16),
               command=lambda: run_chest_phase(window)).pack(pady=20)
 
-#placeholder for point D 
-def show_mystic_hollow(window):
-    for w in window.winfo_children():
-        w.destroy()
-    window.configure(bg="#1e1e2f")
 
-    tk.Label(window, text="💣 Mystic Hollow – The Bomb Challenge!",
-             font=("Helvetica", 20, "bold"),
-             fg="#ff6666",
-             bg="#1e1e2f").pack(pady=30)
-
-    tk.Label(window, text="Only one button defuses the bomb...",
-             font=("Helvetica", 16),
-             fg="#ffffff",
-             bg="#1e1e2f").pack(pady=10)
-
-    tk.Label(window, text="Press GREEN to defuse, RED to explode.",
-             font=("Helvetica", 14),
-             fg="#ffff99",
-             bg="#1e1e2f").pack(pady=10)
-
-    button_frame = tk.Frame(window, bg="#1e1e2f")
-    button_frame.pack(pady=30)
-
-    tk.Button(button_frame,
-              text="🟢 Defuse",
-              font=("Helvetica", 16, "bold"),
-              bg="#00cc66",
-              fg="#ffffff",
-              width=10,
-              command=lambda: defuse_success(window)).grid(row=0, column=0, padx=20)
-
-    tk.Button(button_frame,
-              text="🔴 Explode",
-              font=("Helvetica", 16, "bold"),
-              bg="#cc0000",
-              fg="#ffffff",
-              width=10,
-              command=lambda: explode_fail(window)).grid(row=0, column=1, padx=20)
-
-def defuse_success(window):
-    for w in window.winfo_children():
-        w.destroy()
-    window.configure(bg="#1e1e2f")
-    
-    tk.Label(window, text="✅ Bomb defused! You’re a hero.",
-             font=("Helvetica", 18),
-             fg="#00ff00",
-             bg="#1e1e2f").pack(pady=40)
-
-    window.after(2000, lambda: show_final_screen(window))  # Final win screen
+def defuse_success():
+    for w in content_frame.winfo_children(): w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+    tk.Label(content_frame,
+             text="✅ Bomb defused! You’re a hero.",
+             font=("Helvetica",18),
+             fg="#00ff00", bg="#1e1e2f")\
+      .pack(pady=40)
+    window.after(2000, show_victory_screen)
 
 
-def explode_fail(window):
-    for w in window.winfo_children():
-        w.destroy()
-    window.configure(bg="#1e1e2f")
-    
-    tk.Label(window, text="💥 BOOM! You triggered the bomb.",
-             font=("Helvetica", 18, "bold"),
-             fg="red",
-             bg="#1e1e2f").pack(pady=40)
-
-    tk.Label(window, text="But… a second chance awaits you.",
-             font=("Helvetica", 14),
-             fg="#ffffff",
-             bg="#1e1e2f").pack(pady=10)
-
-    tk.Button(window, text="Retry Mystic Hollow",
-              font=("Helvetica", 14),
-              command=lambda: show_mystic_hollow(window)).pack(pady=20)
+def explode_fail():
+    for w in content_frame.winfo_children(): w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+    tk.Label(content_frame,
+             text="💥 BOOM! You triggered the bomb.",
+             font=("Helvetica",18,"bold"),
+             fg="red", bg="#1e1e2f")\
+      .pack(pady=40)
+    tk.Button(content_frame,
+              text="Retry Mystic Hollow",
+              font=("Helvetica",14),
+              command=show_mystic_hollow)\
+      .pack(pady=20)
 
 def show_final_screen(window):
     """Final defuse/boom decision."""
@@ -712,14 +699,20 @@ def show_final_screen(window):
     tk.Button(window, text="Press Button", font=("Helvetica",16),
               command=lambda: run_final_phase(window)).pack(pady=20)
     
-def show_victory_screen(window):
-    for w in window.winfo_children(): w.destroy()
-    window.configure(bg="#1e1e2f")
-    tk.Label(window, text="🎉 YOU WIN!", font=("Helvetica", 28, "bold"),
-             fg="#00ffcc", bg="#1e1e2f").pack(pady=40)
-    tk.Label(window, text="You defused the final challenge and escaped the maze!",
-             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center").pack(pady=20)
+def show_victory_screen():
+    for w in content_frame.winfo_children(): w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+    tk.Label(content_frame,
+             text="🎉 YOU WIN!",
+             font=("Helvetica",28,"bold"),
+             fg="#00ffcc", bg="#1e1e2f")\
+      .pack(pady=40)
+    tk.Label(content_frame,
+             text="You defused the final challenge and escaped the maze!",
+             font=("Helvetica",18),
+             fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=20)
 
 def show_failure_screen(window):
     for w in window.winfo_children(): w.destroy()
