@@ -169,9 +169,10 @@ class Timer(PhaseThread):
                 sleep(0.1)
 
     def _update(self):
-        self._min = str(self._value // 60).zfill(2)
-        self._sec = str(self._value % 60).zfill(2)
-
+        self._min, self._sec = divmod(self._value, 60)
+        self._min = str(self._min).zfill(2)
+        self._sec = str(self._sec).zfill(2)
+        
     def pause(self):
         self._paused = not self._paused
         self._component.blink_rate = 2 if self._paused else 0
