@@ -313,60 +313,47 @@ class Button(PhaseThread):
 class MazeToggles(PhaseThread):
     def __init__(self, component, name="MazeToggles"):
         super().__init__(name, component)
-        self._value = [False, False, False, False]  # Initial state of toggles (North, East, South, West)
-        self._current_direction = None  # The currently selected direction
+        self._value = ""                # will hold e.g. "1100"
+        self._current_direction = None
         self._defused = False
-        self._failed = False
+        self._failed  = False
         self._running = False
-        self._target_direction = None  # Target direction for each challenge
-
-    def run(self):
-        """
-        Monitor the toggles to determine the selected direction and check against the target.
-        """
-        self._running = True
-        while self._running:
-            # Get the current state of the toggles
-            current = list(self._component.toggles)
-            self._value = current
-
-            # Map toggles to directions
-            directions = ["North", "East", "South", "West"]
-            for i, state in enumerate(current):
-                if state:  # If the toggle is ON
-                    self._current_direction = directions[i]
-                    break  # Only one direction can be active at a time
-            else:
-                self._current_direction = None  # No direction selected
-
-            # Check if the direction matches the target
-            if self._current_direction == self._target_direction:
-                self._defused = True
-                self._running = False
-            elif self._current_direction is not None and self._current_direction != self._target_direction:
-                self._failed = True
-                self._running = False
-
-            sleep(0.1)  # Sleep to prevent CPU overload
+        self._target_direction = None
 
     def set_target(self, direction):
-        """
-        Set the target direction for the current challenge.
-        """
         self._target_direction = direction
 
     def get_direction(self):
-        """
-        Returns the currently selected direction based on toggle state.
-        """
         return self._current_direction
 
-    def __str__(self):
-        """
-        Returns the toggle state as a string for debugging/feedback.
-        """
-        states = [(direction, "ON" if state else "OFF") for direction, state in zip(["North", "East", "South", "West"], self._value)]
-        return " | ".join([f"{dir}: {state}" for dir, state in states])
+    def run(self):
+        # define the exact mapping from 4-bit code → direction
+        mapping = {
+            "1000": "North",
+            "1100": "East",
+            "1110": "South",
+            "1111": "West"
+        }
+
+        self._running = True
+        while self._running:
+            # read the raw pin values (0/1) into a string, just like bomb_test.py does:
+            code = "".join(str(int(pin.value)) for pin in self._component.toggles)
+            self._value = code
+
+            # map it to a direction (or None if it’s not one of our 4 patterns)
+            self._current_direction = mapping.get(code)
+
+            # check against the target
+            if self._current_direction == self._target_direction:
+                self._defused = True
+                self._running = False
+            elif self._current_direction is not None:
+                self._failed = True
+                self._running = False
+
+            sleep(0.1)
+
 
 # Function for handling the Twilight Passage challenge
 def twilight_passage(window, toggles):
