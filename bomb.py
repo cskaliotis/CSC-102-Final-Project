@@ -35,12 +35,20 @@ wires_hints = {
 def update_timer(window):
     # Debug: confirm this is being called
     print(f"[TIMER DEBUG] remaining={window.remaining}")
+    
     mins, secs = divmod(window.remaining, 60)
-    window.timer_label.config(text=f"Time Left: {mins:02d}:{secs:02d}")
+    time_str = f"{mins:02d}:{secs:02d}"
+
+    # Update the GUI label with the remaining time
+    window.timer_label.config(text=f"Time Left: {time_str}")
+    
+    # Update the 7-segment display with the remaining time
+    display.print(time_str)  # Assuming 'display' is the 7-segment object
+    
     if window.remaining > 0:
         window.remaining -= 1
         # schedule the next tick
-        window.after(1000, update_timer, window)
+        window.after(1000, update_timer, window, display)
     else:
         # out of time!
         show_failure_screen(window)
