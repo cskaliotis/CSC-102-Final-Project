@@ -514,25 +514,54 @@ def show_wires_screen():
 
     poll_wires()
 
-
 def show_phantoms_lair():
-    for w in content_frame.winfo_children(): w.destroy()
+    """
+    Phantom’s Lair – player must set toggle switches to EAST (1100)
+    to leave the room.  No GUI button.
+    """
+    # clear centre frame
+    for w in content_frame.winfo_children():
+        w.destroy()
     content_frame.configure(bg="#1e1e2f")
+
+    # room title
     tk.Label(content_frame,
              text="👻 You’ve entered the Phantom's Lair!",
-             font=("Helvetica",20,"bold"),
+             font=("Helvetica", 20, "bold"),
              fg="#ffffff", bg="#1e1e2f")\
-      .pack(pady=40)
+        .pack(pady=(40, 10))
+
+    # riddle / hint
     tk.Label(content_frame,
-             text="Hint: The sun rises in the EAST",
-             font=("Helvetica",16),
-             fg="#ffff99", bg="#1e1e2f")\
-      .pack(pady=10)
-    tk.Button(content_frame,
-              text="Go East",
-              font=("Helvetica",16),
-              command=show_mystic_hollow)\
-      .pack(pady=30)
+             text="Hint → The sun rises in the EAST.\n"
+                  "Flip the toggles until they read EAST (1100).",
+             font=("Helvetica", 16),
+             fg="#ffff99", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+        .pack(pady=10)
+
+    # live status of toggle code
+    status = tk.Label(content_frame,
+                      text="Toggle code: 0000 → None",
+                      font=("Courier New", 18),
+                      fg="#00ffcc", bg="#1e1e2f")
+    status.pack(pady=20)
+
+    # polling loop
+    def poll_lair():
+        bits = "".join("1" if p.value else "0" for p in component_toggles)
+        direction = toggle_code_to_dir.get(bits)
+        status.config(text=f"Toggle code: {bits} → {direction or 'None'}")
+        if direction == "East":
+            tk.Label(content_frame,
+                     text="✅ Passage opens to the EAST!",
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f")\
+                .pack(pady=20)
+            window.after(1500, show_mystic_hollow)
+        else:
+            window.after(100, poll_lair)
+
+    poll_lair()
 
 
     
