@@ -772,9 +772,10 @@ def explode_fail():
     tk.Label(content_frame,
              text="💥 BOOM! You triggered the bomb.",
              font=("Helvetica", 18, "bold"),
-             fg="red", bg="#1e1e2f").pack(pady=40)
+             fg="red", bg="#1e1e2f")\
+      .pack(pady=40)
 
-    window.after(2000, show_failure_screen)
+    window.after(1500, show_failure_screen)
 
     
 def show_victory_screen():
@@ -784,13 +785,18 @@ def show_victory_screen():
 
     tk.Label(content_frame,
              text="🎉 YOU WIN!",
-             font=("Helvetica", 28, "bold"), fg="#00ffcc", bg="#1e1e2f")\
+             font=("Helvetica", 28, "bold"),
+             fg="#00ffcc", bg="#1e1e2f")\
       .pack(pady=40)
     tk.Label(content_frame,
              text="You defused the final challenge and escaped the maze!",
-             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
+             font=("Helvetica", 18),
+             fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center")\
       .pack(pady=20)
+
+    # 3) After 2 s, close the window (end the game)
+    window.after(2000, window.destroy)
 
 
 def show_failure_screen():
@@ -800,13 +806,17 @@ def show_failure_screen():
 
     tk.Label(content_frame,
              text="💥 BOOM!",
-             font=("Helvetica", 28, "bold"), fg="#ff5555", bg="#1e1e2f")\
+             font=("Helvetica", 28, "bold"),
+             fg="#ff5555", bg="#1e1e2f")\
       .pack(pady=40)
     tk.Label(content_frame,
              text="The defusal failed. The maze collapses…",
-             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
+             font=("Helvetica", 18),
+             fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center")\
       .pack(pady=20)
+
+    window.after(2000, window.destroy)
 
 def on_timer_failure():
     show_failure_screen(window)
