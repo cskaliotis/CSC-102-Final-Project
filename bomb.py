@@ -3,6 +3,8 @@
 # Main Program
 
 
+!pip install pygame
+import pygame
 import tkinter as tk
 from tkinter import ttk
 import time
@@ -23,13 +25,22 @@ from bomb_configs import (
 )
 from types import SimpleNamespace
 from time import sleep
-from pathlib import Path      
+from pathlib import Path    
+
+pygame.mixer.init()
+
+pygame.mixer.music.load("Game_music.wav")
+pygame.mixer.music.set_volume(0.5)
+
+lose_sound      = pygame.mixer.Sound("lose_game.wav")
+explosion_sound = pygame.mixer.Sound("explosion.flac")
+victory_sound   = pygame.mixer.Sound("victory.wav")
 
 MAX_STRIKES  = 3
 strikes_left = MAX_STRIKES
 
 def add_strike():
-    """Subtract one strike, update GUI, and end game at zero."""
+    lose_sound.play()
     global strikes_left
     strikes_left -= 1
     # update the label if it exists
@@ -159,6 +170,7 @@ def update_timer(window, display):
 
 def start_game():
     # initialize countdown
+    pygame.mixer.music.play(-1)
     window.remaining = COUNTDOWN
 
     # hardware timer + LCD
@@ -780,9 +792,12 @@ def defuse_success():
 
 
 def explode_fail():
+    pygame.mixer.music.stop()
+    explosion_sound.play()
+
     for w in content_frame.winfo_children():
         w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    window.configure(bg="#1e1e2f")
 
     tk.Label(content_frame,
              text="💥 BOOM! You triggered the bomb.",
@@ -794,9 +809,12 @@ def explode_fail():
 
     
 def show_victory_screen():
+    pygame.mixer.music.stop()
+    victory_sound.play()
+
     for w in content_frame.winfo_children():
         w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    window.configure(bg="#1e1e2f")
 
     tk.Label(content_frame,
              text="🎉 YOU WIN!",
@@ -805,12 +823,10 @@ def show_victory_screen():
       .pack(pady=40)
     tk.Label(content_frame,
              text="You defused the final challenge and escaped the maze!",
-             font=("Helvetica", 18),
-             fg="#ffffff", bg="#1e1e2f",
+             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center")\
       .pack(pady=20)
 
-    # 3) After 2 s, close the window (end the game)
     window.after(2000, window.destroy)
 
 
@@ -826,8 +842,7 @@ def show_failure_screen():
       .pack(pady=40)
     tk.Label(content_frame,
              text="The defusal failed. The maze collapses…",
-             font=("Helvetica", 18),
-             fg="#ffffff", bg="#1e1e2f",
+             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center")\
       .pack(pady=20)
 
