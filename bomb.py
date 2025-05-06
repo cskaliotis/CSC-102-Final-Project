@@ -730,15 +730,6 @@ def show_mystic_hollow():
 
         
 
-def show_chest_screen(window):
-    """Supply Chest: Button→Keypad bonus puzzle."""
-    for w in window.winfo_children(): w.destroy()
-    window.configure(bg="#1e1e2f")
-    tk.Label(window, text="🧭 Supply Chest Found!\n\nPress for a bonus puzzle…",
-             font=("Helvetica",18), fg="#fff", bg="#1e1e2f",
-             justify="center", wraplength=600).pack(pady=40)
-    tk.Button(window, text="Begin Chest Puzzle", font=("Helvetica",16),
-              command=lambda: run_chest_phase(window)).pack(pady=20)
 
 
 def defuse_success():
@@ -760,29 +751,11 @@ def explode_fail():
 
     tk.Label(content_frame,
              text="💥 BOOM! You triggered the bomb.",
-             font=("Helvetica", 18, "bold"), fg="red", bg="#1e1e2f")\
-      .pack(pady=40)
-    tk.Button(content_frame,
-              text="Retry Mystic Hollow",
-              font=("Helvetica", 14),
-              command=show_mystic_hollow)\
-      .pack(pady=20)
+             font=("Helvetica", 18, "bold"),
+             fg="red", bg="#1e1e2f").pack(pady=40)
 
-def show_final_screen():
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    window.after(2000, show_failure_screen)
 
-    tk.Label(content_frame,
-             text="🚪 Final Door Ahead!\nPress 🟢 to defuse, 🔴 to boom.",
-             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
-             justify="center", wraplength=600)\
-      .pack(pady=40)
-    tk.Button(content_frame,
-              text="Press Button",
-              font=("Helvetica", 16),
-              command=defuse_success)\
-      .pack(pady=10)
     
 def show_victory_screen():
     for w in content_frame.winfo_children():
