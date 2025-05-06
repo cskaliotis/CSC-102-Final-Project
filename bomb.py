@@ -53,6 +53,22 @@ window.title("Maze Runner")
 window.geometry("800x600")
 window.configure(bg="#1e1e2f")
 
+# ---------- image cache ----------
+window.imgs = SimpleNamespace()
+
+def _load_png(filename: str) -> tk.PhotoImage:
+    """Load a PNG (raise helpful error if missing)."""
+    path = Path(filename)
+    if not path.exists():
+        raise FileNotFoundError(f"Image not found: {path.resolve()}")
+    return tk.PhotoImage(file=path)
+
+# cache the three images so they stay in memory
+window.imgs.circuit      = _load_png("circuit.png")
+window.imgs.right_answer = _load_png("rightanswer.png")
+window.imgs.wrong_answer = _load_png("wrong_answer.png")
+# ---------------------------------
+
 # Top bar for serial
 top_frame = tk.Frame(window, bg="#1e1e2f")
 top_frame.pack(side="top", fill="x")
@@ -339,32 +355,59 @@ def show_twilight_passage():
 
 
 
-    
+
+# Door‑selection puzzle that shows a Boolean circuit diagram and two potential algebraic answers.  
+# Click the correct picture to proceed.
 def show_circuit_puzzle():
-    for w in content_frame.winfo_children(): w.destroy()
+   
+    # 0) Clear the centre pane
+    for w in content_frame.winfo_children():
+        w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
+    # 1) Show the problem diagram
     tk.Label(content_frame,
-             text="🛠  Solve (A AND B) OR ¬C\nSelect the correct door:",
-             font=("Helvetica",18),
-             fg="white", bg="#1e1e2f",
-             wraplength=600)\
-      .pack(pady=30)
+             image=window.imgs.circuit,
+             bg="#1e1e2f").pack(pady=20)
 
-    def choose(door):
-        if door == "Door 1":
-            show_forgotten_fortress()
-        else:
-            tk.Label(content_frame,
-                     text="❌ Wrong door! Try again.",
-                     fg="red", bg="#1e1e2f")\
-              .pack(pady=10)
+    tk.Label(content_frame,
+             text="Which door displays the *correct* Boolean expression for this circuit?",
+             font=("Helvetica", 18),
+             fg="#ffffff", bg="#1e1e2f",
+             wraplength=650, justify="center").pack(pady=10)
 
-    frm = tk.Frame(content_frame, bg="#1e1e2f"); frm.pack(pady=20)
-    tk.Button(frm, text="Door 1", command=lambda: choose("Door 1"))\
-      .grid(row=0, column=0, padx=10)
-    tk.Button(frm, text="Door 2", command=lambda: choose("Door 2"))\
-      .grid(row=0, column=1, padx=10)
+    door_frame = tk.Frame(content_frame, bg="#1e1e2f")
+    door_frame.pack(pady=15)
+
+
+    def make_door(col: int, img: tk.PhotoImage, correct: bool):
+        lbl = tk.Label(door_frame, image=img, cursor="hand2",
+                       bg="#1e1e2f", borderwidth=0)
+        lbl.grid(row=0, column=col, padx=40)
+
+        def on_click(_event=None):
+            # remove any previous feedback label
+            for child in content_frame.pack_slaves():
+                if getattr(child, "_feedback", False):
+                    child.destroy()
+
+            if correct:
+                show_forgotten_fortress()
+            else:
+                fb = tk.Label(content_frame,
+                              text="❌ Wrong door!  Try again.",
+                              fg="#ff5555", bg="#1e1e2f",
+                              font=("Helvetica", 14))
+                fb._feedback = True
+                fb.pack(pady=6)
+                # auto‑hide after 1.5 s
+                window.after(1500, fb.destroy)
+
+        lbl.bind("<Button-1>", on_click)
+
+    # 3) Build the two doors (left one is correct here)
+    make_door(0, window.imgs.right_answer, correct=True)
+    make_door(1, window.imgs.wrong_answer, correct=False)
 
 class WiresComponent:
     def __init__(self, pins):
