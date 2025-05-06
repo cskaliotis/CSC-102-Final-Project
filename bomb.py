@@ -515,16 +515,10 @@ def show_wires_screen():
     poll_wires()
 
 def show_phantoms_lair():
-    """
-    Phantom’s Lair – player must set toggle switches to EAST (1100)
-    to leave the room.  No GUI button.
-    """
-    # clear centre frame
     for w in content_frame.winfo_children():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
-    # room title
     tk.Label(content_frame,
              text="👻 You’ve entered the Phantom's Lair!",
              font=("Helvetica", 20, "bold"),
@@ -533,8 +527,7 @@ def show_phantoms_lair():
 
     # riddle / hint
     tk.Label(content_frame,
-             text="Hint → The sun rises in the EAST.\n"
-                  "Flip the toggles until they read EAST (1100).",
+             text="Flip the toggles in the direction the sun rises",
              font=("Helvetica", 16),
              fg="#ffff99", bg="#1e1e2f",
              wraplength=600, justify="center")\
