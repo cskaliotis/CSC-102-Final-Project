@@ -485,49 +485,66 @@ def show_forgotten_fortress():
 
 
 def show_wires_screen():
-    for w in content_frame.winfo_children(): w.destroy()
+    for w in content_frame.winfo_children():
+        w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
-    # show serial
     tk.Label(content_frame,
              text=f"Serial: {serial}",
-             font=("Courier New",12),
+             font=("Courier New", 12),
              fg="#ffffff", bg="#1e1e2f")\
       .pack(anchor="ne", padx=10, pady=(10,0))
 
     hint = generate_wire_riddle(wires_target_list)
     tk.Label(content_frame,
              text="⚡ Power Barrier Activated!",
-             font=("Helvetica",24,"bold"),
+             font=("Helvetica", 24, "bold"),
              fg="#00ffcc", bg="#1e1e2f")\
       .pack(pady=(40,10))
     tk.Label(content_frame,
              text=hint,
-             font=("Helvetica",16),
+             font=("Helvetica", 16),
              fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center")\
       .pack(pady=20)
 
     status = tk.Label(content_frame,
                       text="Cuts: []",
-                      font=("Courier New",18),
+                      font=("Courier New", 18),
                       fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
     def poll_wires():
-        cuts = [i for i,p in enumerate(component_wires) if p.value]
+        cuts = [i for i, p in enumerate(component_wires) if p.value]
         letters = indices_to_letters(cuts)
-        status.config(text=f"Cuts: {letters}")
-        if cuts == wires_target_list:
+
+        try:
+            status.config(text=f"Cuts: {letters}")
+        except tk.TclError:
+            return  # if status was destroyed, stop
+
+        wrong = [i for i in cuts if i not in wires_target_list]
+        if wrong:
+            add_strike()
+            # brief feedback before resetting
+            tk.Label(content_frame,
+                     text="❌ Wrong wire cut! Resetting…",
+                     fg="red", bg="#1e1e2f",
+                     font=("Helvetica", 14))\
+              .pack(pady=10)
+            window.after(1500, show_wires_screen)
+            return
+
+        if set(cuts) == set(wires_target_list):
             tk.Label(content_frame,
                      text="✅ Barrier deactivated!",
-                     font=("Helvetica",16), fg="green", bg="#1e1e2f")\
+                     font=("Helvetica", 16), fg="green", bg="#1e1e2f")\
               .pack(pady=20)
             window.after(1500, show_phantoms_lair)
-        else:
-            if len(cuts) > len(wires_target_list):
-                add_strike()              
-            window.after(100, poll_wires)
+            return
+
+        # 6) keep polling
+        window.after(100, poll_wires)
 
     poll_wires()
 
