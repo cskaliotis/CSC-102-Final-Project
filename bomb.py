@@ -515,14 +515,13 @@ def show_wires_screen():
     status.pack(pady=20)
 
     def poll_wires():
-        cuts = [i for i, p in enumerate(component_wires) if p.value]
+        cuts = [i for i, p in enumerate(component_wires) if not p.value]
         letters = indices_to_letters(cuts)
 
         try:
             status.config(text=f"Cuts: {letters}")
         except tk.TclError:
-            return  # if status was destroyed, stop
-
+            return 
         wrong = [i for i in cuts if i not in wires_target_list]
         if wrong:
             add_strike()
@@ -543,7 +542,6 @@ def show_wires_screen():
             window.after(1500, show_phantoms_lair)
             return
 
-        # 6) keep polling
         window.after(100, poll_wires)
 
     poll_wires()
