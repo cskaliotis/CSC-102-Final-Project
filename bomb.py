@@ -406,7 +406,6 @@ def show_circuit_puzzle():
 
         lbl.bind("<Button-1>", on_click)
 
-    # 3) Build the two doors (left one is correct here)
     make_door(0, window.imgs.right_answer, correct=True)
     make_door(1, window.imgs.wrong_answer, correct=False)
 
@@ -550,7 +549,7 @@ def show_phantoms_lair():
                      text="✅ Passage opens to the EAST!",
                      font=("Helvetica", 16), fg="green", bg="#1e1e2f")\
                 .pack(pady=20)
-            window.after(1500, show_mystic_hollow)
+            window.after(1500, show_mystic_prep)
         else:
             window.after(100, poll_lair)
 
