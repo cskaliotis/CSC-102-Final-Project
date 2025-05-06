@@ -23,7 +23,22 @@ from bomb_configs import (
 )
 from types import SimpleNamespace
 from time import sleep
-from pathlib import Path       
+from pathlib import Path      
+
+MAX_STRIKES  = 3
+strikes_left = MAX_STRIKES
+
+def add_strike():
+    """Subtract one strike, update GUI, and end game at zero."""
+    global strikes_left
+    strikes_left -= 1
+    # update the label if it exists
+    if hasattr(window, "strikes_label"):
+        window.strikes_label.config(
+            text=f"Strikes: {strikes_left}/{MAX_STRIKES}"
+        )
+    if strikes_left <= 0:
+        show_failure_screen()
 
 toggle_code_to_dir = {
     "1000": "North",
@@ -70,24 +85,26 @@ window.imgs.right_answer = _load_png("rightanswer.png")
 window.imgs.wrong_answer = _load_png("wrong_answer.png")
 # ---------------------------------
 
-# Top bar for serial
 top_frame = tk.Frame(window, bg="#1e1e2f")
 top_frame.pack(side="top", fill="x")
+
 serial_label = tk.Label(
-    top_frame, text=f"Serial: {serial}",
+    top_frame,
+    text=f"Serial: {serial}",
     font=("Courier New", 12, "bold"),
     fg="red", bg="#1e1e2f"
 )
 serial_label.pack(side="right", padx=10, pady=5)
-time_label = tk.Label(
-    top_frame, text="",  # set in start_game
-    font=("Courier New", 12, "bold"),
-    fg="#00ff00", bg="#1e1e2f"
-)
-time_label.pack(side="left", padx=10, pady=5)
-window.timer_label = time_label 
 
-# Middle frame for all your puzzle screens
+# replace the old time_label here with strikes_label
+window.strikes_label = tk.Label(
+    top_frame,
+    text=f"Strikes: {strikes_left}/{MAX_STRIKES}",
+    font=("Courier New", 12, "bold"),
+    fg="#ffae00", bg="#1e1e2f"
+)
+window.strikes_label.pack(side="left", padx=10, pady=5)
+
 content_frame = tk.Frame(window, bg="#1e1e2f")
 content_frame.pack(expand=True, fill="both")
 
@@ -133,8 +150,6 @@ class ToggleComponent:
 def update_timer(window, display):
     mins, secs = divmod(window.remaining, 60)
     time_str = f"{mins:02d}:{secs:02d}"
-    window.timer_label.config(text=f"Time Left: {time_str}")
-    display.print(time_str)
     progress['value'] = window.remaining
     if window.remaining > 0:
         window.remaining -= 1
@@ -310,6 +325,7 @@ def show_entrance_puzzle_screen(prompt, target):
             return
         if kd._failed:
             status.config(text="❌ Wrong code — resetting…")
+            add_strike()
             window.after(1500, entrance_challenge)
             return
         window.after(100, poll_keypad)
@@ -399,9 +415,9 @@ def show_circuit_puzzle():
                               text="❌ Wrong door!  Try again.",
                               fg="#ff5555", bg="#1e1e2f",
                               font=("Helvetica", 14))
+                add_strike()
                 fb._feedback = True
                 fb.pack(pady=6)
-                # auto‑hide after 1.5 s
                 window.after(1500, fb.destroy)
 
         lbl.bind("<Button-1>", on_click)
@@ -509,6 +525,8 @@ def show_wires_screen():
               .pack(pady=20)
             window.after(1500, show_phantoms_lair)
         else:
+            if len(cuts) > len(wires_target_list):
+                add_strike()              
             window.after(100, poll_wires)
 
     poll_wires()
@@ -648,6 +666,7 @@ def check_easy_puzzle(answer):
                  text="❌ Try again!",
                  font=("Helvetica", 14), fg="red", bg="#1e1e2f")\
           .pack(pady=10)
+        add_strike()
 
 def show_hard_puzzle():
     for w in content_frame.winfo_children():
@@ -689,6 +708,7 @@ def check_hard_puzzle(answer):
                  text="❌ Not quite. Try again!",
                  font=("Helvetica", 14), fg="red", bg="#1e1e2f")\
           .pack(pady=10)
+        add_strike()
 
 
 def show_mystic_hollow():
