@@ -557,64 +557,44 @@ def show_phantoms_lair():
     poll_lair()
 
 
-    
-def show_chest_and_riddle():
+
+
+def show_mystic_prep():
+    # clear centre panel
     for w in content_frame.winfo_children():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
+    # explanatory text
     tk.Label(content_frame,
-             text="🧰 You found a chest filled with food!",
-             font=("Helvetica", 18), fg="#00ffcc", bg="#1e1e2f")\
-      .pack(pady=20)
-    tk.Label(content_frame,
-             text="🎉 Your life has been extended!",
-             font=("Helvetica", 16), fg="#00ff00", bg="#1e1e2f")\
-      .pack(pady=10)
-    tk.Label(content_frame,
-             text="To open the chest, solve this riddle:",
-             font=("Helvetica", 16), fg="#ffffff", bg="#1e1e2f")\
-      .pack(pady=20)
+             text="💡 Mystic Hollow – Instructions",
+             font=("Helvetica", 20, "bold"),
+             fg="#ffcc00", bg="#1e1e2f")\
+        .pack(pady=(40, 15))
 
-    riddle = ("I speak without a mouth and hear without ears. "
-              "I have nobody, but I come alive with the wind. What am I?")
+    msg = (
+        "In the next room, the button LED will FLASH.\n"
+        "• If it flashes GREEN when you press it → you defuse the bomb.\n"
+        "• If it flashes RED when you press it → 💥 it explodes!\n\n"
+        "Timing is everything—press only when you see GREEN."
+    )
     tk.Label(content_frame,
-             text=riddle,
-             font=("Helvetica", 14), fg="#ddddff", bg="#1e1e2f",
-             wraplength=600, justify="center")\
-      .pack(pady=10)
+             text=msg,
+             font=("Helvetica", 16),
+             fg="#ffffff", bg="#1e1e2f",
+             justify="center", wraplength=640)\
+        .pack(padx=30, pady=10)
 
-    entry = tk.Entry(content_frame, font=("Helvetica", 14))
-    entry.pack(pady=10)
-
+    # begin button
     tk.Button(content_frame,
-              text="Submit Answer",
-              font=("Helvetica", 14),
-              command=lambda: check_riddle_answer(entry.get()))\
-      .pack(pady=10)
-    tk.Button(content_frame,
-              text="Skip Puzzle",
-              font=("Helvetica", 14),
-              command=show_flash_button_wall)\
-      .pack(pady=5)
-
-
-def check_riddle_answer(answer):
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
-
-    if answer.lower().strip() == "echo":
-        tk.Label(content_frame,
-                 text="✅ Correct! The chest opens and you're well-fed.",
-                 font=("Helvetica", 16), fg="#00ff00", bg="#1e1e2f")\
-          .pack(pady=20)
-        window.after(2000, show_flash_button_wall)
-    else:
-        tk.Label(content_frame,
-                 text="❌ That's not the right answer. Try again or skip.",
-                 font=("Helvetica", 14), fg="red", bg="#1e1e2f")\
-          .pack(pady=10)
+              text="Begin Challenge",
+              font=("Helvetica", 16, "bold"),
+              bg="#00ffcc", fg="#000",
+              activebackground="#00ddaa",
+              padx=24, pady=8, bd=0,
+              cursor="hand2",
+              command=show_mystic_hollow)\
+        .pack(pady=30)
 
 def show_flash_button_wall():
     for w in content_frame.winfo_children():
