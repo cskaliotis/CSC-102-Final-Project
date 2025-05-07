@@ -55,6 +55,7 @@ def play_animation(parent, gif_path, on_complete=None, frame_delay=100):
 
     anim_label = tk.Label(parent, bg=parent["bg"])
     anim_label.place(relx=0.5, rely=0.5, anchor="center")
+    anim_label.lower()
 
     def animate(i=0):
         anim_label.config(image=frames[i])
@@ -214,7 +215,7 @@ def update_timer(window, display):
         window.remaining -= 1
         window.after(1000, update_timer, window, display)
     else:
-        show_failure_screen()
+        explode_fail()
 
 def start_game():
     pygame.mixer.music.play(-1)
