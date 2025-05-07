@@ -179,20 +179,20 @@ content_frame = tk.Frame(window, bg="#1e1e2f")
 content_frame.pack(expand=True, fill="both")
 
 phase_positions = {
-    'entrance':   (0,0),
-    'twilight':   (1,0),
-    'circuit':    (2,0),
-    'fortress':   (0,1),
-    'wires':      (1,1),
-    'phantom':    (2,1),
-    'mystic':     (1,2),
+    'entrance': (0,0),
+    'twilight': (1,0),
+    'circuit':  (2,0),
+    'fortress': (0,1),
+    'wires':    (1,1),
+    'phantom':  (2,1),
+    'mystic':   (1,2),
 }
 visited_phases = set()
 minimap_items = {}
 
 sq, gap = 16, 4
-cols = max(c for c,_ in phase_positions.values())+1
-rows = max(r for _,r in phase_positions.values())+1
+cols = max(c for c,_ in phase_positions.values()) + 1
+rows = max(r for _,r in phase_positions.values()) + 1
 
 map_canvas = tk.Canvas(content_frame,
                        width=cols*(sq+gap)+gap,
@@ -201,13 +201,14 @@ map_canvas = tk.Canvas(content_frame,
                        highlightthickness=0)
 map_canvas.place(x=10, y=10)
 
-
-for name,(c,r) in phase_positions.items():
+for name, (c, r) in phase_positions.items():
     x = gap + c*(sq+gap)
     y = gap + r*(sq+gap)
-    rect = map_canvas.create_rectangle(x, y, x+sq, y+sq,
-                                       fill="#444", outline="#222")
-    minimap_items[name] = rect
+    minimap_items[name] = map_canvas.create_rectangle(
+        x, y, x+sq, y+sq,
+        fill="#444", outline="#222"
+    )
+
 
 bottom_frame = tk.Frame(window, bg="#1e1e2f")
 bottom_frame.pack(side="bottom", fill="x")
