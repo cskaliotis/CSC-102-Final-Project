@@ -297,9 +297,6 @@ def clear_content():
 
 def show_welcome_screen():
     clear_content()
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
 
     tk.Label(content_frame,
              text="MAZE RUNNER",
@@ -341,9 +338,7 @@ def show_welcome_screen():
 
 def show_instructions():
     clear_content()
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+
 
     instr = (
         f"Welcome, {player_name}!\n\n"
