@@ -122,6 +122,12 @@ window.title("Maze Runner")
 window.geometry("800x600")
 window.configure(bg="#1e1e2f")
 
+style = ttk.Style()
+style.theme_use("default")
+style.configure("Green.Horizontal.TProgressbar", background="green", troughcolor="#333")
+style.configure("Yellow.Horizontal.TProgressbar", background="yellow", troughcolor="#333")
+style.configure("Red.Horizontal.TProgressbar", background="red", troughcolor="#333")
+
 window.imgs = SimpleNamespace()
 
 style = ttk.Style(window)
