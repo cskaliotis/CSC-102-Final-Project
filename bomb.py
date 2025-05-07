@@ -676,7 +676,7 @@ def show_mystic_prep():
               activebackground="#00ddaa",
               padx=24, pady=8, bd=0,
               cursor="hand2",
-              command=show_mystic_hollow)\
+              command=start_mystic_challenge)\
         .pack(pady=30)
 
 def show_flash_button_wall():
@@ -777,32 +777,17 @@ def check_hard_puzzle(answer):
         add_strike()
 
 
-def show_mystic_hollow():
+def start_mystic_challenge():
     for w in content_frame.winfo_children():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
-    tk.Label(content_frame,
-             text="💣 Mystic Hollow – The Bomb Challenge!",
-             font=("Helvetica", 20, "bold"),
-             fg="#ff6666", bg="#1e1e2f")\
-      .pack(pady=30)
-    tk.Label(content_frame,
-             text="Only one flash will save you...\nPress the button when it glows GREEN to defuse, RED means BOOM!",
-             font=("Helvetica", 16),
-             fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center")\
-      .pack(pady=10)
-
     btn = Button(component_button_state, component_button_RGB)
-    btn.start()
-    btn.join()
+    btn.start(); btn.join()
 
     if btn._easy_mode:
-        # _easy_mode==True corresponds to GREEN flashing
         defuse_success()
     else:
-        # RED flashing
         explode_fail()
 
     
