@@ -288,9 +288,10 @@ def start_game():
 
 def clear_content():
     for w in content_frame.winfo_children():
+        if w is map_canvas:
+            continue
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
-
 
 
 
