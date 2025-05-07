@@ -69,7 +69,15 @@ def play_animation(parent, gif_path, on_complete=None, frame_delay=100):
 
     animate()
 
-
+def shake(widget, distance=5, shakes=4, delay=0.02):
+    x0, y0 = widget.winfo_x(), widget.winfo_y()
+    for _ in range(shakes):
+        widget.place(x=x0 - distance, y=y0)
+        widget.update(); time.sleep(delay)
+        widget.place(x=x0 + distance, y=y0)
+        widget.update(); time.sleep(delay)
+    widget.place(x=x0, y=y0)
+    
 # Handle a wrong action: play sound, decrement strikes, check for failure
 def add_strike():
     lose_sound.play()
@@ -151,7 +159,7 @@ window.strikes_label = tk.Label(
     font=("Courier New", 12, "bold"),
     fg="#ffae00", bg="#1e1e2f"
 )
-window.strikes_label.pack(side="left", padx=10, pady=5)
+window.strikes_label.place(x=10, y=10)
 
 content_frame = tk.Frame(window, bg="#1e1e2f")
 content_frame.pack(expand=True, fill="both")
