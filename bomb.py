@@ -133,30 +133,6 @@ style.configure("Green.Horizontal.TProgressbar", background="green", troughcolor
 style.configure("Yellow.Horizontal.TProgressbar", background="yellow", troughcolor="#333")
 style.configure("Red.Horizontal.TProgressbar", background="red", troughcolor="#333")
 
-phase_positions = {
-    'entrance':   (0,0),
-    'twilight':   (1,0),
-    'circuit':    (2,0),
-    'fortress':   (0,1),
-    'wires':      (1,1),
-    'phantom':    (2,1),
-    'mystic':     (1,2),
-}
-visited_phases = set()
-minimap_items = {}
-
-sq, gap = 16, 4
-cols = max(c for c,_ in phase_positions.values())+1
-rows = max(r for _,r in phase_positions.values())+1
-
-
-
-for name,(c,r) in phase_positions.items():
-    x = gap + c*(sq+gap)
-    y = gap + r*(sq+gap)
-    rect = map_canvas.create_rectangle(x, y, x+sq, y+sq,
-                                       fill="#444", outline="#222")
-    minimap_items[name] = rect
 
 
 window.imgs = SimpleNamespace()
@@ -202,12 +178,36 @@ window.strikes_label.place(x=10, y=10)
 content_frame = tk.Frame(window, bg="#1e1e2f")
 content_frame.pack(expand=True, fill="both")
 
+phase_positions = {
+    'entrance':   (0,0),
+    'twilight':   (1,0),
+    'circuit':    (2,0),
+    'fortress':   (0,1),
+    'wires':      (1,1),
+    'phantom':    (2,1),
+    'mystic':     (1,2),
+}
+visited_phases = set()
+minimap_items = {}
+
+sq, gap = 16, 4
+cols = max(c for c,_ in phase_positions.values())+1
+rows = max(r for _,r in phase_positions.values())+1
+
 map_canvas = tk.Canvas(content_frame,
                        width=cols*(sq+gap)+gap,
                        height=rows*(sq+gap)+gap,
                        bg="#1e1e2f",
                        highlightthickness=0)
 map_canvas.place(x=10, y=10)
+
+
+for name,(c,r) in phase_positions.items():
+    x = gap + c*(sq+gap)
+    y = gap + r*(sq+gap)
+    rect = map_canvas.create_rectangle(x, y, x+sq, y+sq,
+                                       fill="#444", outline="#222")
+    minimap_items[name] = rect
 
 bottom_frame = tk.Frame(window, bg="#1e1e2f")
 bottom_frame.pack(side="bottom", fill="x")
