@@ -814,10 +814,6 @@ def defuse_success():
              wraplength=600, justify="center")\
       .pack(pady=20)
 
-    anim = tk.Label(content_frame, bg="#1e1e2f")
-    anim.place(relx=0.5, rely=0.5, anchor="center")
-    anim.lower()
-
     frames, idx = [], 0
     try:
         while True:
@@ -828,6 +824,10 @@ def defuse_success():
     except tk.TclError:
         pass
 
+    anim = tk.Label(content_frame, bg="#1e1e2f")
+    anim.place(relx=0.5, rely=0.5, anchor="center")
+    anim.lower()   # ensure it stays behind the victory text
+
     def animate(i=0):
         anim.config(image=frames[i])
         i = (i + 1) % len(frames)
@@ -835,10 +835,9 @@ def defuse_success():
             content_frame.after(100, animate, i)
 
     animate()
-    window.after(2000, window.destroy)
 
-
-
+    duration_ms = int(victory_sound.get_length() * 1000)
+    window.after(duration_ms, window.destroy)
 
 
 def explode_fail():
