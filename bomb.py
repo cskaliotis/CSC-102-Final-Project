@@ -140,6 +140,10 @@ phase_positions = {
 visited_phases = set()
 minimap_items = {}
 
+sq, gap = 16, 4
+cols = max(c for c,_ in phase_positions.values())+1
+rows = max(r for _,r in phase_positions.values())+1
+
 
 window.imgs = SimpleNamespace()
 
