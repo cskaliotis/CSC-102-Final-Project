@@ -83,12 +83,13 @@ def add_strike():
     lose_sound.play()
     global strikes_left
     strikes_left -= 1
-    if hasattr(window, "strikes_label"):
-        window.strikes_label.config(
-            text=f"Strikes: {strikes_left}/{MAX_STRIKES}"
-        )
+    window.strikes_label.config(text=f"Strikes: {strikes_left}/{MAX_STRIKES}")
+
+    shake(window.strikes_label)
+
     if strikes_left <= 0:
         explode_fail()
+
 
 toggle_code_to_dir = {
     "1000": "North",
