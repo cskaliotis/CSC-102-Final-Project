@@ -292,6 +292,7 @@ def clear_content():
 
 
 def show_welcome_screen():
+    clear_content()
     for w in content_frame.winfo_children():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
@@ -335,6 +336,7 @@ def show_welcome_screen():
       .pack(pady=40)
 
 def show_instructions():
+    clear_content()
     for w in content_frame.winfo_children():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
@@ -374,9 +376,8 @@ def ensure_timer_support(window):
 
 
 def show_entrance_screen():
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    clear_content()
+    mark_phase('entrance')
 
     tk.Label(content_frame,
              text=(
@@ -448,8 +449,9 @@ def show_entrance_puzzle_screen(prompt, target):
 
     
 def show_twilight_passage():
-    for w in content_frame.winfo_children(): w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    clear_content()
+    mark_phase('twilight')
+
 
     tk.Label(content_frame,
              text="🌌 Twilight Passage",
@@ -489,10 +491,9 @@ def show_twilight_passage():
 
 
 def show_circuit_puzzle():
-   
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    clear_content()
+    mark_phase('circuit')
+
 
     tk.Label(content_frame,
              image=window.imgs.circuit,
@@ -549,8 +550,9 @@ class WiresComponent:
 
 
 def show_forgotten_fortress():
-    for w in content_frame.winfo_children(): w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    clear_content()
+    mark_phase('fortress')
+
 
     # show serial at top of content as well
     tk.Label(content_frame,
@@ -595,9 +597,9 @@ def show_forgotten_fortress():
 
 
 def show_wires_screen():
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    clear_content()
+    mark_phase('wires')
+
 
     tk.Label(content_frame,
              text=f"Serial: {serial}",
@@ -657,9 +659,8 @@ def show_wires_screen():
     poll_wires()
 
 def show_phantoms_lair():
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    clear_content()
+    mark_phase('phantom')
 
     tk.Label(content_frame,
              text="👻 You’ve entered the Phantom's Lair!",
@@ -701,9 +702,8 @@ def show_phantoms_lair():
 
 
 def show_mystic_prep():
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    clear_content()
+    mark_phase('mystic')
 
     tk.Label(content_frame,
              text="💡 Mystic Hollow – Instructions",
@@ -834,9 +834,7 @@ def check_hard_puzzle(answer):
 
 
 def start_mystic_challenge():
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    clear_content()
 
     btn = Button(component_button_state, component_button_RGB)
     btn.start()
