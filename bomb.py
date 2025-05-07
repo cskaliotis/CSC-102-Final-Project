@@ -160,14 +160,14 @@ progress.pack(fill="x", padx=10, pady=5)
 ###########
 # functions
 
+def update_title():
+    mins, secs = divmod(window.remaining, 60)
+    window.title(f"Maze Runner • {mins:02d}:{secs:02d}")
+    if window.remaining > 0:
+        window.after(1000, update_title)
+
 class ToggleComponent:
-    """
-    Wrap the raw GPIO pin objects so that:
-      - raw_pins = [DigitalInOut(...), …]
-      - toggles returns a list of booleans in the same order,
-        *inverting* pin.value so that a flipped switch (which
-        pulls the pin HIGH) shows up as True.
-    """
+
     def __init__(self, pins):
         self._pins = pins
 
