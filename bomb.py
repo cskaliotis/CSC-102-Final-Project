@@ -849,21 +849,24 @@ def defuse_success():
 
     clear_content()
 
-    content_frame.configure(bg="#1e1e2f")
-
     tk.Label(content_frame,
              text="🎉 YOU WIN!",
              font=("Helvetica", 28, "bold"),
              fg="#00ffcc", bg="#1e1e2f")\
       .pack(pady=40)
     tk.Label(content_frame,
-             text="You defused the final challenge and escaped the maze!",
+             text="You defused the final challenge\nand escaped the maze!",
              font=("Helvetica", 18),
              fg="#ffffff", bg="#1e1e2f",
              wraplength=600, justify="center")\
-      .pack(pady=20)
+      .pack(pady=10)
 
-    frames, idx = [], 0
+    anim = tk.Label(content_frame, bg="#1e1e2f")
+    anim.place(relx=0.5, rely=0.6, anchor="center")
+    anim.lower()
+
+    frames = []
+    idx = 0
     try:
         while True:
             frames.append(
@@ -871,11 +874,7 @@ def defuse_success():
             )
             idx += 1
     except tk.TclError:
-        pass
-
-    anim = tk.Label(content_frame, bg="#1e1e2f")
-    anim.place(relx=0.5, rely=0.5, anchor="center")
-    anim.lower()   # ensure it stays behind the victory text
+        pass  # no more frames
 
     def animate(i=0):
         anim.config(image=frames[i])
@@ -887,6 +886,7 @@ def defuse_success():
 
     duration_ms = int(victory_sound.get_length() * 1000)
     window.after(duration_ms, window.destroy)
+
 
 
 def explode_fail():
