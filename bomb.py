@@ -80,7 +80,7 @@ def add_strike():
             text=f"Strikes: {strikes_left}/{MAX_STRIKES}"
         )
     if strikes_left <= 0:
-        show_failure_screen()
+        explode_fail()
 
 toggle_code_to_dir = {
     "1000": "North",
@@ -847,25 +847,22 @@ def show_victory_screen():
 
 
 def show_failure_screen():
-    def _failure_static():
-        for w in content_frame.winfo_children():
-            w.destroy()
-        content_frame.configure(bg="#1e1e2f")
+    for w in content_frame.winfo_children():
+        w.destroy()
+    content_frame.configure(bg="#1e1e2f")
 
-        tk.Label(content_frame,
-                 text="💥 BOOM!",
-                 font=("Helvetica", 28, "bold"),
-                 fg="#ff5555", bg="#1e1e2f")\
-          .pack(pady=40)
-        tk.Label(content_frame,
-                 text="The defusal failed. The maze collapses…",
-                 font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
-                 wraplength=600, justify="center")\
-          .pack(pady=20)
+    tk.Label(content_frame,
+             text="💥 BOOM!",
+             font=("Helvetica", 28, "bold"),
+             fg="#ff5555", bg="#1e1e2f")\
+      .pack(pady=40)
+    tk.Label(content_frame,
+             text="The defusal failed. The maze collapses…",
+             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=20)
 
-        window.after(2000, window.destroy)
-
-    play_animation(window, "explosion.gif", on_complete=_failure_static)
+    window.after(2000, window.destroy)
 
 
 def on_timer_failure():
