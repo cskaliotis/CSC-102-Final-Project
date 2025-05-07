@@ -38,6 +38,13 @@ victory_sound   = pygame.mixer.Sound("victory.wav")
 MAX_STRIKES  = 3
 strikes_left = MAX_STRIKES
 
+style = ttk.Style(window)
+style.theme_use("default")
+style.configure("Green.Horizontal.TProgressbar", background="green")
+style.configure("Yellow.Horizontal.TProgressbar", background="yellow")
+style.configure("Red.Horizontal.TProgressbar", background="red")
+
+
 # Play a GIF animation then callback when complete
 def play_animation(parent, gif_path, on_complete=None, frame_delay=100):
     frames = []
