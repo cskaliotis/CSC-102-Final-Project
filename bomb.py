@@ -197,21 +197,18 @@ def update_timer(window, display):
         show_failure_screen()
 
 def start_game():
-    # initialize countdown
     pygame.mixer.music.play(-1)
     window.remaining = COUNTDOWN
 
-    # hardware timer + LCD
+    update_title()
+
     timer = Timer(component_7seg, initial_value=COUNTDOWN,
                   failure_callback=show_failure_screen)
     lcd = Lcd(window)
     lcd.setTimer(timer)
     timer.start()
 
-    # kick off the UI timer
     update_timer(window, component_7seg)
-
-    # first puzzle
     show_entrance_screen()
 
 
