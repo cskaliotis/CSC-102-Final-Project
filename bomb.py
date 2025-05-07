@@ -149,12 +149,7 @@ sq, gap = 16, 4
 cols = max(c for c,_ in phase_positions.values())+1
 rows = max(r for _,r in phase_positions.values())+1
 
-map_canvas = tk.Canvas(window,
-                       width=cols*(sq+gap)+gap,
-                       height=rows*(sq+gap)+gap,
-                       bg="#1e1e2f",
-                       highlightthickness=0)
-map_canvas.place(x=10, y=50)
+
 
 for name,(c,r) in phase_positions.items():
     x = gap + c*(sq+gap)
@@ -206,6 +201,13 @@ window.strikes_label.place(x=10, y=10)
 
 content_frame = tk.Frame(window, bg="#1e1e2f")
 content_frame.pack(expand=True, fill="both")
+
+map_canvas = tk.Canvas(content_frame,
+                       width=cols*(sq+gap)+gap,
+                       height=rows*(sq+gap)+gap,
+                       bg="#1e1e2f",
+                       highlightthickness=0)
+map_canvas.place(x=10, y=10)
 
 bottom_frame = tk.Frame(window, bg="#1e1e2f")
 bottom_frame.pack(side="bottom", fill="x")
