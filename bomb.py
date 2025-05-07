@@ -802,7 +802,41 @@ def defuse_success():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
-    play_animation(content_frame, "victory.gif", on_complete=show_victory_screen)
+    tk.Label(content_frame,
+             text="🎉 YOU WIN!",
+             font=("Helvetica", 28, "bold"),
+             fg="#00ffcc", bg="#1e1e2f")\
+      .pack(pady=40)
+    tk.Label(content_frame,
+             text="You defused the final challenge and escaped the maze!",
+             font=("Helvetica", 18),
+             fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=20)
+
+    anim = tk.Label(content_frame, bg="#1e1e2f")
+    anim.place(relx=0.5, rely=0.5, anchor="center")
+    anim.lower()
+
+    frames, idx = [], 0
+    try:
+        while True:
+            frames.append(
+                tk.PhotoImage(file="victory.gif", format=f"gif -index {idx}")
+            )
+            idx += 1
+    except tk.TclError:
+        pass
+
+    def animate(i=0):
+        anim.config(image=frames[i])
+        i = (i + 1) % len(frames)
+        if i != 0:
+            content_frame.after(100, animate, i)
+
+    animate()
+    window.after(2000, window.destroy)
+
 
 
 
@@ -815,7 +849,42 @@ def explode_fail():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
-    play_animation(content_frame, "explosion.gif", on_complete=show_failure_screen)
+    tk.Label(content_frame,
+             text="💥 BOOM!",
+             font=("Helvetica", 28, "bold"),
+             fg="#ff5555", bg="#1e1e2f")\
+      .pack(pady=40)
+    tk.Label(content_frame,
+             text="The defusal failed. The maze collapses…",
+             font=("Helvetica", 18),
+             fg="#ffffff", bg="#1e1e2f",
+             wraplength=600, justify="center")\
+      .pack(pady=20)
+
+    anim = tk.Label(content_frame, bg="#1e1e2f")
+    anim.place(relx=0.5, rely=0.5, anchor="center")
+    anim.lower()  
+
+    frames, idx = [], 0
+    try:
+        while True:
+            frames.append(
+                tk.PhotoImage(file="explosion.gif", format=f"gif -index {idx}")
+            )
+            idx += 1
+    except tk.TclError:
+        pass
+
+    def animate(i=0):
+        anim.config(image=frames[i])
+        i = (i + 1) % len(frames)
+        if i != 0:
+            content_frame.after(100, animate, i)
+
+    animate()
+
+    window.after(2000, window.destroy)
+
 
     
 
