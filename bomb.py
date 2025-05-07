@@ -128,6 +128,19 @@ style.configure("Green.Horizontal.TProgressbar", background="green", troughcolor
 style.configure("Yellow.Horizontal.TProgressbar", background="yellow", troughcolor="#333")
 style.configure("Red.Horizontal.TProgressbar", background="red", troughcolor="#333")
 
+phase_positions = {
+    'entrance':   (0,0),
+    'twilight':   (1,0),
+    'circuit':    (2,0),
+    'fortress':   (0,1),
+    'wires':      (1,1),
+    'phantom':    (2,1),
+    'mystic':     (1,2),
+}
+visited_phases = set()
+minimap_items = {}
+
+
 window.imgs = SimpleNamespace()
 
 style = ttk.Style(window)
