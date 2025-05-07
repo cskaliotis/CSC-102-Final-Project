@@ -144,6 +144,20 @@ sq, gap = 16, 4
 cols = max(c for c,_ in phase_positions.values())+1
 rows = max(r for _,r in phase_positions.values())+1
 
+map_canvas = tk.Canvas(window,
+                       width=cols*(sq+gap)+gap,
+                       height=rows*(sq+gap)+gap,
+                       bg="#1e1e2f",
+                       highlightthickness=0)
+map_canvas.place(x=10, y=50)
+
+for name,(c,r) in phase_positions.items():
+    x = gap + c*(sq+gap)
+    y = gap + r*(sq+gap)
+    rect = map_canvas.create_rectangle(x, y, x+sq, y+sq,
+                                       fill="#444", outline="#222")
+    minimap_items[name] = rect
+
 
 window.imgs = SimpleNamespace()
 
