@@ -78,7 +78,6 @@ def add_strike():
     lose_sound.play()
     global strikes_left
     strikes_left -= 1
-    # update the label if it exists
     if hasattr(window, "strikes_label"):
         window.strikes_label.config(
             text=f"Strikes: {strikes_left}/{MAX_STRIKES}"
@@ -197,6 +196,18 @@ def update_timer(window, display):
     mins, secs = divmod(window.remaining, 60)
     time_str = f"{mins:02d}:{secs:02d}"
     progress['value'] = window.remaining
+    window.title(f"Maze Runner • {mins:02d}:{secs:02d}")
+    milestones = {180, 120, 60, 30}
+    if window.remaining in milestones:
+        beep.play()
+    pct = window.remaining / COUNTDOWN
+    if pct < 0.2:
+        progress.config(style="Red.Horizontal.TProgressbar")
+    elif pct < 0.5:
+        progress.config(style="Yellow.Horizontal.TProgressbar")
+    else:
+        progress.config(style="Green.Horizontal.TProgressbar")
+
     if window.remaining > 0:
         window.remaining -= 1
         window.after(1000, update_timer, window, display)
