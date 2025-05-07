@@ -768,7 +768,7 @@ def check_hard_puzzle(answer):
                  text="🎉 You solved all puzzles! Moving to Mystic Hollow…",
                  font=("Helvetica", 16), fg="#00ff00", bg="#1e1e2f")\
           .pack(pady=20)
-        window.after(1500, show_mystic_hollow)
+        window.after(1500, show_mystic_prep)
     else:
         tk.Label(content_frame,
                  text="❌ Not quite. Try again!",
