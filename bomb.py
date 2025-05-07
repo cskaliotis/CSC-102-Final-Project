@@ -116,6 +116,11 @@ def generate_wire_riddle(target_indices):
         return f"Cut wire {labels[0]} to deactivate the barrier."
     return f"Cut wires {', '.join(labels[:-1])} and {labels[-1]} to deactivate the barrier."
 
+def mark_phase(name):
+    if name in minimap_items and name not in visited_phases:
+        visited_phases.add(name)
+        map_canvas.itemconfig(minimap_items[name], fill="#0f0")
+
 # Setup main window and image cache
 window = tk.Tk()
 window.title("Maze Runner")
@@ -277,6 +282,11 @@ def start_game():
 
     update_timer(window, component_7seg)
     show_entrance_screen()
+
+def clear_content():
+    for w in content_frame.winfo_children():
+        w.destroy()
+    content_frame.configure(bg="#1e1e2f")
 
 
 
