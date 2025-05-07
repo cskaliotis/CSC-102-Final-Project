@@ -38,6 +38,7 @@ victory_sound   = pygame.mixer.Sound("victory.wav")
 MAX_STRIKES  = 3
 strikes_left = MAX_STRIKES
 
+# Play a GIF animation then callback when complete
 def play_animation(parent, gif_path, on_complete=None, frame_delay=100):
     frames = []
     idx = 0
@@ -65,6 +66,7 @@ def play_animation(parent, gif_path, on_complete=None, frame_delay=100):
     animate()
 
 
+# Handle a wrong action: play sound, decrement strikes, check for failure
 def add_strike():
     lose_sound.play()
     global strikes_left
@@ -84,43 +86,43 @@ toggle_code_to_dir = {
     "1111": "West",
 }
 
+# Convert integer bitmask to list of active indices
 def int_to_index_list(val, width):
     return [i for i in range(width)
             if (val >> (width - 1 - i)) & 1]
 
 wires_target_list = int_to_index_list(_wires_target_int, width=len(component_wires))
 
-
+# Map numeric indices to letters A, B, C...
 def indices_to_letters(indices):
     return [chr(ord('A') + i) for i in indices]
 
+# generate_wire_riddle — Return text hint for which wires to cut
 def generate_wire_riddle(target_indices):
     labels = indices_to_letters(target_indices)
     if len(labels) == 1:
         return f"Cut wire {labels[0]} to deactivate the barrier."
     return f"Cut wires {', '.join(labels[:-1])} and {labels[-1]} to deactivate the barrier."
 
-
+# Setup main window and image cache
 window = tk.Tk()
 window.title("Maze Runner")
 window.geometry("800x600")
 window.configure(bg="#1e1e2f")
 
-# ---------- image cache ----------
 window.imgs = SimpleNamespace()
 
+# Load a PNG image or error if missing
 def _load_png(filename: str) -> tk.PhotoImage:
-    """Load a PNG (raise helpful error if missing)."""
     path = Path(filename)
     if not path.exists():
         raise FileNotFoundError(f"Image not found: {path.resolve()}")
     return tk.PhotoImage(file=path)
 
-# cache the three images so they stay in memory
+# Cache images
 window.imgs.circuit      = _load_png("circuit.png")
 window.imgs.right_answer = _load_png("rightanswer.png")
 window.imgs.wrong_answer = _load_png("wrong_answer.png")
-# ---------------------------------
 
 top_frame = tk.Frame(window, bg="#1e1e2f")
 top_frame.pack(side="top", fill="x")
@@ -606,7 +608,6 @@ def show_phantoms_lair():
                       fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # polling loop
     def poll_lair():
         bits = "".join("1" if p.value else "0" for p in component_toggles)
         direction = toggle_code_to_dir.get(bits)
@@ -759,17 +760,10 @@ def check_hard_puzzle(answer):
 
 
 def show_mystic_hollow():
-    """
-    Mystic Hollow – Bomb Challenge:
-    Flashes the physical button red/green, waits for the user to press it,
-    then defuses (green) or explodes (red).
-    """
-    # 1) Clear only the center UI
     for w in content_frame.winfo_children():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
-    # 2) Prompt text
     tk.Label(content_frame,
              text="💣 Mystic Hollow – The Bomb Challenge!",
              font=("Helvetica", 20, "bold"),
@@ -782,12 +776,10 @@ def show_mystic_hollow():
              wraplength=600, justify="center")\
       .pack(pady=10)
 
-    # 3) Start the hardware Button phase (flashing red/green)
     btn = Button(component_button_state, component_button_RGB)
     btn.start()
     btn.join()
 
-    # 4) Branch on the last color lit:
     if btn._easy_mode:
         # _easy_mode==True corresponds to GREEN flashing
         defuse_success()
@@ -795,8 +787,7 @@ def show_mystic_hollow():
         # RED flashing
         explode_fail()
 
-        
-
+    
 
 
 def defuse_success():
@@ -812,7 +803,6 @@ def explode_fail():
     play_animation(window, "explosion.gif", on_complete=show_failure_screen)
 
     
-# Replace your current show_victory_screen with:
 
 def show_victory_screen():
     pygame.mixer.music.stop()
