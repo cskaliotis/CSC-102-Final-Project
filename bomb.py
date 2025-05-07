@@ -39,6 +39,33 @@ victory_sound   = pygame.mixer.Sound("victory.wav")
 MAX_STRIKES  = 3
 strikes_left = MAX_STRIKES
 
+def play_animation(parent, gif_path, on_complete=None, frame_delay=100):
+    frames = []
+    idx = 0
+    try:
+        while True:
+            frame = tk.PhotoImage(file=gif_path, format=f"gif -index {idx}")
+            frames.append(frame)
+            idx += 1
+    except tk.TclError:
+        pass
+
+    anim_label = tk.Label(parent, bg=parent["bg"])
+    anim_label.place(relx=0.5, rely=0.5, anchor="center")
+
+    def animate(i=0):
+        anim_label.config(image=frames[i])
+        i += 1
+        if i < len(frames):
+            parent.after(frame_delay, animate, i)
+        else:
+            anim_label.destroy()
+            if on_complete:
+                on_complete()
+
+    animate()
+
+
 def add_strike():
     lose_sound.play()
     global strikes_left
