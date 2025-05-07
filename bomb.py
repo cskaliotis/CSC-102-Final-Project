@@ -3,7 +3,6 @@
 # Main Program
 
 
-!pip install pygame
 import pygame
 import tkinter as tk
 from tkinter import ttk
@@ -807,54 +806,44 @@ def show_mystic_hollow():
 
 
 def defuse_success():
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    pygame.mixer.music.stop()
+    victory_sound.play()
+    play_animation(window, "victory.gif", on_complete=show_victory_screen)
 
-    tk.Label(content_frame,
-             text="✅ Bomb defused! You’re a hero.",
-             font=("Helvetica", 18), fg="#00ff00", bg="#1e1e2f")\
-      .pack(pady=40)
-    window.after(2000, show_victory_screen)
 
 
 def explode_fail():
     pygame.mixer.music.stop()
     explosion_sound.play()
-
-    for w in content_frame.winfo_children():
-        w.destroy()
-    window.configure(bg="#1e1e2f")
-
-    tk.Label(content_frame,
-             text="💥 BOOM! You triggered the bomb.",
-             font=("Helvetica", 18, "bold"),
-             fg="red", bg="#1e1e2f")\
-      .pack(pady=40)
-
-    window.after(1500, show_failure_screen)
+    play_animation(window, "explosion.gif", on_complete=show_failure_screen)
 
     
+# Replace your current show_victory_screen with:
+
 def show_victory_screen():
     pygame.mixer.music.stop()
     victory_sound.play()
 
-    for w in content_frame.winfo_children():
-        w.destroy()
-    window.configure(bg="#1e1e2f")
+    def _victory_static():
+        for w in content_frame.winfo_children():
+            w.destroy()
+        window.configure(bg="#1e1e2f")
 
-    tk.Label(content_frame,
-             text="🎉 YOU WIN!",
-             font=("Helvetica", 28, "bold"),
-             fg="#00ffcc", bg="#1e1e2f")\
-      .pack(pady=40)
-    tk.Label(content_frame,
-             text="You defused the final challenge and escaped the maze!",
-             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center")\
-      .pack(pady=20)
+        tk.Label(content_frame,
+                 text="🎉 YOU WIN!",
+                 font=("Helvetica", 28, "bold"),
+                 fg="#00ffcc", bg="#1e1e2f")\
+          .pack(pady=40)
+        tk.Label(content_frame,
+                 text="You defused the final challenge and escaped the maze!",
+                 font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
+                 wraplength=600, justify="center")\
+          .pack(pady=20)
 
-    window.after(2000, window.destroy)
+        window.after(2000, window.destroy)
+
+    play_animation(window, "victory.gif", on_complete=_victory_static)
+
 
 
 def show_failure_screen():
