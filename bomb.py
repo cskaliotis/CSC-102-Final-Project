@@ -411,9 +411,7 @@ def entrance_challenge():
     show_entrance_puzzle_screen(prompt, target)
 
 def show_entrance_puzzle_screen(prompt, target):
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    clear_content()
 
     tk.Label(content_frame,
              text=prompt,
@@ -434,7 +432,7 @@ def show_entrance_puzzle_screen(prompt, target):
     def poll_keypad():
         status.config(text=f"Entered: {kd._value}")
         if kd._defused:
-            for w in content_frame.winfo_children(): w.destroy()
+            clear_content()
             show_twilight_passage()
             return
         if kd._failed:
@@ -735,8 +733,7 @@ def show_mystic_prep():
         .pack(pady=30)
 
 def show_flash_button_wall():
-    for w in content_frame.winfo_children():
-        w.destroy()
+    clear_content()
     content_frame.configure(bg="#1e1e2f")
 
     tk.Label(content_frame,
@@ -752,8 +749,7 @@ def show_flash_button_wall():
       .pack(pady=20)
     
 def show_easy_puzzle():
-    for w in content_frame.winfo_children():
-        w.destroy()
+    clear_content()
     content_frame.configure(bg="#1e1e2f")
 
     tk.Label(content_frame,
@@ -772,8 +768,8 @@ def show_easy_puzzle():
 
 
 def check_easy_puzzle(answer):
-    for w in content_frame.winfo_children():
-        w.destroy()
+    clear_content()
+
     content_frame.configure(bg="#1e1e2f")
 
     if answer.strip() == "10":
@@ -790,8 +786,8 @@ def check_easy_puzzle(answer):
         add_strike()
 
 def show_hard_puzzle():
-    for w in content_frame.winfo_children():
-        w.destroy()
+    clear_content()
+
     content_frame.configure(bg="#1e1e2f")
 
     riddle = ("🧠 Hard Puzzle:\n"
@@ -814,8 +810,8 @@ def show_hard_puzzle():
 
 
 def check_hard_puzzle(answer):
-    for w in content_frame.winfo_children():
-        w.destroy()
+    clear_content()
+
     content_frame.configure(bg="#1e1e2f")
 
     if answer.lower().strip() == "keyboard":
@@ -851,8 +847,8 @@ def defuse_success():
     pygame.mixer.music.stop()
     victory_sound.play()
 
-    for w in content_frame.winfo_children():
-        w.destroy()
+    clear_content()
+
     content_frame.configure(bg="#1e1e2f")
 
     tk.Label(content_frame,
@@ -897,8 +893,8 @@ def explode_fail():
     pygame.mixer.music.stop()
     explosion_sound.play()
 
-    for w in content_frame.winfo_children():
-        w.destroy()
+    clear_content()
+
     content_frame.configure(bg="#1e1e2f")
 
     tk.Label(content_frame,
@@ -945,8 +941,8 @@ def show_victory_screen():
     victory_sound.play()
 
     def _victory_static():
-        for w in content_frame.winfo_children():
-            w.destroy()
+        clear_content()
+
         window.configure(bg="#1e1e2f")
 
         tk.Label(content_frame,
@@ -968,8 +964,8 @@ def show_victory_screen():
 
 
 def show_failure_screen():
-    for w in content_frame.winfo_children():
-        w.destroy()
+    clear_content()
+
     content_frame.configure(bg="#1e1e2f")
 
     tk.Label(content_frame,
