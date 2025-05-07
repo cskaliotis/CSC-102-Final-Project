@@ -411,16 +411,13 @@ def show_twilight_passage():
 
 
 
-# Door‑selection puzzle that shows a Boolean circuit diagram and two potential algebraic answers.  
-# Click the correct picture to proceed.
+
 def show_circuit_puzzle():
    
-    # 0) Clear the centre pane
     for w in content_frame.winfo_children():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
-    # 1) Show the problem diagram
     tk.Label(content_frame,
              image=window.imgs.circuit,
              bg="#1e1e2f").pack(pady=20)
@@ -504,7 +501,6 @@ def show_forgotten_fortress():
                       fg="#00ffcc", bg="#1e1e2f")
     status.pack(pady=20)
 
-    # 5) Poll toggles until West
     def poll_fortress():
         bits = "".join("1" if p.value else "0" for p in component_toggles)
         direction = toggle_code_to_dir.get(bits)
@@ -630,12 +626,10 @@ def show_phantoms_lair():
 
 
 def show_mystic_prep():
-    # clear centre panel
     for w in content_frame.winfo_children():
         w.destroy()
     content_frame.configure(bg="#1e1e2f")
 
-    # explanatory text
     tk.Label(content_frame,
              text="💡 Mystic Hollow – Instructions",
              font=("Helvetica", 20, "bold"),
@@ -846,23 +840,28 @@ def show_victory_screen():
 
 
 
+
 def show_failure_screen():
-    for w in content_frame.winfo_children():
-        w.destroy()
-    content_frame.configure(bg="#1e1e2f")
+    def _failure_static():
+        for w in content_frame.winfo_children():
+            w.destroy()
+        content_frame.configure(bg="#1e1e2f")
 
-    tk.Label(content_frame,
-             text="💥 BOOM!",
-             font=("Helvetica", 28, "bold"),
-             fg="#ff5555", bg="#1e1e2f")\
-      .pack(pady=40)
-    tk.Label(content_frame,
-             text="The defusal failed. The maze collapses…",
-             font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
-             wraplength=600, justify="center")\
-      .pack(pady=20)
+        tk.Label(content_frame,
+                 text="💥 BOOM!",
+                 font=("Helvetica", 28, "bold"),
+                 fg="#ff5555", bg="#1e1e2f")\
+          .pack(pady=40)
+        tk.Label(content_frame,
+                 text="The defusal failed. The maze collapses…",
+                 font=("Helvetica", 18), fg="#ffffff", bg="#1e1e2f",
+                 wraplength=600, justify="center")\
+          .pack(pady=20)
 
-    window.after(2000, window.destroy)
+        window.after(2000, window.destroy)
+
+    play_animation(window, "explosion.gif", on_complete=_failure_static)
+
 
 def on_timer_failure():
     show_failure_screen(window)
