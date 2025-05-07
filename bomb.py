@@ -783,7 +783,8 @@ def start_mystic_challenge():
     content_frame.configure(bg="#1e1e2f")
 
     btn = Button(component_button_state, component_button_RGB)
-    btn.start(); btn.join()
+    btn.start()
+    btn.join()
 
     if btn._easy_mode:
         defuse_success()
@@ -796,14 +797,25 @@ def start_mystic_challenge():
 def defuse_success():
     pygame.mixer.music.stop()
     victory_sound.play()
-    play_animation(window, "victory.gif", on_complete=show_victory_screen)
+
+    for w in content_frame.winfo_children():
+        w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+
+    play_animation(content_frame, "victory.gif", on_complete=show_victory_screen)
+
 
 
 
 def explode_fail():
     pygame.mixer.music.stop()
     explosion_sound.play()
-    play_animation(window, "explosion.gif", on_complete=show_failure_screen)
+
+    for w in content_frame.winfo_children():
+        w.destroy()
+    content_frame.configure(bg="#1e1e2f")
+
+    play_animation(content_frame, "explosion.gif", on_complete=show_failure_screen)
 
     
 
